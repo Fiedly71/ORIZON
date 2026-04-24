@@ -1,0 +1,14 @@
+name: orizon_mobile_flutter
+description: ORIZON mobile interface for Haitian and Caribbean real estate
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

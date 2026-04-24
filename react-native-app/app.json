@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "ORIZON Mobile",
+    "slug": "orizon-mobile",
+    "version": "1.0.0",
+    "android": {
+      "package": "com.orizon.mobile",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.orizon.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "ORIZON utilise votre position pour afficher les biens proches.",
+        "NSPhotoLibraryUsageDescription": "ORIZON a besoin d'acceder a vos photos pour publier vos annonces.",
+        "NSCameraUsageDescription": "ORIZON utilise la camera pour ajouter des photos a vos annonces."
+      }
+    },
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "primaryColor": "#00A38D",
+    "splash": {
+      "backgroundColor": "#00A38D",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ORIZON a besoin d'acceder a vos photos pour publier vos annonces.",
+          "cameraPermission": "ORIZON utilise la camera pour ajouter des photos a vos annonces."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "ORIZON utilise votre position pour afficher les biens proches."
+        }
+      ]
+    ]
+  }
+}

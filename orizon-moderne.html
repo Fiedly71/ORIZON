@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORIZON — Maquette Mobile Moderne</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --teal: #00BFA6;
+  --teal-light: #E0F7F4;
+  --teal-dark: #009688;
+  --bg-page: #F0F4F8;
+  --white: #FFFFFF;
+  --gray-50: #F8FAFB;
+  --gray-100: #F1F5F9;
+  --gray-200: #E2E8F0;
+  --gray-300: #CBD5E1;
+  --gray-400: #94A3B8;
+  --gray-500: #64748B;
+  --gray-700: #334155;
+  --gray-900: #0F172A;
+  --dark: #1A1A2E;
+  --gold: #F59E0B;
+  --red: #EF4444;
+  --green: #10B981;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: linear-gradient(145deg, #E8EFF7 0%, #F0F4F8 50%, #E8F0F7 100%);
+  min-height: 100vh;
+  padding: 48px 32px 72px;
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  text-align: center;
+  margin-bottom: 72px;
+}
+.page-logo {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 12px;
+}
+.page-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+.page-title span { color: var(--teal); }
+.page-sub {
+  font-size: 14px;
+  color: var(--gray-400);
+  letter-spacing: 0.5px;
+}
+
+/* ── FLOW LABEL ── */
+.flow-label {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.flow-label-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  white-space: nowrap;
+}
+.flow-line { flex: 1; height: 1px; background: var(--gray-200); }
+
+/* ── SCREENS ROW ── */
+.screens-row {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 72px;
+}
+
+/* ── PHONE WRAP ── */
+.phone-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.phone-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray-400);
+}
+
+/* ── PHONE SHELL ── */
+.phone {
+  width: 260px;
+  background: #1A1A1A;
+  border-radius: 48px;
+  padding: 14px;
+  box-shadow:
+    0 0 0 1.5px #333,
+    0 30px 80px rgba(0,0,0,0.25),
+    0 8px 30px rgba(0,0,0,0.15),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+  position: relative;
+  flex-shrink: 0;
+}
+.phone::before {
+  content: '';
+  position: absolute;
+  top: 14px; left: 50%; transform: translateX(-50%);
+  width: 100px; height: 28px;
+  background: #1A1A1A;
+  border-radius: 0 0 20px 20px;
+  z-index: 20;
+}
+.phone::after {
+  content: '';
+  position: absolute;
+  top: 20px; left: 50%; transform: translateX(-50%);
+  width: 12px; height: 12px;
+  background: #2a2a2a;
+  border-radius: 50%;
+  z-index: 21;
+}
+
+.screen {
+  width: 100%;
+  border-radius: 36px;
+  overflow: hidden;
+  background: var(--white);
+  position: relative;
+  /* Fixed height for all screens */
+  height: 560px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── STATUS BAR ── */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px 8px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+}
+.status-time { font-size: 12px; font-weight: 700; }
+.status-right { display: flex; align-items: center; gap: 5px; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 10px 16px;
+  border-top: 1px solid var(--gray-100);
+  background: var(--white);
+  flex-shrink: 0;
+}
+.nav-btn {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-btn.active {
+  background: var(--gray-900);
+}
+.nav-btn svg { display: block; }
+
+/* ════════════════════════════════════
+   ÉCRAN 1 — SPLASH
+════════════════════════════════════ */
+.screen-splash {
+  background: linear-gradient(160deg, #006D64 0%, #00897B 40%, #00BFA6 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.splash-bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+.splash-logo-mark {
+  width: 72px; height: 72px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 22px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.splash-brand {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+.splash-tagline {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 1px;
+  margin-bottom: 48px;
+}
+.splash-illus {
+  width: 200px; height: 120px;
+  position: relative;
+  margin-bottom: 40px;
+}
+.s-building {
+  position: absolute;
+  bottom: 0;
+  border-radius: 6px 6px 0 0;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-bottom: none;
+}
+.s-window {
+  position: absolute;
+  background: rgba(255,255,255,0.35);
+  border-radius: 2px;
+}
+.splash-headline {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.splash-desc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+.btn-white {
+  width: 100%;
+  background: var(--white);
+  color: var(--teal-dark);
+  border: none;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+.btn-outline {
+  width: 100%;
+  background: rgba(255,255,255,0.12);
+  color: var(--white);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  padding: 13px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.splash-dots {
+  display: flex; gap: 6px; margin-top: 20px;
+}
+.sdot { width: 6px; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.3); }
+.sdot.active { width: 20px; background: var(--white); }
+
+/* ════════════════════════════════════
+   ÉCRAN 2 — ACCUEIL (Feed)
+════════════════════════════════════ */
+.screen-home {
+  background: var(--gray-50);
+  display: flex; flex-direction: column;
+}
+.home-topbar {
+  background: var(--gray-50);
+  padding: 6px 16px 12px;
+  flex-shrink: 0;
+}
+.home-toprow {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.avatar-sm {
+  width: 38px; height: 38px; border-radius: 50%;
+  overflow: hidden; flex-shrink: 0; position: relative;
+  border: 2.5px solid var(--teal);
+}
+.avatar-inner {
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: white;
+}
+.avatar-badge {
+  position: absolute; bottom: -1px; right: -1px;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--teal); border: 2px solid var(--gray-50);
+  display: flex; align-items: center; justify-content: center;
+}
+.home-user-info { flex: 1; }
+.home-rating {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 600; color: var(--gray-700);
+}
+.star-icon { color: var(--gold); font-size: 10px; }
+.home-role {
+  font-size: 10px; color: var(--gray-400);
+}
+.location-pill {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 20px; padding: 5px 10px;
+  font-size: 10px; color: var(--gray-700); font-weight: 500;
+  cursor: pointer;
+}
+.search-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--white); border: 1px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: center;
+}
+.filter-tabs {
+  display: flex; align-items: center; gap: 8px;
+}
+.filter-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 20px; padding: 6px 12px;
+  font-size: 10px; font-weight: 500; color: var(--gray-600);
+}
+.tab-pill {
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 10px; font-weight: 600;
+  border: none; cursor: pointer;
+}
+.tab-pill.active { background: var(--teal); color: white; }
+.tab-pill.inactive { background: transparent; color: var(--gray-500); }
+
+.home-scroll {
+  flex: 1; overflow: hidden;
+  padding: 0 16px; display: flex; flex-direction: column; gap: 14px;
+}
+.section-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.section-title { font-size: 15px; font-weight: 700; color: var(--gray-900); }
+.see-all { font-size: 11px; font-weight: 600; color: var(--teal); }
+
+/* Property card – horizontal scroll */
+.prop-cards-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+.prop-cards-scroll::-webkit-scrollbar { display: none; }
+
+.prop-card {
+  width: 168px; flex-shrink: 0;
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.prop-img {
+  height: 104px; position: relative;
+}
+.prop-img-inner {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.prop-badge {
+  position: absolute; top: 8px; left: 8px;
+  background: rgba(15,23,42,0.75);
+  font-size: 8px; font-weight: 700; letter-spacing: 0.5px;
+  color: white; padding: 3px 8px; border-radius: 6px;
+  text-transform: uppercase;
+}
+.prop-fav {
+  position: absolute; top: 8px; right: 8px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: white;
+  display: flex; align-items: center; justify-content: center;
+}
+.pro-badge {
+  position: absolute; top: 8px; right: 8px;
+  background: var(--gold); border-radius: 50%;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 800; color: white; letter-spacing: 0.5px;
+}
+.prop-body { padding: 10px 12px 12px; }
+.prop-name { font-size: 13px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+.prop-loc {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 9px; color: var(--gray-400); margin-bottom: 6px;
+}
+.prop-price-row { display: flex; justify-content: space-between; align-items: center; }
+.prop-price { font-size: 13px; font-weight: 700; color: var(--gray-900); }
+.prop-price span { font-size: 9px; font-weight: 400; color: var(--gray-400); }
+.prop-feats { display: flex; gap: 8px; margin-top: 6px; }
+.prop-feat { display: flex; align-items: center; gap: 3px; font-size: 9px; color: var(--gray-500); }
+
+/* Nearby mini cards */
+.nearby-row { display: flex; gap: 8px; }
+.nearby-card {
+  flex: 1; background: var(--white); border-radius: 12px;
+  overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  position: relative;
+}
+.nearby-img { height: 72px; position: relative; }
+.nearby-fav {
+  position: absolute; top: 6px; right: 6px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+}
+.play-btn {
+  position: absolute; bottom: 6px; right: 6px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+}
+.nearby-body { padding: 7px 8px 8px; }
+.nearby-name { font-size: 11px; font-weight: 600; color: var(--gray-900); }
+.nearby-price { font-size: 10px; color: var(--gray-500); }
+
+/* ════════════════════════════════════
+   ÉCRAN 3 — FICHE BIEN
+════════════════════════════════════ */
+.screen-detail {
+  background: var(--white);
+  display: flex; flex-direction: column;
+}
+.detail-hero {
+  height: 200px; position: relative; flex-shrink: 0;
+  background: linear-gradient(160deg, #1E3A5F 0%, #2563EB 100%);
+  overflow: hidden;
+}
+.detail-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+}
+.detail-hero-bg {
+  position: absolute; inset: 0;
+}
+.hero-room-decor {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.detail-back, .detail-fav, .detail-share {
+  position: absolute;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  display: flex; align-items: center; justify-content: center;
+  top: 48px;
+}
+.detail-back { left: 14px; }
+.detail-fav { right: 14px; }
+.detail-share { right: 52px; }
+.detail-stats {
+  position: absolute; bottom: 10px;
+  left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px;
+}
+.detail-stat {
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  border-radius: 20px; padding: 5px 10px;
+  display: flex; align-items: center; gap: 4px;
+  font-size: 10px; color: white; font-weight: 500;
+}
+.detail-scroll { flex: 1; overflow-y: auto; padding: 16px 16px 10px; }
+.detail-scroll::-webkit-scrollbar { display: none; }
+.detail-type-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.detail-type { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--teal); }
+.detail-verified { font-size: 9px; color: var(--green); font-weight: 600; display: flex; align-items: center; gap: 3px; }
+.detail-title { font-size: 18px; font-weight: 800; color: var(--gray-900); margin-bottom: 3px; letter-spacing: -0.3px; }
+.detail-price-main { font-size: 18px; font-weight: 800; color: var(--gray-900); }
+.detail-author {
+  display: flex; align-items: center; gap: 8px; margin: 10px 0;
+  padding: 10px 12px;
+  background: var(--gray-50); border-radius: 12px;
+}
+.author-av {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: white; flex-shrink: 0;
+}
+.author-name { font-size: 12px; font-weight: 600; color: var(--gray-700); }
+.author-stars { display: flex; gap: 2px; align-items: center; }
+.star { color: var(--gold); font-size: 9px; }
+.star.empty { color: var(--gray-300); }
+.author-rating { font-size: 9px; color: var(--gray-500); margin-left: 3px; }
+.detail-address {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--gray-50); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px;
+}
+.map-mini {
+  width: 52px; height: 40px; border-radius: 8px;
+  background: linear-gradient(135deg, #C8D8F0, #B0C5E4);
+  flex-shrink: 0; position: relative; overflow: hidden;
+}
+.map-pin-mini {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%);
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--teal); border: 2px solid white;
+}
+.addr-text { font-size: 11px; color: var(--gray-700); font-weight: 500; }
+.detail-feats { display: flex; gap: 8px; margin-bottom: 10px; }
+.d-feat {
+  flex: 1; background: var(--gray-50); border-radius: 12px;
+  padding: 10px 8px; text-align: center; border: 1px solid var(--gray-100);
+}
+.d-feat-icon { font-size: 16px; margin-bottom: 3px; }
+.d-feat-val { font-size: 12px; font-weight: 700; color: var(--gray-900); }
+.d-feat-key { font-size: 8px; color: var(--gray-400); margin-top: 1px; }
+.detail-desc { font-size: 11px; color: var(--gray-500); line-height: 1.6; margin-bottom: 10px; }
+.read-more { color: var(--teal); font-weight: 600; }
+.section-title-sm { font-size: 13px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+
+.detail-cta {
+  padding: 10px 16px 16px;
+  border-top: 1px solid var(--gray-100);
+  flex-shrink: 0;
+}
+.cta-btn {
+  width: 100%;
+  background: var(--teal);
+  color: white; border: none;
+  padding: 13px; border-radius: 14px;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* ════════════════════════════════════
+   ÉCRAN 4 — MESSAGERIE
+════════════════════════════════════ */
+.screen-msg {
+  background: var(--white);
+  display: flex; flex-direction: column;
+}
+.msg-header {
+  padding: 6px 16px 14px;
+  border-bottom: 1px solid var(--gray-100);
+  flex-shrink: 0;
+}
+.msg-header-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+}
+.back-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--gray-100);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.msg-contact { font-size: 16px; font-weight: 700; color: var(--gray-900); flex: 1; }
+.msg-header-actions { display: flex; gap: 8px; }
+.action-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1.5px solid var(--gray-200); background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+}
+.prop-banner {
+  background: var(--gray-50); border-radius: 12px;
+  padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.banner-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: white; flex-shrink: 0;
+}
+.banner-info { flex: 1; }
+.banner-title { font-size: 12px; font-weight: 700; color: var(--gray-900); }
+.banner-by { font-size: 10px; color: var(--gray-400); }
+.banner-stars { display: flex; gap: 2px; align-items: center; margin-top: 2px; }
+.banner-thumb {
+  width: 48px; height: 40px; border-radius: 8px;
+  overflow: hidden; flex-shrink: 0;
+  background: linear-gradient(135deg, #1E52B8, #0B2D6B);
+}
+
+.chat-body { flex: 1; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.bubble-row { display: flex; }
+.bubble-row.me { justify-content: flex-end; }
+.bubble-row.them { justify-content: flex-start; }
+.bubble {
+  max-width: 78%; padding: 10px 14px;
+  border-radius: 18px; font-size: 11.5px; line-height: 1.5;
+}
+.bubble.me {
+  background: var(--teal); color: white;
+  border-radius: 18px 18px 4px 18px;
+}
+.bubble.them {
+  background: var(--gray-100); color: var(--gray-800);
+  border-radius: 18px 18px 18px 4px;
+}
+.bubble-time { font-size: 9px; color: var(--gray-400); margin-top: 3px; }
+.bubble-time.me { text-align: right; }
+
+.chat-input-row {
+  padding: 8px 16px 16px;
+  display: flex; align-items: center; gap: 8px;
+  border-top: 1px solid var(--gray-100);
+  flex-shrink: 0;
+}
+.add-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1.5px solid var(--teal); background: white;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.chat-input-field {
+  flex: 1; background: var(--gray-100);
+  border-radius: 20px; padding: 9px 14px;
+  font-size: 11px; color: var(--gray-400);
+  font-family: 'Inter', sans-serif;
+}
+.send-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--gray-900); border: none;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════
+   ÉCRAN 5 — PARTAGER
+════════════════════════════════════ */
+.screen-share {
+  display: flex; flex-direction: column;
+  background: var(--white);
+}
+.share-bg {
+  flex: 1;
+  background: linear-gradient(160deg, #1E3A5F 0%, #2563EB 100%);
+  position: relative;
+  overflow: hidden;
+}
+.share-sheet {
+  background: var(--white);
+  border-radius: 24px 24px 0 0;
+  padding: 16px 20px 24px;
+  flex-shrink: 0;
+}
+.sheet-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--gray-200); margin: 0 auto 14px;
+}
+.share-title {
+  font-size: 15px; font-weight: 700; color: var(--gray-900);
+  text-align: center; margin-bottom: 20px;
+}
+.share-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px 8px; margin-bottom: 16px;
+}
+.share-item {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+}
+.share-icon {
+  width: 46px; height: 46px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+.share-name { font-size: 9px; color: var(--gray-500); font-weight: 500; }
+.copy-link {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--gray-50); border-radius: 12px; padding: 12px 14px;
+}
+.link-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--white); border: 1px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: center;
+}
+.copy-text { font-size: 13px; font-weight: 600; color: var(--gray-800); }
+
+/* ════════════════════════════════════
+   ÉCRAN 6 — SIGNALEMENT
+════════════════════════════════════ */
+.screen-report {
+  background: var(--white);
+  display: flex; flex-direction: column;
+}
+.report-header {
+  padding: 8px 16px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  flex-shrink: 0;
+}
+.report-header-row {
+  display: flex; align-items: center; justify-content: center; position: relative;
+}
+.report-title { font-size: 16px; font-weight: 700; color: var(--gray-900); }
+.report-back { position: absolute; left: 0; }
+.report-body { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.report-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px; border-radius: 12px;
+  border: 1.5px solid var(--gray-200);
+  cursor: pointer;
+}
+.report-option.selected { border-color: var(--teal); background: var(--teal-light); }
+.radio {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--gray-300);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.radio.checked {
+  border-color: var(--teal); background: var(--teal);
+}
+.radio.checked::after {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: white;
+}
+.report-opt-text { font-size: 12px; font-weight: 500; color: var(--gray-700); }
+.report-opt-text.link { color: var(--teal); }
+.report-textarea {
+  border: 1.5px solid var(--gray-200); border-radius: 12px;
+  padding: 12px; font-size: 11px; color: var(--gray-400);
+  font-family: 'Inter', sans-serif; height: 70px;
+  resize: none;
+}
+.report-cta { padding: 0 16px 20px; flex-shrink: 0; }
+.report-btn {
+  width: 100%; background: var(--teal); color: white;
+  border: none; padding: 14px; border-radius: 14px;
+  font-size: 13px; font-weight: 700;
+}
+
+/* ════════════════════════════════════
+   ÉCRAN 7 — PROFIL UTILISATEUR
+════════════════════════════════════ */
+.screen-profile {
+  background: var(--gray-50);
+  display: flex; flex-direction: column;
+}
+.profile-header {
+  background: linear-gradient(180deg, #E0F7F4 0%, var(--gray-50) 100%);
+  padding: 8px 16px 20px;
+  flex-shrink: 0;
+}
+.profile-toprow {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+}
+.profile-title { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+.more-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--white); border: 1px solid var(--gray-200);
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-info { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.profile-av-wrap { position: relative; }
+.profile-av {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 800; color: white;
+  border: 3px solid var(--white);
+}
+.profile-badge {
+  position: absolute; bottom: 0; right: 0;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--teal); border: 2px solid white;
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-right { flex: 1; }
+.profile-name { font-size: 18px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.3px; }
+.profile-tags { display: flex; gap: 6px; margin-top: 5px; }
+.tag-pill {
+  padding: 4px 10px; border-radius: 20px;
+  font-size: 10px; font-weight: 600;
+}
+.tag-posts { background: var(--gray-200); color: var(--gray-600); }
+.tag-rating { background: #FEF3C7; color: #92400E; display: flex; align-items: center; gap: 3px; }
+.profile-meta { display: flex; flex-direction: column; gap: 3px; margin-bottom: 12px; }
+.profile-meta-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--gray-500); }
+.feed-btn {
+  width: 100%; background: var(--teal); color: white;
+  border: none; padding: 11px; border-radius: 12px;
+  font-size: 12px; font-weight: 700;
+}
+.profile-tabs {
+  display: flex; gap: 0; margin-bottom: 14px;
+  background: var(--gray-100); border-radius: 10px; padding: 3px;
+}
+.profile-tab {
+  flex: 1; padding: 7px; text-align: center;
+  font-size: 11px; font-weight: 600; border-radius: 8px;
+}
+.profile-tab.active { background: white; color: var(--gray-900); }
+.profile-tab.inactive { color: var(--gray-400); }
+.profile-sort {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 10px; color: var(--gray-500); margin-bottom: 10px;
+}
+.total-items { font-size: 12px; font-weight: 700; color: var(--gray-900); margin-bottom: 10px; }
+
+.profile-scroll { flex: 1; overflow: hidden; padding: 0 16px 8px; display: flex; flex-direction: column; gap: 10px; }
+
+.profile-prop-card {
+  background: var(--white); border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  position: relative;
+}
+.profile-prop-img { height: 110px; position: relative; }
+.profile-prop-fav {
+  position: absolute; top: 8px; right: 8px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: white;
+  display: flex; align-items: center; justify-content: center;
+}
+.price-overlay {
+  position: absolute; bottom: 8px; right: 8px;
+  background: rgba(15,23,42,0.8);
+  font-size: 11px; font-weight: 700; color: white;
+  padding: 4px 9px; border-radius: 8px;
+}
+.profile-prop-body { padding: 10px 12px 12px; }
+.profile-prop-name { font-size: 13px; font-weight: 700; color: var(--gray-900); margin-bottom: 3px; }
+.profile-prop-loc { font-size: 9px; color: var(--gray-400); display: flex; align-items: center; gap: 3px; margin-bottom: 6px; }
+.profile-prop-feats { display: flex; gap: 12px; }
+.profile-prop-feat { display: flex; align-items: center; gap: 3px; font-size: 9px; color: var(--gray-500); }
+
+/* ════════════════════════════════════
+   ÉCRAN 8 — INSCRIPTION
+════════════════════════════════════ */
+.screen-auth {
+  background: var(--white);
+  display: flex; flex-direction: column;
+}
+.auth-hero {
+  background: linear-gradient(160deg, #006D64, #00BFA6);
+  padding: 50px 22px 28px;
+  flex-shrink: 0;
+}
+.auth-logo {
+  font-size: 14px; font-weight: 800; letter-spacing: 2px;
+  color: rgba(255,255,255,0.8); text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.auth-heading { font-size: 24px; font-weight: 800; color: white; margin-bottom: 4px; }
+.auth-sub { font-size: 12px; color: rgba(255,255,255,0.6); }
+.auth-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 11px; overflow: hidden; }
+.field-label-modern {
+  font-size: 9px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--gray-500); margin-bottom: 4px;
+}
+.field-modern {
+  width: 100%; padding: 12px 14px;
+  background: var(--gray-50); border: 1.5px solid var(--gray-200);
+  border-radius: 12px; font-size: 12px; color: var(--gray-800);
+  font-family: 'Inter', sans-serif;
+}
+.field-modern.active { border-color: var(--teal); background: white; }
+.role-row { display: flex; gap: 7px; }
+.role-chip {
+  flex: 1; padding: 10px 6px; text-align: center;
+  border: 1.5px solid var(--gray-200); border-radius: 12px;
+  font-size: 10px; font-weight: 600; color: var(--gray-500); cursor: pointer;
+}
+.role-chip.selected { border-color: var(--teal); background: var(--teal-light); color: var(--teal-dark); }
+.auth-cta {
+  width: 100%; background: var(--teal); color: white;
+  border: none; padding: 13px; border-radius: 14px;
+  font-size: 13px; font-weight: 700; margin-top: 2px;
+}
+.divider-or {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 10px; color: var(--gray-400);
+}
+.divider-or::before, .divider-or::after {
+  content: ''; flex: 1; height: 1px; background: var(--gray-200);
+}
+.google-btn-modern {
+  width: 100%; border: 1.5px solid var(--gray-200); border-radius: 12px;
+  padding: 11px; background: white; font-family: 'Inter', sans-serif;
+  font-size: 12px; font-weight: 600; color: var(--gray-700);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+/* ────────── UTILS ────────── */
+svg { display: block; flex-shrink: 0; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.phone-wrap { animation: fadeUp .5s ease both; }
+.phone-wrap:nth-child(1) { animation-delay:.05s; }
+.phone-wrap:nth-child(2) { animation-delay:.12s; }
+.phone-wrap:nth-child(3) { animation-delay:.19s; }
+.phone-wrap:nth-child(4) { animation-delay:.26s; }
+</style>
+</head>
+<body>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-logo">Maquette Mobile</div>
+  <div class="page-title">ORI<span>Z</span>ON</div>
+  <div class="page-sub">Plateforme immobilière Haïti &amp; Caraïbes · 8 écrans · Design moderne</div>
+</div>
+
+<!-- ══════════════ FLOW 1 ══════════════ -->
+<div class="flow-label">
+  <div class="flow-line"></div>
+  <div class="flow-label-text">① Onboarding &amp; Authentification</div>
+  <div class="flow-line"></div>
+</div>
+<div class="screens-row">
+
+  <!-- ÉCRAN 1 : SPLASH -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen screen-splash">
+        <div class="splash-bg-circle" style="width:300px;height:300px;top:-100px;right:-80px"></div>
+        <div class="splash-bg-circle" style="width:200px;height:200px;bottom:-60px;left:-60px"></div>
+        <div class="splash-logo-mark">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M16 4L4 12v16h8v-8h8v8h8V12L16 4z" fill="white" opacity=".9"/>
+            <circle cx="16" cy="10" r="3" fill="rgba(255,255,255,0.6)"/>
+          </svg>
+        </div>
+        <div class="splash-brand">ORIZON</div>
+        <div class="splash-tagline">Immobilier Caribéen</div>
+        <div class="splash-illus">
+          <div class="s-building" style="left:0;width:30px;height:75px">
+            <div class="s-window" style="top:10px;left:5px;width:8px;height:7px"></div>
+            <div class="s-window" style="top:22px;left:5px;width:8px;height:7px"></div>
+            <div class="s-window" style="top:34px;left:5px;width:8px;height:7px"></div>
+            <div class="s-window" style="top:10px;left:17px;width:8px;height:7px"></div>
+            <div class="s-window" style="top:22px;left:17px;width:8px;height:7px"></div>
+          </div>
+          <div class="s-building" style="left:34px;width:46px;height:100px">
+            <div class="s-window" style="top:10px;left:6px;width:10px;height:8px"></div>
+            <div class="s-window" style="top:24px;left:6px;width:10px;height:8px"></div>
+            <div class="s-window" style="top:38px;left:6px;width:10px;height:8px"></div>
+            <div class="s-window" style="top:10px;left:20px;width:10px;height:8px"></div>
+            <div class="s-window" style="top:24px;left:20px;width:10px;height:8px"></div>
+            <div class="s-window" style="top:38px;left:20px;width:10px;height:8px"></div>
+          </div>
+          <div class="s-building" style="left:84px;width:60px;height:120px">
+            <div class="s-window" style="top:10px;left:8px;width:12px;height:9px"></div>
+            <div class="s-window" style="top:25px;left:8px;width:12px;height:9px"></div>
+            <div class="s-window" style="top:40px;left:8px;width:12px;height:9px"></div>
+            <div class="s-window" style="top:10px;left:24px;width:12px;height:9px"></div>
+            <div class="s-window" style="top:25px;left:24px;width:12px;height:9px"></div>
+            <div class="s-window" style="top:40px;left:24px;width:12px;height:9px"></div>
+          </div>
+          <div class="s-building" style="left:148px;width:34px;height:88px">
+            <div class="s-window" style="top:10px;left:5px;width:9px;height:8px"></div>
+            <div class="s-window" style="top:24px;left:5px;width:9px;height:8px"></div>
+            <div class="s-window" style="top:10px;left:18px;width:9px;height:8px"></div>
+            <div class="s-window" style="top:24px;left:18px;width:9px;height:8px"></div>
+          </div>
+        </div>
+        <div class="splash-headline">Trouvez le bien<br>idéal en Haïti</div>
+        <div class="splash-desc">Achetez, louez ou publiez en toute confiance sur la première plateforme immobilière caribéenne.</div>
+        <button class="btn-white">Commencer</button>
+        <button class="btn-outline">J'ai déjà un compte</button>
+        <div class="splash-dots">
+          <div class="sdot active"></div>
+          <div class="sdot"></div>
+          <div class="sdot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Accueil</div>
+  </div>
+
+  <!-- ÉCRAN 2 : INSCRIPTION -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen screen-auth">
+        <div class="auth-hero">
+          <div class="auth-logo">ORIZON</div>
+          <div class="auth-heading">Créer un compte</div>
+          <div class="auth-sub">Rejoignez la plateforme immobilière #1</div>
+        </div>
+        <div class="auth-body">
+          <div>
+            <div class="field-label-modern">Nom complet</div>
+            <div class="field-modern">Jean-Claude Moreau</div>
+          </div>
+          <div>
+            <div class="field-label-modern">Email</div>
+            <div class="field-modern active">jc.moreau@email.com</div>
+          </div>
+          <div>
+            <div class="field-label-modern">Mot de passe</div>
+            <div class="field-modern">••••••••••</div>
+          </div>
+          <div>
+            <div class="field-label-modern">Vous êtes</div>
+            <div class="role-row">
+              <div class="role-chip selected">Acheteur</div>
+              <div class="role-chip">Vendeur</div>
+              <div class="role-chip">Agence</div>
+            </div>
+          </div>
+          <button class="auth-cta">Créer mon compte</button>
+          <div class="divider-or">ou</div>
+          <div class="google-btn-modern">
+            <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continuer avec Google
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Inscription</div>
+  </div>
+
+</div>
+
+<!-- ══════════════ FLOW 2 ══════════════ -->
+<div class="flow-label">
+  <div class="flow-line"></div>
+  <div class="flow-label-text">② Navigation &amp; Recherche</div>
+  <div class="flow-line"></div>
+</div>
+<div class="screens-row">
+
+  <!-- ÉCRAN 3 : ACCUEIL (Feed) -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen screen-home">
+        <div class="status-bar" style="color:var(--gray-700)">
+          <span style="font-size:12px;font-weight:700">9:41</span>
+          <div class="status-right">
+            <svg width="14" height="10" viewBox="0 0 24 16" fill="var(--gray-700)"><rect x="0" y="6" width="4" height="10" rx="1"/><rect x="6" y="4" width="4" height="12" rx="1"/><rect x="12" y="2" width="4" height="14" rx="1"/><rect x="18" y="0" width="4" height="16" rx="1"/></svg>
+            <svg width="13" height="10" viewBox="0 0 24 16" fill="var(--gray-700)"><path d="M12 3C7.95 3 4.21 4.34 1.2 6.6L3 9C5.5 7.12 8.62 6 12 6s6.5 1.12 9 3l1.8-2.4C19.79 4.34 16.05 3 12 3z"/><path d="M12 9c-2.38 0-4.57.8-6.32 2.12L7.5 13.5c1.25-.93 2.79-1.5 4.5-1.5s3.25.57 4.5 1.5l1.82-2.38A9.96 9.96 0 0 0 12 9z"/><circle cx="12" cy="16" r="2"/></svg>
+            <svg width="22" height="10" viewBox="0 0 36 16" fill="var(--gray-700)"><rect x="0" y="1" width="28" height="14" rx="3" stroke="var(--gray-700)" stroke-width="1.5" fill="none"/><rect x="30" y="5" width="3" height="6" rx="1.5"/><rect x="2" y="3" width="18" height="10" rx="2"/></svg>
+          </div>
+        </div>
+        <div class="home-topbar">
+          <div class="home-toprow">
+            <div class="avatar-sm">
+              <div class="avatar-inner">JC</div>
+              <div class="avatar-badge">
+                <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2 5 4 7 8 3"/></svg>
+              </div>
+            </div>
+            <div class="home-user-info">
+              <div class="home-rating">
+                <span class="star-icon">★</span> 4.5
+                <span style="font-weight:400;color:var(--gray-400);font-size:9px;margin-left:2px">Acheteur</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:0;background:white;border:1px solid var(--gray-200);border-radius:20px;padding:5px 10px 5px 12px;gap:4px">
+              <span style="font-size:10px;color:var(--gray-700);font-weight:500">Lieu</span>
+              <span style="font-size:10px;color:var(--gray-600)">HTI, PAP</span>
+              <span style="font-size:9px;color:var(--gray-400)">▾</span>
+            </div>
+            <div class="search-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+          </div>
+          <div class="filter-tabs">
+            <div class="filter-btn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+              <span style="font-size:10px;color:var(--gray-600)">Filtres</span>
+            </div>
+            <button class="tab-pill active">Immobilier</button>
+            <button class="tab-pill inactive">Voitures</button>
+            <button class="tab-pill inactive">Marché</button>
+          </div>
+        </div>
+        <div class="home-scroll">
+          <div>
+            <div class="section-header">
+              <div class="section-title">Biens en vedette</div>
+              <div class="see-all">Voir tout</div>
+            </div>
+            <div class="prop-cards-scroll">
+              <div class="prop-card">
+                <div class="prop-img" style="background:linear-gradient(135deg,#1a3a6b,#2563EB)">
+                  <div class="prop-badge">Nouveau prix</div>
+                  <div class="prop-fav"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--gray-500)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+                </div>
+                <div class="prop-body">
+                  <div class="prop-name">Sherman Oaks</div>
+                  <div class="prop-loc"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>Pétionville, Haïti</div>
+                  <div class="prop-price-row">
+                    <div class="prop-price">$2300<span>/mois</span></div>
+                  </div>
+                  <div class="prop-feats">
+                    <div class="prop-feat"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 20h18v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2z"/><path d="M3 9v2h18V9"/></svg> 3</div>
+                    <div class="prop-feat"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h13v12H9z"/><path d="M4 8v10h5"/><circle cx="4" cy="8" r="2"/></svg> 3</div>
+                    <div class="prop-feat">260 m²</div>
+                  </div>
+                </div>
+              </div>
+              <div class="prop-card">
+                <div class="prop-img" style="background:linear-gradient(135deg,#006D64,#00BFA6)">
+                  <div class="pro-badge">Pro</div>
+                </div>
+                <div class="prop-body">
+                  <div class="prop-name">Villa Palmeraie</div>
+                  <div class="prop-loc"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>Laboule, HAÏ</div>
+                  <div class="prop-price-row">
+                    <div class="prop-price">$449 000</div>
+                  </div>
+                  <div class="prop-feats">
+                    <div class="prop-feat">🛏 4</div>
+                    <div class="prop-feat">🚿 3</div>
+                    <div class="prop-feat">320 m²</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="section-header">
+              <div class="section-title">Près de vous</div>
+              <div class="see-all">Voir tout</div>
+            </div>
+            <div class="nearby-row">
+              <div class="nearby-card">
+                <div class="nearby-img" style="background:linear-gradient(135deg,#1a3a6b,#3B82F6)">
+                  <div class="prop-badge" style="font-size:7px;padding:2px 6px">Nouveau prix</div>
+                  <div class="nearby-fav"><svg width="9" height="9" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+                </div>
+                <div class="nearby-body">
+                  <div class="nearby-name">Apt. Moderne</div>
+                  <div class="nearby-price">$185 000</div>
+                </div>
+              </div>
+              <div class="nearby-card">
+                <div class="nearby-img" style="background:linear-gradient(135deg,#1a1a2e,#4a4a6a)">
+                  <div class="pro-badge" style="top:6px;right:6px;width:22px;height:22px;font-size:7px">Pro</div>
+                  <div class="play-btn"><svg width="7" height="8" viewBox="0 0 10 12" fill="white"><polygon points="0,0 10,6 0,12"/></svg></div>
+                </div>
+                <div class="nearby-body">
+                  <div class="nearby-name">Local Comm.</div>
+                  <div class="nearby-price">$3 200/mois</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-btn active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          </div>
+          <div class="nav-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+          </div>
+          <div class="nav-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <div class="nav-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="nav-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Accueil</div>
+  </div>
+
+  <!-- ÉCRAN 4 : FICHE BIEN -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen screen-detail">
+        <div class="detail-hero">
+          <div class="detail-hero-overlay"></div>
+          <!-- Simplified interior illustration -->
+          <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:.25" viewBox="0 0 260 200" fill="none" preserveAspectRatio="xMidYMid slice">
+            <rect width="260" height="200" fill="#1E3A8A"/>
+            <rect x="20" y="60" width="80" height="100" rx="4" fill="rgba(255,255,255,0.15)"/>
+            <rect x="40" y="70" width="60" height="40" rx="2" fill="rgba(255,255,255,0.2)"/>
+            <rect x="110" y="80" width="130" height="90" rx="4" fill="rgba(255,255,255,0.1)"/>
+            <rect x="120" y="90" width="100" height="55" rx="2" fill="rgba(255,255,255,0.15)"/>
+            <rect x="30" y="170" width="200" height="8" rx="4" fill="rgba(255,255,255,0.1)"/>
+            <ellipse cx="80" cy="175" rx="40" ry="6" fill="rgba(255,255,255,0.05)"/>
+          </svg>
+          <div class="detail-back"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></div>
+          <div class="detail-share" style="right:52px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div>
+          <div class="detail-fav"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="detail-stats">
+            <div class="detail-stat">❤️ 1.5k</div>
+            <div class="detail-stat">👁 10k</div>
+            <div class="detail-stat">↗ 450</div>
+          </div>
+        </div>
+        <div class="detail-scroll">
+          <div class="detail-type-row">
+            <div class="detail-type">Appartement · Vente</div>
+            <div class="detail-verified">✓ Vérifié</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+            <div class="detail-title">Apt. 3 Chambres<br>Unique</div>
+            <div class="detail-price-main">$449.000</div>
+          </div>
+          <div class="detail-author">
+            <div class="author-av">JS</div>
+            <div style="flex:1">
+              <div class="author-name">Publié par Jean Smith</div>
+              <div class="author-stars">
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star empty">★</span>
+                <span class="author-rating">4.5 (32 avis)</span>
+              </div>
+            </div>
+          </div>
+          <div class="detail-address">
+            <div class="map-mini"><div class="map-pin-mini"></div></div>
+            <div>
+              <div class="addr-text" style="font-weight:700;color:var(--gray-900);font-size:12px">64 Rue Rosewood #2</div>
+              <div class="addr-text" style="color:var(--gray-400);font-size:10px">Pétionville, Haïti</div>
+            </div>
+          </div>
+          <div class="detail-feats">
+            <div class="d-feat">
+              <div class="d-feat-icon">🛏</div>
+              <div class="d-feat-val">3</div>
+              <div class="d-feat-key">Chambres</div>
+            </div>
+            <div class="d-feat">
+              <div class="d-feat-icon">🚿</div>
+              <div class="d-feat-val">3</div>
+              <div class="d-feat-key">SDB</div>
+            </div>
+            <div class="d-feat">
+              <div class="d-feat-icon">📐</div>
+              <div class="d-feat-val">260</div>
+              <div class="d-feat-key">m²</div>
+            </div>
+          </div>
+          <div class="detail-desc">Niché au cœur de Pétionville, cet appartement de luxe exceptionnel offre un cadre de vie raffiné... <span class="read-more">lire plus</span></div>
+          <div class="section-title-sm">Équipements populaires</div>
+        </div>
+        <div class="detail-cta">
+          <button class="cta-btn">Contacter le vendeur</button>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Fiche bien</div>
+  </div>
+
+  <!-- ÉCRAN 5 : PROFIL UTILISATEUR -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen screen-profile">
+        <div class="status-bar" style="color:var(--gray-700)">
+          <span style="font-size:12px;font-weight:700">9:41</span>
+          <div class="status-right">
+            <svg width="22" height="10" viewBox="0 0 36 16" fill="var(--gray-700)"><rect x="0" y="1" width="28" height="14" rx="3" stroke="var(--gray-400)" stroke-width="1.5" fill="none"/><rect x="30" y="5" width="3" height="6" rx="1.5"/><rect x="2" y="3" width="18" height="10" rx="2"/></svg>
+          </div>
+        </div>
+        <div class="profile-header">
+          <div class="profile-toprow">
+            <div class="back-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></div>
+            <div class="profile-title">Profil Utilisateur</div>
+            <div class="more-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-av-wrap">
+              <div class="profile-av">DR</div>
+              <div class="profile-badge"><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2"><polyline points="2 5 4 7 8 3"/></svg></div>
+            </div>
+            <div class="profile-right">
+              <div class="profile-name">Diana Richards</div>
+              <div class="profile-tags">
+                <div class="tag-pill tag-posts">42 Publications</div>
+                <div class="tag-pill tag-rating">★ 4.0</div>
+              </div>
+            </div>
+          </div>
+          <div class="profile-meta">
+            <div class="profile-meta-item"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>Port-au-Prince, Haïti</div>
+            <div class="profile-meta-item"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Membre depuis 07/2023</div>
+          </div>
+          <button class="feed-btn">Voir le fil</button>
+        </div>
+        <div style="padding:10px 16px 6px;flex-shrink:0">
+          <div class="profile-tabs">
+            <div class="profile-tab active">Publications</div>
+            <div class="profile-tab inactive">Avis</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="total-items">Total : 120 biens</div>
+            <div class="profile-sort">Plus récent ↕</div>
+          </div>
+        </div>
+        <div class="profile-scroll">
+          <div class="profile-prop-card">
+            <div class="profile-prop-img" style="background:linear-gradient(135deg,#1E3A8A,#3B82F6)">
+              <div class="prop-badge">Nouveau prix</div>
+              <div style="position:absolute;top:6px;right:6px;background:rgba(15,23,42,0.75);color:white;font-size:8px;font-weight:700;border-radius:6px;padding:3px 6px">À vendre</div>
+              <div class="profile-prop-fav"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--gray-500)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+              <div class="price-overlay">$449 000</div>
+            </div>
+            <div class="profile-prop-body">
+              <div class="profile-prop-name">Sherman Oaks</div>
+              <div class="profile-prop-loc"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg>Pétionville, Haïti</div>
+              <div class="profile-prop-feats">
+                <div class="profile-prop-feat">🛏 3</div>
+                <div class="profile-prop-feat">👥 3</div>
+                <div class="profile-prop-feat">260 m²</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bottom-nav">
+          <div class="nav-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+          <div class="nav-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg></div>
+          <div class="nav-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="nav-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="nav-btn active"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Profil</div>
+  </div>
+
+</div>
+
+<!-- ══════════════ FLOW 3 ══════════════ -->
+<div class="flow-label">
+  <div class="flow-line"></div>
+  <div class="flow-label-text">③ Messagerie &amp; Signalement</div>
+  <div class="flow-line"></div>
+</div>
+<div class="screens-row">
+
+  <!-- ÉCRAN 6 : MESSAGERIE -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen screen-msg">
+        <div class="status-bar" style="color:var(--gray-700)">
+          <span style="font-size:12px;font-weight:700">9:41</span>
+          <div class="status-right">
+            <svg width="22" height="10" viewBox="0 0 36 16" fill="var(--gray-700)"><rect x="0" y="1" width="28" height="14" rx="3" stroke="var(--gray-400)" stroke-width="1.5" fill="none"/><rect x="30" y="5" width="3" height="6" rx="1.5"/><rect x="2" y="3" width="18" height="10" rx="2"/></svg>
+          </div>
+        </div>
+        <div class="msg-header">
+          <div class="msg-header-row">
+            <div class="back-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></div>
+            <div class="msg-contact">Jean Smith</div>
+            <div class="msg-header-actions">
+              <div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17.92z"/></svg></div>
+              <div class="action-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+            </div>
+          </div>
+          <div class="prop-banner">
+            <div class="banner-av">JS</div>
+            <div class="banner-info">
+              <div class="banner-title">Apt. 3 Chambres Unique</div>
+              <div class="banner-by">Publié par Jean Smith</div>
+              <div class="banner-stars">
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star empty">★</span>
+                <span class="author-rating">4.0 (32 avis)</span>
+              </div>
+            </div>
+            <div class="banner-thumb"></div>
+          </div>
+        </div>
+        <div class="chat-body">
+          <div class="bubble-row me">
+            <div>
+              <div class="bubble me">Bonjour Jean 👋</div>
+              <div class="bubble-time me">12:15 pm</div>
+            </div>
+          </div>
+          <div class="bubble-row me">
+            <div>
+              <div class="bubble me">Cet appartement est-il toujours disponible ? Je souhaiterais le louer si possible ?</div>
+              <div class="bubble-time me">12:15 pm</div>
+            </div>
+          </div>
+          <div class="bubble-row them">
+            <div>
+              <div class="bubble them">Bonjour ! L'appartement est toujours disponible ! Oui, demain à 17h00 sur la place principale ? 😊</div>
+              <div class="bubble-time">12:15 pm</div>
+            </div>
+          </div>
+          <div class="bubble-row me">
+            <div>
+              <div class="bubble me">À demain à 17h00 ! Merci beaucoup !</div>
+              <div class="bubble-time me">12:15 pm</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <div class="add-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <div class="chat-input-field">Écrire une réponse…</div>
+          <div class="send-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Messagerie</div>
+  </div>
+
+  <!-- ÉCRAN 7 : PARTAGER -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen screen-share">
+        <div class="share-bg">
+          <div class="detail-back" style="top:48px;left:14px;background:rgba(255,255,255,0.9)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></div>
+          <div class="detail-fav" style="top:48px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="detail-stats" style="bottom:10px">
+            <div class="detail-stat">❤️ 1.5k</div>
+            <div class="detail-stat">👁 10k</div>
+            <div class="detail-stat">↗ 450</div>
+          </div>
+          <!-- Property info floating at bottom of hero -->
+          <div style="position:absolute;bottom:50px;left:14px;right:14px">
+            <div style="font-size:16px;font-weight:800;color:white;text-shadow:0 1px 4px rgba(0,0,0,0.5)">Apt. 3 Chambres Unique</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px">$449.000</div>
+          </div>
+        </div>
+        <div class="share-sheet">
+          <div class="sheet-handle"></div>
+          <div class="share-title">Partager avec vos amis</div>
+          <div class="share-grid">
+            <div class="share-item">
+              <div class="share-icon" style="background:#1877F2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+              </div>
+              <div class="share-name">Facebook</div>
+            </div>
+            <div class="share-item">
+              <div class="share-icon" style="background:#00B2FF">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="share-name">Messenger</div>
+            </div>
+            <div class="share-item">
+              <div class="share-icon" style="background:#FFFC00;border:1px solid rgba(0,0,0,0.1)">
+                <span style="font-size:20px">👻</span>
+              </div>
+              <div class="share-name">Snapchat</div>
+            </div>
+            <div class="share-item">
+              <div class="share-icon" style="background:#25D366">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+              </div>
+              <div class="share-name">WhatsApp</div>
+            </div>
+            <div class="share-item">
+              <div class="share-icon" style="background:#000000">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              </div>
+              <div class="share-name">X / Twitter</div>
+            </div>
+            <div class="share-item">
+              <div class="share-icon" style="background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" stroke="white" stroke-width="1.5" fill="none"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div class="share-name">Instagram</div>
+            </div>
+            <div class="share-item">
+              <div class="share-icon" style="background:#34C759">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="share-name">Message</div>
+            </div>
+            <div class="share-item">
+              <div class="share-icon" style="background:#EA4335">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div class="share-name">Email</div>
+            </div>
+          </div>
+          <div class="copy-link">
+            <div class="link-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray-500)" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+            <div class="copy-text">Copier le lien</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Partager</div>
+  </div>
+
+  <!-- ÉCRAN 8 : SIGNALEMENT -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="screen screen-report">
+        <div class="status-bar" style="color:var(--gray-700)">
+          <span style="font-size:12px;font-weight:700">9:41</span>
+          <div class="status-right">
+            <svg width="22" height="10" viewBox="0 0 36 16" fill="var(--gray-700)"><rect x="0" y="1" width="28" height="14" rx="3" stroke="var(--gray-400)" stroke-width="1.5" fill="none"/><rect x="30" y="5" width="3" height="6" rx="1.5"/><rect x="2" y="3" width="18" height="10" rx="2"/></svg>
+          </div>
+        </div>
+        <div class="report-header">
+          <div class="report-header-row">
+            <div class="report-back back-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></div>
+            <div class="report-title">Signaler une annonce</div>
+          </div>
+        </div>
+        <div class="report-body">
+          <div class="report-option selected">
+            <div class="radio checked"></div>
+            <div class="report-opt-text">Cette annonce est illégale / frauduleuse</div>
+          </div>
+          <div class="report-option">
+            <div class="radio"></div>
+            <div class="report-opt-text">Cette annonce est du spam</div>
+          </div>
+          <div class="report-option">
+            <div class="radio"></div>
+            <div class="report-opt-text">Cette annonce est un doublon</div>
+          </div>
+          <div class="report-option">
+            <div class="radio"></div>
+            <div class="report-opt-text">Cette annonce est dans la mauvaise catégorie</div>
+          </div>
+          <div class="report-option">
+            <div class="radio"></div>
+            <div style="font-size:12px;font-weight:500;color:var(--gray-700)">L'annonce enfreint les <span style="color:var(--teal);font-weight:600">règles de publication</span></div>
+          </div>
+          <div class="report-textarea">Veuillez fournir plus d'informations…</div>
+        </div>
+        <div class="report-cta">
+          <button class="report-btn">Envoyer le signalement</button>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">Signalement</div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div style="text-align:center;margin-top:24px;padding-bottom:24px">
+  <div style="font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--gray-400)">ORIZON · Maquette Mobile v2.0</div>
+  <div style="font-size:11px;color:var(--gray-300);margin-top:6px">8 écrans · 3 flux · Design moderne · Haïti &amp; Région Caribéenne</div>
+</div>
+
+</body>
+</html>

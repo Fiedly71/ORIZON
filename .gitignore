@@ -1,0 +1,52 @@
+# Node
+node_modules/
+.yarn/cache/
+.yarn/install-state.gz
+.yarn/build-state.yml
+.pnp.*
+
+# Env (NE JAMAIS commit les vraies cles)
+.env
+.env.local
+.env.*.local
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+ios/
+android/
+
+# Build
+build/
+*.apk
+*.aab
+*.ipa
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Flutter (legacy)
+flutter_app/.dart_tool/
+flutter_app/build/
+flutter_app/.flutter-plugins
+flutter_app/.flutter-plugins-dependencies

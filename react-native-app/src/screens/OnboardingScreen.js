@@ -1,0 +1,108 @@
+// Ecran d'onboarding ORIZON - 3 slides illustrees.
+// Pas de dependance externe (FlatList horizontal + paging). Les images sont
+// chargees depuis Unsplash en attendant le brand pack final (Patch 28).
+import React, { useRef, useState } from 'react';
+import { View, Text, FlatList, Pressable, StyleSheet, Dimensions, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { C } from '../theme/colors';
+
+const { width } = Dimensions.get('window');
+export const ONBOARDING_KEY = 'orizon.onboarded.v1';
+
+const SLIDES = [
+  {
+    id: '1',
+    title: 'Trouve ton chez-toi',
+    sub: "Parcoure des centaines d'annonces verifiees a travers Haiti, du Cap a Jacmel.",
+    img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: '2',
+    title: 'Visite et negocie en confiance',
+    sub: 'Reserve une visite en deux clics. Suivi rappel, check-in et avis verifies.',
+    img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80',
+  },
+  {
+    id: '3',
+    title: 'Vends sans intermediaire',
+    sub: 'Publie ton bien en 3 etapes, recois des demandes serieuses de toute Haiti.',
+    img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+  },
+];
+
+export default function OnboardingScreen({ navigation }) {
+  const [index, setIndex] = useState(0);
+  const ref = useRef(null);
+
+  const finish = async () => {
+    try { await AsyncStorage.setItem(ONBOARDING_KEY, '1'); } catch {}
+    navigation.replace('Auth');
+  };
+
+  const next = () => {
+    if (index < SLIDES.length - 1) {
+      ref.current?.scrollToIndex({ index: index + 1, animated: true });
+    } else {
+      finish();
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <View style={styles.skipRow}>
+        <Pressable onPress={finish} hitSlop={8}>
+          <Text style={styles.skip}>Passer</Text>
+        </Pressable>
+      </View>
+
+      <FlatList
+        ref={ref}
+        data={SLIDES}
+        keyExtractor={(s) => s.id}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
+        renderItem={({ item }) => (
+          <View style={[styles.slide, { width }]}>
+            <Image source={{ uri: item.img }} style={styles.img} resizeMode="cover" />
+            <View style={styles.body}>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.sub}>{item.sub}</Text>
+            </View>
+          </View>
+        )}
+      />
+
+      <View style={styles.dots}>
+        {SLIDES.map((_, i) => (
+          <View key={i} style={[styles.dot, i === index && styles.dotOn]} />
+        ))}
+      </View>
+
+      <Pressable style={styles.cta} onPress={next}>
+        <Text style={styles.ctaTxt}>{index === SLIDES.length - 1 ? 'Commencer' : 'Suivant'}</Text>
+      </Pressable>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: '#fff' },
+  skipRow: { paddingHorizontal: 20, paddingTop: 6, alignItems: 'flex-end' },
+  skip: { color: C.muted, fontSize: 13, fontWeight: '600' },
+  slide: { alignItems: 'center', justifyContent: 'flex-start', paddingTop: 12 },
+  img: { width: width - 40, height: width - 60, borderRadius: 24, backgroundColor: C.surface },
+  body: { paddingHorizontal: 28, marginTop: 28, alignItems: 'center', gap: 10 },
+  title: { fontSize: 22, fontWeight: '800', color: C.text, textAlign: 'center' },
+  sub: { fontSize: 13, color: C.muted, textAlign: 'center', lineHeight: 20 },
+  dots: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginVertical: 18 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: C.border },
+  dotOn: { backgroundColor: C.primary, width: 22 },
+  cta: {
+    marginHorizontal: 20, marginBottom: 20, backgroundColor: C.accent,
+    paddingVertical: 14, borderRadius: 14, alignItems: 'center',
+  },
+  ctaTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
+});
