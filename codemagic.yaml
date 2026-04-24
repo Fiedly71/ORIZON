@@ -17,7 +17,9 @@ workflows:
         script: |
           cd react-native-app
           corepack enable
-          yarn install --immutable || yarn install
+          corepack prepare yarn@4.14.1 --activate
+          yarn config set nodeLinker node-modules
+          yarn install --no-immutable
       - name: Write .env from Codemagic env vars
         script: |
           cd react-native-app
