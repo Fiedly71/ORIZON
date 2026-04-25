@@ -101,46 +101,39 @@ workflows:
       - name: Enable R8, resource shrinking & ProGuard
         script: |
           cd react-native-app/android
-          # Forcer minify + shrinkResources sur le buildType release
-          node -e "
-          const fs = require('fs');
-          const p = 'app/build.gradle';
-          let s = fs.readFileSync(p, 'utf8');
-          s = s.replace(/minifyEnabled\s+(true|false)/g, 'minifyEnabled true');
-          s = s.replace(/shrinkResources\s+(true|false)/g, 'shrinkResources true');
-          if (!s.includes('shrinkResources')) {
-            s = s.replace(/(release\s*\{)/, '\$1\n            shrinkResources true');
-          }
-          fs.writeFileSync(p, s);
-          console.log('Patched app/build.gradle');
-          "
-          # Configurer la signature release + split par ABI (APK separes par CPU)
-          cat >> app/build.gradle <<'EOF'
+          sed -i.bak -E 's/minifyEnabled (true|false)/minifyEnabled true/g' app/build.gradle
+          sed -i.bak -E 's/shrinkResources (true|false)/shrinkResources true/g' app/build.gradle
+          if ! grep -q "shrinkResources true" app/build.gradle; then
+            sed -i.bak -E '/release \{/a\
+            shrinkResources true' app/build.gradle
+          fi
+          rm -f app/build.gradle.bak
+          cat >> app/build.gradle <<'GRADLE_EOF'
 
-android {
-    signingConfigs {
-        release {
-            storeFile file(System.getenv("HOME") + "/.android/orizon-release.keystore")
-            storePassword "orizon123"
-            keyAlias "orizon"
-            keyPassword "orizon123"
-        }
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.release
-        }
-    }
-    splits {
-        abi {
-            enable true
-            reset()
-            include "armeabi-v7a", "arm64-v8a", "x86_64"
-            universalApk true
-        }
-    }
-}
-EOF
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file(System.getenv("HOME") + "/.android/orizon-release.keystore")
+                      storePassword "orizon123"
+                      keyAlias "orizon"
+                      keyPassword "orizon123"
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+              splits {
+                  abi {
+                      enable true
+                      reset()
+                      include "armeabi-v7a", "arm64-v8a", "x86_64"
+                      universalApk true
+                  }
+              }
+          }
+          GRADLE_EOF
       - name: Build Android Release APK
         script: |
           cd react-native-app/android
