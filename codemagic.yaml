@@ -114,7 +114,7 @@ workflows:
           fs.writeFileSync(p, s);
           console.log('Patched app/build.gradle');
           "
-          # Configurer la signature release avec notre keystore
+          # Configurer la signature release + split par ABI (APK separes par CPU)
           cat >> app/build.gradle <<'EOF'
 
 android {
@@ -129,6 +129,14 @@ android {
     buildTypes {
         release {
             signingConfig signingConfigs.release
+        }
+    }
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "arm64-v8a", "x86_64"
+            universalApk true
         }
     }
 }
