@@ -33,9 +33,9 @@
     },
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "primaryColor": "#00A38D",
+    "primaryColor": "#1D4ED8",
     "splash": {
-      "backgroundColor": "#00A38D",
+      "backgroundColor": "#1D4ED8",
       "resizeMode": "contain"
     },
     "assetBundlePatterns": [

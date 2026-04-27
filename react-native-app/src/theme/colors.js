@@ -1,17 +1,18 @@
-// ORIZON design tokens (palette teal, neutres slate, accents gold/red)
+// ORIZON design tokens (palette blanc + bleu roi + or)
 export const C = {
-  bg: '#F2F5F8',
+  bg: '#FFFFFF',
   card: '#FFFFFF',
-  primary: '#00A38D',
-  accent: '#00BFA6',
-  primarySoft: '#E0F7F4',
+  primary: '#1D4ED8',     // bleu roi
+  primaryDark: '#1E3A8A', // bleu nuit (header / pressed)
+  accent: '#F5B301',      // or (CTA secondaire, badges premium)
+  primarySoft: '#E0E7FF', // bleu pale (chips, fond actifs)
   text: '#0F172A',
   muted: '#64748B',
   success: '#10B981',
   danger: '#EF4444',
-  gold: '#F59E0B',
+  gold: '#F5B301',
   border: '#E2E8F0',
-  surface: '#F8FAFB',
+  surface: '#F8FAFC',
 };
 
 export const radii = {

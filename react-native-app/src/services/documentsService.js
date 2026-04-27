@@ -15,9 +15,9 @@ function pageWrapper(title, body) {
 <html><head><meta charset="utf-8"/>
 <style>
   body { font-family: -apple-system, Helvetica, Arial, sans-serif; padding: 36px; color: #0F172A; }
-  h1 { color: #00A38D; font-size: 22px; margin-bottom: 4px; letter-spacing: 1px; }
+  h1 { color: #1D4ED8; font-size: 22px; margin-bottom: 4px; letter-spacing: 1px; }
   h2 { color: #0F172A; font-size: 14px; margin: 18px 0 6px; }
-  .brand { font-size: 11px; letter-spacing: 4px; color: #00A38D; font-weight: 700; }
+  .brand { font-size: 11px; letter-spacing: 4px; color: #1D4ED8; font-weight: 700; }
   .meta { color: #64748B; font-size: 12px; margin-bottom: 18px; }
   .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #E2E8F0; }
   .row b { color: #0F172A; font-size: 12px; }

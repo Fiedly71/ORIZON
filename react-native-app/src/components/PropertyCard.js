@@ -3,9 +3,9 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 const C = {
-  primary: '#00A38D',
-  accent: '#00BFA6',
-  primarySoft: '#E0F7F4',
+  primary: '#1D4ED8',
+  accent: '#F5B301',
+  primarySoft: '#E0E7FF',
   success: '#10B981',
   danger: '#EF4444',
   rent: '#0EA5E9',

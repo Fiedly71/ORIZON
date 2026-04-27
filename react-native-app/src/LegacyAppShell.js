@@ -40,9 +40,9 @@ import { trackView, trackContact, trackShare, trackFavorite } from './services/s
 const C = {
   bg: '#F2F5F8',
   card: '#FFFFFF',
-  primary: '#00A38D',
-  accent: '#00BFA6',
-  primarySoft: '#E0F7F4',
+  primary: '#1D4ED8',
+  accent: '#F5B301',
+  primarySoft: '#E0E7FF',
   text: '#0F172A',
   muted: '#64748B',
   success: '#10B981',
@@ -3332,7 +3332,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   ctaBannerSub: {
-    color: '#E0F7F4',
+    color: '#E0E7FF',
     fontSize: 11,
     marginTop: 2,
   },
