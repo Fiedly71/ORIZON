@@ -5,6 +5,7 @@
     "version": "1.0.0",
     "android": {
       "package": "com.orizon.mobile",
+      "versionCode": 1,
       "edgeToEdgeEnabled": false,
       "statusBar": {
         "barStyle": "dark-content",
@@ -26,6 +27,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.orizon.mobile",
+      "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "ORIZON utilise votre position pour afficher les biens proches.",
         "NSPhotoLibraryUsageDescription": "ORIZON a besoin d'acceder a vos photos pour publier vos annonces.",
