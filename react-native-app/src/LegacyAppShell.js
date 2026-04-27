@@ -30,7 +30,9 @@ import {
 } from './data/mockData';
 import { translations } from './i18n/translations';
 import { useAuthStore } from './store/useAuthStore';
+import { useFavorites } from './store/useFavorites';
 import { signOut as signOutUser, canPublish } from './services/authService';
+import { requestVisit } from './services/visitsService';
 
 const C = {
   bg: '#F2F5F8',
@@ -151,6 +153,11 @@ export default function App() {
     }));
   }, [authUser]);
 
+  // Charge les favoris persistants une fois le user connecte.
+  useEffect(() => {
+    if (authUser?.id) loadFavorites();
+  }, [authUser?.id, loadFavorites]);
+
   const [activeTab, setActiveTab] = useState('home');
   const [overlay, setOverlay] = useState({ name: null, payload: null });
 
@@ -167,7 +174,10 @@ export default function App() {
   });
 
   const [properties, setProperties] = useState(propertiesSeed);
-  const [favorites, setFavorites] = useState([]);
+  const favorites = useFavorites((s) => s.ids);
+  const loadFavorites = useFavorites((s) => s.load);
+  const toggleFavoriteStore = useFavorites((s) => s.toggle);
+  const removeFavoriteStore = useFavorites((s) => s.remove);
   const [compareIds, setCompareIds] = useState([]);
 
   const [threads, setThreads] = useState(threadsSeed);
@@ -361,7 +371,7 @@ export default function App() {
   const closeOverlay = () => setOverlay({ name: null, payload: null });
 
   const toggleFavorite = (id) => {
-    setFavorites((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    toggleFavoriteStore(id);
   };
 
   const toggleCompare = (property) => {
@@ -503,7 +513,7 @@ export default function App() {
         style: 'destructive',
         onPress: () => {
           setProperties((prev) => prev.filter((p) => p.id !== id));
-          setFavorites((prev) => prev.filter((x) => x !== id));
+          removeFavoriteStore(id);
           setCompareIds((prev) => prev.filter((x) => x !== id));
           Alert.alert('ORIZON', text.listingDeleted);
         },
@@ -547,6 +557,17 @@ export default function App() {
     };
 
     setAppointments((prev) => [appt, ...prev]);
+
+    // Persiste cote backend (visits table) — non bloquant.
+    try {
+      const scheduledAt = new Date(`${visitDraft.date}T${visitDraft.time}:00`);
+      requestVisit({
+        propertyId: visitDraft.propertyId,
+        scheduledAt: scheduledAt.toISOString(),
+        notes: visitDraft.notes || '',
+      }).catch(() => {});
+    } catch (_) { /* date invalide -> on ignore, l'UI a deja confirme */ }
+
     closeOverlay();
     Alert.alert('ORIZON', text.visitAdded);
   };

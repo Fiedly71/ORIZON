@@ -31,7 +31,7 @@ export async function leaveReview({ propertyId, agentId, rating, title, content 
     rating: Number(rating),
     title: title || '',
     content,
-    status: 'pending',
+    status: 'approved', // sandbox: auto-approuve (cf. db/reviews.sql)
   };
   if (!isSupabaseConfigured) {
     const item = { id: 'rev-' + Date.now(), ...row, created_at: new Date().toISOString() };

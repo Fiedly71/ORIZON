@@ -15,6 +15,7 @@ import CheckoutScreen from '../screens/CheckoutScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import MortgageScreen from '../screens/MortgageScreen';
+import FavoritesScreen from '../screens/FavoritesScreen';
 import HelpScreen from '../screens/HelpScreen';
 import AboutScreen from '../screens/AboutScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
@@ -46,7 +47,7 @@ export default function RootNavigator() {
             <Stack.Screen name="MyVisits" component={MyVisitsScreen} />
             <Stack.Screen name="Payments" component={PaymentsScreen} />
             <Stack.Screen name="Mortgage" component={MortgageScreen} />
-            <Stack.Screen name="Favorites" component={PlaceholderScreen} initialParams={{ title: 'Favoris', note: 'Tes biens preferes apparaitront ici.' }} />
+            <Stack.Screen name="Favorites" component={FavoritesScreen} />
             <Stack.Screen name="Alerts" component={PlaceholderScreen} initialParams={{ title: 'Alertes', note: 'Cree des criteres pour recevoir une notif quand un bien correspond.' }} />
             <Stack.Screen name="Kyc" component={PlaceholderScreen} initialParams={{ title: 'Verification (KYC)', note: 'Soumets ton selfie + piece pour obtenir le badge verifie.' }} />
             <Stack.Screen name="Settings" component={PlaceholderScreen} initialParams={{ title: 'Parametres', note: 'Langue, notifications, donnees.' }} />

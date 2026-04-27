@@ -31,3 +31,42 @@ drop policy if exists "reviews_self_delete" on public.reviews;
 create policy "reviews_self_delete"
   on public.reviews for delete
   using (author_id = auth.uid());
+
+-- Auto-approbation par defaut (sandbox). En prod, mettre a 'pending' et moderer.
+alter table public.reviews alter column status set default 'approved';
+
+-- Trigger qui recalcule properties.rating et properties.reviews
+-- a chaque insertion/suppression/changement de statut d'un avis approuve.
+create or replace function public.recalc_property_rating()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_pid uuid;
+begin
+  v_pid := coalesce(new.property_id, old.property_id);
+  if v_pid is null then return null; end if;
+
+  update public.properties p
+     set rating = coalesce((
+           select round(avg(r.rating)::numeric, 1)
+             from public.reviews r
+            where r.property_id = v_pid and r.status = 'approved'
+         ), 0),
+         reviews = coalesce((
+           select count(*)::int
+             from public.reviews r
+            where r.property_id = v_pid and r.status = 'approved'
+         ), 0)
+   where p.id = v_pid;
+
+  return null;
+end;
+$$;
+
+drop trigger if exists reviews_recalc_trg on public.reviews;
+create trigger reviews_recalc_trg
+  after insert or update or delete on public.reviews
+  for each row execute procedure public.recalc_property_rating();
+

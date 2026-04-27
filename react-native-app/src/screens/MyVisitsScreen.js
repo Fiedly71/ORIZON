@@ -6,8 +6,12 @@ import { C } from '../theme/colors';
 import { Header } from './MyListingsScreen';
 import EmptyState from '../components/EmptyState';
 import { listMyVisits, cancelVisit, confirmVisit, declineVisit } from '../services/visitsService';
+import { useAuthStore } from '../store/useAuthStore';
+import { canPublish } from '../services/authService';
 
 export default function MyVisitsScreen({ navigation }) {
+  const role = useAuthStore((s) => s.user?.role);
+  const showOwnerTab = canPublish(role);
   const [tab, setTab] = useState('visitor'); // 'visitor' | 'owner'
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -26,13 +30,15 @@ export default function MyVisitsScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Header title="Mes visites" onBack={() => navigation.goBack()} />
-      <View style={styles.tabs}>
-        {['visitor', 'owner'].map((t) => (
-          <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t && styles.tabOn]}>
-            <Text style={[styles.tabTxt, tab === t && styles.tabTxtOn]}>{t === 'visitor' ? 'Demandes envoyees' : 'A confirmer'}</Text>
-          </Pressable>
-        ))}
-      </View>
+      {showOwnerTab && (
+        <View style={styles.tabs}>
+          {['visitor', 'owner'].map((t) => (
+            <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t && styles.tabOn]}>
+              <Text style={[styles.tabTxt, tab === t && styles.tabTxtOn]}>{t === 'visitor' ? 'Demandes envoyees' : 'A confirmer'}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
       <FlatList
         data={items}
         keyExtractor={(v) => v.id}
