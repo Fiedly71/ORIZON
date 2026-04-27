@@ -5,6 +5,17 @@
     "version": "1.0.0",
     "android": {
       "package": "com.orizon.mobile",
+      "edgeToEdgeEnabled": false,
+      "statusBar": {
+        "barStyle": "dark-content",
+        "backgroundColor": "#FFFFFF",
+        "translucent": false
+      },
+      "navigationBar": {
+        "visible": true,
+        "barStyle": "dark-content",
+        "backgroundColor": "#FFFFFF"
+      },
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",

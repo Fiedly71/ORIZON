@@ -1,10 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Image,
   ImageBackground,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import PropertyCard from './components/PropertyCard';
 import {
@@ -29,6 +29,8 @@ import {
   threadsSeed,
 } from './data/mockData';
 import { translations } from './i18n/translations';
+import { useAuthStore } from './store/useAuthStore';
+import { signOut as signOutUser } from './services/authService';
 
 const C = {
   bg: '#F2F5F8',
@@ -114,6 +116,7 @@ const serviceIconById = {
 };
 
 export default function App() {
+  const insets = useSafeAreaInsets();
   const [language, setLanguage] = useState('fr');
   // Auth + onboarding sont gerees par RootNavigator/AuthNavigator desormais.
   // Quand ce shell est monte, l'utilisateur est deja authentifie -> on saute direct a 'app'.
@@ -123,13 +126,30 @@ export default function App() {
   const [isRegister, setIsRegister] = useState(false);
   const [authForm, setAuthForm] = useState(emptyAuth);
 
+  // Source de verite: useAuthStore (alimente par authService apres login/register).
+  const authUser = useAuthStore((s) => s.user);
   const [user, setUser] = useState({
-    fullName: 'Client ORIZON',
-    email: 'client@orizon.ht',
-    phone: '+509 0000-0000',
-    role: 'Acheteur / Locataire',
+    fullName: authUser?.fullName || authUser?.email || 'Utilisateur',
+    email: authUser?.email || '',
+    phone: authUser?.phone || '',
+    role: authUser?.role || 'Acheteur / Locataire',
     bio: '',
+    memberSince: authUser?.created_at
+      ? new Date(authUser.created_at).toLocaleDateString('fr-FR', { month: '2-digit', year: 'numeric' })
+      : new Date().toLocaleDateString('fr-FR', { month: '2-digit', year: 'numeric' }),
   });
+
+  // Resync local user quand le store change (login/register termine).
+  useEffect(() => {
+    if (!authUser) return;
+    setUser((prev) => ({
+      ...prev,
+      fullName: authUser.fullName || authUser.email || prev.fullName,
+      email: authUser.email || prev.email,
+      phone: authUser.phone || prev.phone,
+      role: authUser.role || prev.role,
+    }));
+  }, [authUser]);
 
   const [activeTab, setActiveTab] = useState('home');
   const [overlay, setOverlay] = useState({ name: null, payload: null });
@@ -182,6 +202,50 @@ export default function App() {
   const recentProperties = useMemo(
     () => [...properties].sort((a, b) => (a.postedAt < b.postedAt ? 1 : -1)).slice(0, 8),
     [properties]
+  );
+
+  // ====== Sections marketplace ======
+  const bestPriceProperties = useMemo(
+    () => [...properties].filter((p) => p.price > 0).sort((a, b) => a.price - b.price).slice(0, 6),
+    [properties]
+  );
+
+  const forRentProperties = useMemo(
+    () => properties.filter((p) => /louer|rent/i.test(p.status || '')).slice(0, 6),
+    [properties]
+  );
+
+  const forSaleProperties = useMemo(
+    () => properties.filter((p) => /vendre|sale/i.test(p.status || '')).slice(0, 6),
+    [properties]
+  );
+
+  const newListings = useMemo(
+    () => [...properties].sort((a, b) => (a.postedAt < b.postedAt ? 1 : -1)).slice(0, 6),
+    [properties]
+  );
+
+  // Top "vendeurs" = users avec le plus d'annonces actives.
+  const topSellers = useMemo(() => {
+    const map = new Map();
+    properties.forEach((p) => {
+      const key = p.ownerId || p.ownerName || 'inconnu';
+      const entry = map.get(key) || { id: key, name: p.ownerName || 'Vendeur', count: 0, image: p.ownerAvatar };
+      entry.count += 1;
+      map.set(key, entry);
+    });
+    return Array.from(map.values()).sort((a, b) => b.count - a.count).slice(0, 8);
+  }, [properties]);
+
+  const categories = useMemo(
+    () => [
+      { key: 'Maison', label: 'Maison', icon: 'home-outline' },
+      { key: 'Appartement', label: 'Appartement', icon: 'business-outline' },
+      { key: 'Hotel', label: 'Hôtel', icon: 'bed-outline' },
+      { key: 'Terrain', label: 'Terrain', icon: 'leaf-outline' },
+      { key: 'Commercial', label: 'Commercial', icon: 'storefront-outline' },
+    ],
+    []
   );
 
   const filteredProperties = useMemo(() => {
@@ -534,17 +598,23 @@ export default function App() {
 
   const renderTopBar = () => (
     <View style={styles.topbar}>
-      <View style={styles.profileChip}>
-        <Image source={{ uri: agentsSeed[0]?.image }} style={styles.profileChipAvatar} />
-        <View>
-          <Text style={styles.profileChipScore}>4.5</Text>
-          <Text style={styles.profileChipRole}>{text.roleBuyer}</Text>
+      <Pressable style={styles.profileChip} onPress={() => setActiveTab('profile')}>
+        <View style={styles.profileChipAvatarFallback}>
+          <Text style={styles.profileChipAvatarTxt}>
+            {(user.fullName || 'U').trim().charAt(0).toUpperCase()}
+          </Text>
         </View>
-      </View>
+        <View>
+          <Text style={styles.profileChipName} numberOfLines={1}>
+            {(user.fullName || 'Utilisateur').split(' ')[0]}
+          </Text>
+          <Text style={styles.profileChipRole} numberOfLines={1}>{user.role}</Text>
+        </View>
+      </Pressable>
 
       <View style={styles.topCenterLoc}>
-        <Text style={styles.topCenterLbl}>Location</Text>
-        <Text style={styles.topCenterValue}>NY, USA...</Text>
+        <Text style={styles.topCenterLbl}>Haïti</Text>
+        <Text style={styles.topCenterValue}>Port-au-Prince</Text>
       </View>
 
       <View style={styles.topbarActions}>
@@ -614,19 +684,140 @@ export default function App() {
     ));
   };
 
+  const renderHorizontalCard = (item) => (
+    <Pressable key={item.id} style={styles.hCard} onPress={() => openOverlay('details', item)}>
+      <View style={styles.hCardImgWrap}>
+        {item.image ? (
+          <Image source={{ uri: item.image }} style={styles.hCardImg} />
+        ) : (
+          <View style={[styles.hCardImg, styles.hCardImgPlaceholder]}>
+            <Ionicons name="image-outline" size={28} color={C.muted} />
+          </View>
+        )}
+        <Pressable style={styles.hCardHeart} onPress={() => toggleFavorite(item.id)}>
+          <Ionicons name={favorites.includes(item.id) ? 'heart' : 'heart-outline'} size={14} color={C.primary} />
+        </Pressable>
+      </View>
+      <View style={styles.hCardBody}>
+        <Text style={styles.hCardPrice}>${Number(item.price || 0).toLocaleString()}</Text>
+        <Text style={styles.hCardTitle} numberOfLines={1}>{item.title}</Text>
+        <Text style={styles.hCardLoc} numberOfLines={1}>
+          <Ionicons name="location-outline" size={11} color={C.muted} /> {item.location}
+        </Text>
+      </View>
+    </Pressable>
+  );
+
+  const renderSection = (title, list, opts = {}) => {
+    if (!list || list.length === 0) return null;
+    return (
+      <View style={{ marginTop: 8 }}>
+        <View style={styles.sectionRow}>
+          <Text style={styles.sectionTitle}>{title}</Text>
+          <Pressable onPress={() => setActiveTab('discover')}>
+            <Text style={styles.linkBtn}>{text.seeAll}</Text>
+          </Pressable>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 4, gap: 10 }}
+        >
+          {list.map((item) =>
+            opts.compact ? renderHorizontalCard(item) : renderHorizontalCard(item)
+          )}
+        </ScrollView>
+      </View>
+    );
+  };
+
+  const renderEmptyMarketplace = () => (
+    <View style={styles.emptyMarket}>
+      <Ionicons name="home-outline" size={42} color={C.muted} />
+      <Text style={styles.emptyMarketTitle}>Le marketplace démarre</Text>
+      <Text style={styles.emptyMarketTxt}>
+        Aucune annonce pour le moment. Sois le premier à publier ta maison, ton terrain ou ton appartement.
+      </Text>
+      <Pressable style={styles.primaryBtn} onPress={() => setActiveTab('sell')}>
+        <Text style={styles.primaryBtnTxt}>Publier ma première annonce</Text>
+      </Pressable>
+    </View>
+  );
+
   const renderHome = () => (
     <ScrollView contentContainerStyle={styles.page} showsVerticalScrollIndicator={false}>
       {renderTopBar()}
 
-      <View style={styles.sectionRow}>
-        <Text style={styles.sectionTitle}>Proprietes recommandees</Text>
-        <Pressable onPress={() => setActiveTab('discover')}>
-          <Text style={styles.linkBtn}>{text.seeAll}</Text>
-        </Pressable>
-      </View>
-      {[...featuredProperties, ...recentProperties.filter((p) => !featuredProperties.find((f) => f.id === p.id))]
-        .slice(0, 5)
-        .map((item) => renderCompactPropertyCard(item))}
+      {/* Search rapide */}
+      <Pressable style={styles.heroSearch} onPress={() => setActiveTab('discover')}>
+        <Ionicons name="search-outline" size={18} color={C.muted} />
+        <Text style={styles.heroSearchTxt}>Rechercher une maison, un quartier...</Text>
+      </Pressable>
+
+      {/* Categories */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.catRow}
+      >
+        {categories.map((c) => (
+          <Pressable
+            key={c.key}
+            style={styles.catChip}
+            onPress={() => {
+              setFilters((p) => ({ ...p, type: c.key }));
+              setActiveTab('discover');
+            }}
+          >
+            <View style={styles.catIconWrap}>
+              <Ionicons name={c.icon} size={20} color={C.primary} />
+            </View>
+            <Text style={styles.catLabel}>{c.label}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+
+      {properties.length === 0 ? (
+        renderEmptyMarketplace()
+      ) : (
+        <>
+          {/* Banner CTA */}
+          <Pressable style={styles.ctaBanner} onPress={() => setActiveTab('sell')}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.ctaBannerTitle}>Tu as un bien à vendre ou louer ?</Text>
+              <Text style={styles.ctaBannerSub}>Publie en 2 minutes et touche des milliers d'acheteurs.</Text>
+            </View>
+            <View style={styles.ctaBannerBtn}>
+              <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+            </View>
+          </Pressable>
+
+          {renderSection('🔥 Maisons en vedette', featuredProperties)}
+          {renderSection('🆕 Nouvelles annonces', newListings)}
+          {renderSection('💰 Meilleurs prix', bestPriceProperties)}
+          {renderSection('🏷️ À vendre', forSaleProperties)}
+          {renderSection('🔑 À louer', forRentProperties)}
+
+          {topSellers.length > 0 && (
+            <View style={{ marginTop: 12 }}>
+              <View style={styles.sectionRow}>
+                <Text style={styles.sectionTitle}>⭐ Meilleurs vendeurs</Text>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingHorizontal: 4 }}>
+                {topSellers.map((s) => (
+                  <View key={s.id} style={styles.sellerCard}>
+                    <View style={styles.sellerAvatar}>
+                      <Text style={styles.sellerAvatarTxt}>{(s.name || 'U').charAt(0).toUpperCase()}</Text>
+                    </View>
+                    <Text style={styles.sellerName} numberOfLines={1}>{s.name}</Text>
+                    <Text style={styles.sellerCount}>{s.count} annonce{s.count > 1 ? 's' : ''}</Text>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+        </>
+      )}
     </ScrollView>
   );
 
@@ -981,15 +1172,25 @@ export default function App() {
       </View>
 
       <View style={styles.profileHeroCard}>
-        <Image source={{ uri: agentsSeed[0]?.image }} style={styles.profileAvatarBig} />
+        <View style={styles.profileAvatarBig}>
+          <Text style={styles.profileAvatarTxt}>
+            {(user.fullName || 'U').trim().charAt(0).toUpperCase()}
+          </Text>
+        </View>
         <View style={styles.profileInfoCol}>
-          <Text style={styles.profileNameBig}>{user.fullName}</Text>
+          <Text style={styles.profileNameBig}>{user.fullName || 'Utilisateur'}</Text>
           <View style={styles.profileBadgesRow}>
-            <View style={styles.profileSmallPill}><Text style={styles.profileSmallPillTxt}>42 Posts</Text></View>
-            <View style={styles.profileSmallPill}><Ionicons name="star" size={12} color="#F59E0B" /><Text style={styles.profileSmallPillTxt}>4.0 Rating</Text></View>
+            <View style={styles.profileSmallPill}>
+              <Text style={styles.profileSmallPillTxt}>{properties.filter((p) => p.ownerId === authUser?.id).length} {text.myListings}</Text>
+            </View>
+            <View style={styles.profileSmallPill}>
+              <Ionicons name="star" size={12} color="#F59E0B" />
+              <Text style={styles.profileSmallPillTxt}>—</Text>
+            </View>
           </View>
-          <Text style={styles.profileLine}>California, USA</Text>
-          <Text style={styles.profileLine}>User since 07/2023</Text>
+          {!!user.email && <Text style={styles.profileLine}>{user.email}</Text>}
+          {!!user.phone && <Text style={styles.profileLine}>{user.phone}</Text>}
+          <Text style={styles.profileLine}>{user.role}</Text>
         </View>
       </View>
 
@@ -1713,8 +1914,8 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {activeTab === 'home' && renderHome()}
       {activeTab === 'discover' && renderDiscover()}
@@ -1722,7 +1923,7 @@ export default function App() {
       {activeTab === 'messages' && renderMessages()}
       {activeTab === 'profile' && renderProfile()}
 
-      <View style={styles.bottomNav}>
+      <View style={[styles.bottomNav, { bottom: Math.max(insets.bottom, 8) }]}>
         <Pressable style={[styles.tabBtn, activeTab === 'home' && styles.tabBtnOn]} onPress={() => setActiveTab('home')}>
           <Ionicons name="home-outline" size={19} color={activeTab === 'home' ? '#FFFFFF' : C.text} />
         </Pressable>
@@ -2481,6 +2682,25 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: C.accent,
   },
+  profileChipAvatarFallback: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: C.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileChipAvatarTxt: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 14,
+  },
+  profileChipName: {
+    color: C.text,
+    fontWeight: '700',
+    fontSize: 12,
+    maxWidth: 80,
+  },
   profileChipScore: {
     color: C.text,
     fontWeight: '700',
@@ -2489,6 +2709,7 @@ const styles = StyleSheet.create({
   profileChipRole: {
     color: C.muted,
     fontSize: 10,
+    maxWidth: 80,
   },
   topCenterLoc: {
     flexDirection: 'row',
@@ -2742,6 +2963,14 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     borderWidth: 3,
     borderColor: '#FFFFFF',
+    backgroundColor: C.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileAvatarTxt: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: '800',
   },
   profileInfoCol: {
     flex: 1,
@@ -2975,5 +3204,179 @@ const styles = StyleSheet.create({
   },
   tabTxtOn: {
     color: '#fff',
+  },
+
+  // ====== Marketplace home ======
+  heroSearch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: C.border,
+    marginTop: 4,
+  },
+  heroSearchTxt: {
+    color: C.muted,
+    fontSize: 13,
+  },
+  catRow: {
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    gap: 12,
+  },
+  catChip: {
+    alignItems: 'center',
+    width: 70,
+    gap: 4,
+  },
+  catIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: C.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  catLabel: {
+    color: C.text,
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  ctaBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: C.primary,
+    borderRadius: 16,
+    padding: 14,
+    marginTop: 4,
+    gap: 12,
+  },
+  ctaBannerTitle: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 14,
+  },
+  ctaBannerSub: {
+    color: '#E0F7F4',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  ctaBannerBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hCard: {
+    width: 170,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: C.border,
+    overflow: 'hidden',
+  },
+  hCardImgWrap: {
+    width: '100%',
+    height: 110,
+    position: 'relative',
+  },
+  hCardImg: {
+    width: '100%',
+    height: '100%',
+  },
+  hCardImgPlaceholder: {
+    backgroundColor: C.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hCardHeart: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hCardBody: {
+    padding: 8,
+    gap: 2,
+  },
+  hCardPrice: {
+    color: C.primary,
+    fontWeight: '800',
+    fontSize: 14,
+  },
+  hCardTitle: {
+    color: C.text,
+    fontWeight: '600',
+    fontSize: 12,
+  },
+  hCardLoc: {
+    color: C.muted,
+    fontSize: 10,
+  },
+  emptyMarket: {
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    gap: 10,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  emptyMarketTitle: {
+    color: C.text,
+    fontWeight: '800',
+    fontSize: 16,
+  },
+  emptyMarketTxt: {
+    color: C.muted,
+    fontSize: 12,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  sellerCard: {
+    width: 90,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: C.border,
+    gap: 4,
+  },
+  sellerAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: C.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sellerAvatarTxt: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 16,
+  },
+  sellerName: {
+    color: C.text,
+    fontWeight: '700',
+    fontSize: 11,
+    textAlign: 'center',
+  },
+  sellerCount: {
+    color: C.muted,
+    fontSize: 10,
   },
 });
