@@ -21,13 +21,60 @@ function setSessionFromSupabase(data) {
     setUser({
       id: u.id,
       email: u.email,
+      emailConfirmedAt: u.email_confirmed_at || null,
       fullName: u.user_metadata?.fullName || u.email,
       phone: u.user_metadata?.phone || '',
       role: u.user_metadata?.role || ROLES[0],
+      avatarUrl: u.user_metadata?.avatarUrl || null,
+      // Champs profil enrichis (rechargés via hydrateProfile())
+      agencyName: null,
+      address: null,
+      bio: null,
+      verified: false,
+      canPublish: false,
     });
+    // Hydrate la table profiles en arriere-plan (pas bloquant).
+    hydrateProfile().catch(() => {});
   } else {
     setUser(null);
   }
+}
+
+// Charge la ligne public.profiles correspondant au user connecte
+// et fusionne dans le store. Cree la ligne si elle n'existe pas.
+export async function hydrateProfile() {
+  if (!isSupabaseConfigured) return { ok: true, mock: true };
+  const { user, setUser } = useAuthStore.getState();
+  if (!user?.id) return { ok: false, error: 'no user' };
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message };
+  if (!data) {
+    // Cree la ligne (au cas ou le trigger handle_new_user n'a pas tourne).
+    await supabase.from('profiles').insert({
+      id: user.id,
+      full_name: user.fullName,
+      phone: user.phone,
+      role: user.role,
+    });
+    return { ok: true, created: true };
+  }
+  setUser({
+    ...user,
+    fullName: data.full_name || user.fullName,
+    phone: data.phone || user.phone,
+    role: data.role || user.role,
+    avatarUrl: data.avatar_url || user.avatarUrl,
+    agencyName: data.agency_name || null,
+    address: data.address || null,
+    bio: data.bio || null,
+    verified: !!data.verified,
+    canPublish: !!data.can_publish,
+  });
+  return { ok: true, data };
 }
 
 function mockUser({ email, fullName, phone, role }) {
@@ -100,3 +147,98 @@ export async function restoreSession() {
 
 export const AUTH_ROLES = ROLES;
 export const PUBLISHER_AUTH_ROLES = PUBLISHER_ROLES;
+
+// --- Reset / change password ---
+
+// Etape 1: envoie un email avec un lien magique de reinitialisation.
+// Le lien doit pointer vers un deep link de l'app: orizon://reset-password
+// (a configurer dans Supabase > Auth > URL Configuration > Redirect URLs).
+export async function requestPasswordReset(email) {
+  if (!isSupabaseConfigured) {
+    await new Promise((r) => setTimeout(r, 800));
+    return { ok: true, mock: true };
+  }
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'orizon://reset-password',
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+// Etape 2: change effectivement le mot de passe (utilisateur deja en session
+// apres avoir clique sur le lien magique).
+export async function updatePassword(newPassword) {
+  if (!isSupabaseConfigured) {
+    await new Promise((r) => setTimeout(r, 600));
+    return { ok: true, mock: true };
+  }
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+// Renvoie l'email de verification pour l'utilisateur courant.
+export async function resendEmailVerification() {
+  if (!isSupabaseConfigured) {
+    await new Promise((r) => setTimeout(r, 600));
+    return { ok: true, mock: true };
+  }
+  const user = useAuthStore.getState().user;
+  if (!user?.email) return { ok: false, error: 'Aucun email en session' };
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: user.email,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+// --- Mise a jour du profil ---
+
+// patch peut contenir: { fullName, phone, agencyName, address, bio, avatarUrl }
+export async function updateProfile(patch) {
+  const { user, setUser } = useAuthStore.getState();
+  if (!user?.id) return { ok: false, error: 'Non connecte' };
+
+  if (!isSupabaseConfigured) {
+    setUser({ ...user, ...patch });
+    return { ok: true, mock: true };
+  }
+
+  // 1) Met a jour la table profiles.
+  const row = {
+    full_name: patch.fullName ?? user.fullName,
+    phone: patch.phone ?? user.phone,
+    agency_name: patch.agencyName ?? user.agencyName ?? null,
+    address: patch.address ?? user.address ?? null,
+    bio: patch.bio ?? user.bio ?? null,
+    avatar_url: patch.avatarUrl ?? user.avatarUrl ?? null,
+    updated_at: new Date().toISOString(),
+  };
+  const { error: pErr } = await supabase
+    .from('profiles')
+    .update(row)
+    .eq('id', user.id);
+  if (pErr) return { ok: false, error: pErr.message };
+
+  // 2) Met a jour les metadonnees auth (utile pour rester coherent).
+  await supabase.auth.updateUser({
+    data: {
+      fullName: row.full_name,
+      phone: row.phone,
+      avatarUrl: row.avatar_url,
+    },
+  });
+
+  // 3) Reflete dans le store local.
+  setUser({
+    ...user,
+    fullName: row.full_name,
+    phone: row.phone,
+    agencyName: row.agency_name,
+    address: row.address,
+    bio: row.bio,
+    avatarUrl: row.avatar_url,
+  });
+  return { ok: true };
+}

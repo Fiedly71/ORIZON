@@ -62,6 +62,15 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.ctaTxt}>{loading ? 'Connexion...' : 'Se connecter'}</Text>
           </Pressable>
 
+          <Pressable
+            onPress={() => navigation.navigate('ForgotPassword')}
+            style={{ alignSelf: 'center', marginTop: 4, padding: 8 }}
+          >
+            <Text style={{ color: C.primary, fontWeight: '600', fontSize: 12 }}>
+              Mot de passe oublie ?
+            </Text>
+          </Pressable>
+
           <Pressable onPress={() => navigation.navigate('Register')} style={styles.linkRow}>
             <Text style={styles.linkTxt}>Pas de compte ? <Text style={{ color: C.primary, fontWeight: '700' }}>Cree un compte</Text></Text>
           </Pressable>

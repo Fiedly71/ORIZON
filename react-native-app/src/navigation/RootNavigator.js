@@ -12,6 +12,8 @@ import MyListingsScreen from '../screens/MyListingsScreen';
 import MyVisitsScreen from '../screens/MyVisitsScreen';
 import PaymentsScreen from '../screens/PaymentsScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import MortgageScreen from '../screens/MortgageScreen';
 import HelpScreen from '../screens/HelpScreen';
 import AboutScreen from '../screens/AboutScreen';
@@ -38,6 +40,8 @@ export default function RootNavigator() {
             <Stack.Screen name="SellWizard" component={SellWizardScreen} />
             <Stack.Screen name="Checkout" component={CheckoutScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
             <Stack.Screen name="MyListings" component={MyListingsScreen} />
             <Stack.Screen name="MyVisits" component={MyVisitsScreen} />
             <Stack.Screen name="Payments" component={PaymentsScreen} />
