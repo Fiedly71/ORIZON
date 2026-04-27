@@ -80,14 +80,18 @@ function toRow(p) {
 }
 
 // --- API publique ---
-export async function listProperties() {
+// Pagination par defaut: page=0, pageSize=20.
+export async function listProperties({ page = 0, pageSize = 20 } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: propertiesSeed, mock: true };
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
-    .order('posted_at', { ascending: false });
+    .order('posted_at', { ascending: false })
+    .range(from, to);
   if (error) return { ok: false, error: error.message, data: [] };
-  return { ok: true, data: (data || []).map(fromRow) };
+  return { ok: true, data: (data || []).map(fromRow), hasMore: (data || []).length === pageSize };
 }
 
 export async function getProperty(id) {

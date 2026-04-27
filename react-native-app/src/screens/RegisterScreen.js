@@ -333,9 +333,9 @@ export default function RegisterScreen({ navigation }) {
             </View>
             <Text style={styles.tcTxt}>
               J'accepte les{' '}
-              <Text style={styles.tcLink} onPress={() => Linking.openURL('https://orizon.ht/terms')}>conditions d'utilisation</Text>
+              <Text style={styles.tcLink} onPress={() => navigation.navigate('Terms')}>conditions d'utilisation</Text>
               {' '}et la{' '}
-              <Text style={styles.tcLink} onPress={() => Linking.openURL('https://orizon.ht/privacy')}>politique de confidentialité</Text>
+              <Text style={styles.tcLink} onPress={() => navigation.navigate('Privacy')}>politique de confidentialité</Text>
               {' '}d'ORIZON.
             </Text>
           </Pressable>

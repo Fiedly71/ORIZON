@@ -127,7 +127,7 @@ export default function SellWizardScreen({ navigation }) {
   const submit = async () => {
     setBusy(true);
     try {
-      const up = await uploadImages(data.images, { folder: 'properties' });
+      const up = await uploadImages(data.images, { folder: 'properties', generateThumb: true });
       if (!up.ok) { Alert.alert('Upload', up.error || ''); return; }
       const payload = {
         title: data.title,
@@ -141,7 +141,8 @@ export default function SellWizardScreen({ navigation }) {
         description: data.description,
         amenities: data.amenities,
         images: up.urls,
-        image: up.urls[0] || '',
+        thumbs: up.thumbs,
+        image: up.thumbs?.[0] || up.urls[0] || '',
         ownerName: user?.fullName || '',
         ownerType: user?.role || '',
         ownerId: user?.id || null,

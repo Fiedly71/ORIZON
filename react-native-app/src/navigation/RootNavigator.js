@@ -20,6 +20,8 @@ import SellerStatsScreen from '../screens/SellerStatsScreen';
 import HelpScreen from '../screens/HelpScreen';
 import AboutScreen from '../screens/AboutScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
+import LegalScreen from '../screens/LegalScreen';
+import BlockedUsersScreen from '../screens/BlockedUsersScreen';
 import { useAuthStore } from '../store/useAuthStore';
 import { restoreSession } from '../services/authService';
 import { usePushSetup } from '../hooks/usePushSetup';
@@ -58,6 +60,9 @@ export default function RootNavigator() {
             <Stack.Screen name="Settings" component={PlaceholderScreen} initialParams={{ title: 'Parametres', note: 'Langue, notifications, donnees.' }} />
             <Stack.Screen name="Help" component={HelpScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
+            <Stack.Screen name="Terms" component={LegalScreen} initialParams={{ kind: 'terms' }} />
+            <Stack.Screen name="Privacy" component={LegalScreen} initialParams={{ kind: 'privacy' }} />
+            <Stack.Screen name="BlockedUsers" component={BlockedUsersScreen} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />

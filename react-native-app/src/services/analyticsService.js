@@ -1,14 +1,30 @@
 // Wrapper analytics ORIZON. Utilise PostHog si la cle EXPO_PUBLIC_POSTHOG_KEY est definie,
 // sinon mode no-op pour ne rien casser en dev.
 import { PostHog } from 'posthog-react-native';
+import { Platform } from 'react-native';
 
 const KEY = process.env.EXPO_PUBLIC_POSTHOG_KEY;
 const HOST = process.env.EXPO_PUBLIC_POSTHOG_HOST || 'https://eu.i.posthog.com';
 
 let client = null;
+let trackingAllowed = true; // par defaut true (Android + iOS<14.5)
+
+// iOS 14.5+ App Tracking Transparency - obligatoire avant tout SDK analytics.
+async function requestIosTrackingIfNeeded() {
+  if (Platform.OS !== 'ios') return true;
+  try {
+    const { requestTrackingPermissionsAsync } = require('expo-tracking-transparency');
+    const { status } = await requestTrackingPermissionsAsync();
+    return status === 'granted';
+  } catch {
+    return true; // module non installe -> on continue sans bloquer le build
+  }
+}
 
 export async function initAnalytics() {
   if (!KEY) return null;
+  trackingAllowed = await requestIosTrackingIfNeeded();
+  if (!trackingAllowed) return null; // respect du choix utilisateur
   try {
     client = new PostHog(KEY, { host: HOST, flushAt: 20, flushInterval: 30000 });
     return client;
@@ -18,6 +34,7 @@ export async function initAnalytics() {
 }
 
 export function track(event, props = {}) {
+  if (!trackingAllowed) return;
   try { client?.capture(event, props); } catch {}
 }
 

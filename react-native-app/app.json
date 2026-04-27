@@ -19,7 +19,8 @@
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
-        "READ_MEDIA_IMAGES"
+        "READ_MEDIA_IMAGES",
+        "com.google.android.gms.permission.AD_ID"
       ]
     },
     "ios": {
@@ -28,7 +29,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "ORIZON utilise votre position pour afficher les biens proches.",
         "NSPhotoLibraryUsageDescription": "ORIZON a besoin d'acceder a vos photos pour publier vos annonces.",
-        "NSCameraUsageDescription": "ORIZON utilise la camera pour ajouter des photos a vos annonces."
+        "NSCameraUsageDescription": "ORIZON utilise la camera pour ajouter des photos a vos annonces.",
+        "NSUserTrackingUsageDescription": "ORIZON utilise ces donnees pour ameliorer ton experience et te proposer des biens pertinents. Aucune donnee n'est vendue a des tiers."
       }
     },
     "orientation": "portrait",
@@ -53,6 +55,12 @@
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "ORIZON utilise votre position pour afficher les biens proches."
+        }
+      ],
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "ORIZON utilise ces donnees pour ameliorer ton experience et te proposer des biens pertinents. Aucune donnee n'est vendue a des tiers."
         }
       ]
     ]

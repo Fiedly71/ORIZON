@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { C } from '../theme/colors';
 import { useAuthStore } from '../store/useAuthStore';
 import { signOut, hydrateProfile, resendEmailVerification, canPublish } from '../services/authService';
+import { deleteMyAccount } from '../services/accountService';
 
 const SECTIONS = [
   { key: 'MyListings',  icon: 'home-outline',          label: 'Mes annonces',     desc: 'Gere et modifie tes biens publies', publisherOnly: true },
@@ -21,6 +22,9 @@ const SECTIONS = [
   { key: 'Settings',    icon: 'settings-outline',      label: 'Parametres',       desc: 'Langue, notifications, donnees' },
   { key: 'Help',        icon: 'help-circle-outline',   label: 'Aide / FAQ',       desc: 'Reponses aux questions frequentes' },
   { key: 'About',       icon: 'information-circle-outline', label: 'A propos',     desc: 'ORIZON, contact, mentions legales' },
+  { key: 'Terms',       icon: 'document-text-outline',     label: "Conditions d'utilisation", desc: 'CGU ORIZON' },
+  { key: 'Privacy',     icon: 'lock-closed-outline',       label: 'Politique de confidentialite', desc: 'Comment nous traitons tes donnees' },
+  { key: 'BlockedUsers',icon: 'ban-outline',               label: 'Utilisateurs bloques', desc: 'Gere ta liste de blocages' },
 ];
 
 function KycBadge({ user }) {
@@ -154,6 +158,30 @@ export default function ProfileScreen({ navigation }) {
         <Pressable style={styles.signOut} onPress={signOut}>
           <Ionicons name="log-out-outline" size={18} color={C.danger} />
           <Text style={styles.signOutTxt}>Se deconnecter</Text>
+        </Pressable>
+
+        <Pressable
+          style={[styles.signOut, { borderColor: C.danger, backgroundColor: '#FEF2F2', marginTop: 8 }]}
+          onPress={() => {
+            Alert.alert(
+              'Supprimer mon compte ?',
+              'Cette action est irreversible. Ton profil sera anonymise, tes annonces archivees, et ton compte definitivement supprime sous 30 jours conformement au RGPD.',
+              [
+                { text: 'Annuler', style: 'cancel' },
+                {
+                  text: 'Supprimer',
+                  style: 'destructive',
+                  onPress: async () => {
+                    const r = await deleteMyAccount();
+                    if (!r.ok) Alert.alert('Erreur', r.error || 'Echec de la suppression');
+                  },
+                },
+              ],
+            );
+          }}
+        >
+          <Ionicons name="trash-outline" size={18} color={C.danger} />
+          <Text style={styles.signOutTxt}>Supprimer mon compte</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
