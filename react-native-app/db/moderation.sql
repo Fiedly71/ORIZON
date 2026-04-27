@@ -1,6 +1,12 @@
 -- ORIZON - Patch 9 - Moderation reviews/photos + queue admin.
 -- Idempotent.
 
+-- IMPORTANT: ajouter is_admin AVANT toute policy qui le reference.
+do $$
+begin
+  begin alter table public.profiles add column if not exists is_admin boolean default false; exception when others then null; end;
+end $$;
+
 -- ─────────────────────────────────────────────────────────────
 -- 1) On rebascule reviews en moderation manuelle (status=pending par defaut),
 --    avec auto-approbation si pas de mot interdit (cote client + trigger).
@@ -34,7 +40,7 @@ declare
 begin
   select w.word into v_hit
     from public.banned_words w
-   where lower(coalesce(NEW.comment, '')) like '%' || w.word || '%'
+   where lower(coalesce(NEW.content, '')) like '%' || w.word || '%'
    limit 1;
   if v_hit is not null then
     NEW.status := 'flagged';
@@ -108,7 +114,7 @@ create policy "reviews_select_approved_or_owner"
   on public.reviews for select
   using (
     status = 'approved'
-    or user_id = auth.uid()
+    or author_id = auth.uid()
     or exists (
       select 1 from public.properties p
        where p.id = property_id and p.owner_id = auth.uid()

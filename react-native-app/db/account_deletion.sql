@@ -51,8 +51,8 @@ begin
 
   -- Anonymise les avis laisses
   update public.reviews set
-    author_name = 'Anonyme',
-    comment = '[supprime]'
+    content = '[supprime]',
+    title = ''
   where author_id = uid;
 
   -- Cree la demande (le purge definitif sera fait par un job admin / supabase admin API)

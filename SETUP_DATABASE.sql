@@ -765,6 +765,12 @@ grant execute on function public.seller_stats(uuid) to authenticated;
 -- ORIZON - Patch 9 - Moderation reviews/photos + queue admin.
 -- Idempotent.
 
+-- IMPORTANT: ajouter is_admin AVANT toute policy qui le reference.
+do $$
+begin
+  begin alter table public.profiles add column if not exists is_admin boolean default false; exception when others then null; end;
+end $$;
+
 -- â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 -- 1) On rebascule reviews en moderation manuelle (status=pending par defaut),
 --    avec auto-approbation si pas de mot interdit (cote client + trigger).
@@ -798,7 +804,7 @@ declare
 begin
   select w.word into v_hit
     from public.banned_words w
-   where lower(coalesce(NEW.comment, '')) like '%' || w.word || '%'
+   where lower(coalesce(NEW.content, '')) like '%' || w.word || '%'
    limit 1;
   if v_hit is not null then
     NEW.status := 'flagged';
@@ -872,7 +878,7 @@ create policy "reviews_select_approved_or_owner"
   on public.reviews for select
   using (
     status = 'approved'
-    or user_id = auth.uid()
+    or author_id = auth.uid()
     or exists (
       select 1 from public.properties p
        where p.id = property_id and p.owner_id = auth.uid()
@@ -937,8 +943,8 @@ begin
 
   -- Anonymise les avis laisses
   update public.reviews set
-    author_name = 'Anonyme',
-    comment = '[supprime]'
+    content = '[supprime]',
+    title = ''
   where author_id = uid;
 
   -- Cree la demande (le purge definitif sera fait par un job admin / supabase admin API)
@@ -1052,28 +1058,28 @@ begin
     (uid_owner, 'Villa moderne Petion-Ville', 'Petion-Ville, Haiti', 'Villa', 'sale', 285000,
      4, 3, 220, 'Villa demo - 4 chambres, piscine, vue panoramique sur la ville.',
      'https://picsum.photos/seed/orizon-villa/800/600',
-     '["https://picsum.photos/seed/orizon-villa/800/600","https://picsum.photos/seed/orizon-villa2/800/600"]'::jsonb,
-     'paid', now() - interval '2 days'),
+     ARRAY['https://picsum.photos/seed/orizon-villa/800/600','https://picsum.photos/seed/orizon-villa2/800/600'],
+     'paid', (now() - interval '2 days')::date),
     (uid_owner, 'Appartement centre-ville', 'Port-au-Prince, Haiti', 'Appartement', 'rent', 850,
      2, 1, 75, 'Appartement demo - 2 chambres meuble, securise, internet inclus.',
      'https://picsum.photos/seed/orizon-appart/800/600',
-     '["https://picsum.photos/seed/orizon-appart/800/600"]'::jsonb,
-     'paid', now() - interval '5 days'),
+     ARRAY['https://picsum.photos/seed/orizon-appart/800/600'],
+     'paid', (now() - interval '5 days')::date),
     (uid_agency, 'Penthouse de luxe Kenscoff', 'Kenscoff, Haiti', 'Penthouse', 'sale', 520000,
      5, 4, 380, 'Penthouse demo - terrasse 100m2, jacuzzi, vue mer.',
      'https://picsum.photos/seed/orizon-pent/800/600',
-     '["https://picsum.photos/seed/orizon-pent/800/600","https://picsum.photos/seed/orizon-pent2/800/600","https://picsum.photos/seed/orizon-pent3/800/600"]'::jsonb,
-     'paid', now() - interval '1 day'),
+     ARRAY['https://picsum.photos/seed/orizon-pent/800/600','https://picsum.photos/seed/orizon-pent2/800/600','https://picsum.photos/seed/orizon-pent3/800/600'],
+     'paid', (now() - interval '1 day')::date),
     (uid_agency, 'Studio Cap-Haitien', 'Cap-Haitien, Haiti', 'Studio', 'rent', 350,
      1, 1, 32, 'Studio demo - proche universite, ideal etudiant.',
      'https://picsum.photos/seed/orizon-studio/800/600',
-     '["https://picsum.photos/seed/orizon-studio/800/600"]'::jsonb,
-     'paid', now() - interval '3 days'),
+     ARRAY['https://picsum.photos/seed/orizon-studio/800/600'],
+     'paid', (now() - interval '3 days')::date),
     (uid_agency, 'Terrain constructible Tabarre', 'Tabarre, Haiti', 'Terrain', 'sale', 75000,
      0, 0, 1200, 'Terrain demo - viabilise, acces route asphaltee.',
      'https://picsum.photos/seed/orizon-terrain/800/600',
-     '["https://picsum.photos/seed/orizon-terrain/800/600"]'::jsonb,
-     'paid', now() - interval '10 days');
+     ARRAY['https://picsum.photos/seed/orizon-terrain/800/600'],
+     'paid', (now() - interval '10 days')::date);
 
   raise notice 'Seed demo OK - 3 users + 5 properties';
 end $$;
