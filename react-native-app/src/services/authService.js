@@ -128,8 +128,9 @@ export async function signUp({ email, password, fullName, phone, role }) {
 }
 
 export async function signOut() {
-  const { signOut: clear } = useAuthStore.getState();
-  if (isSupabaseConfigured) {
+  const { signOut: clear, user } = useAuthStore.getState();
+  if (isSupabaseConfigured && user?.id) {
+    try { await supabase.from('push_tokens').delete().eq('user_id', user.id); } catch {}
     await supabase.auth.signOut();
   }
   clear();

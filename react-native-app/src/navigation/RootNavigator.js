@@ -1,6 +1,6 @@
 // Navigator racine. Bascule entre AuthNavigator et l'app principale
 // selon l'etat d'authentification global (Zustand + Supabase).
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LegacyAppShell from '../LegacyAppShell';
@@ -21,18 +21,21 @@ import AboutScreen from '../screens/AboutScreen';
 import PlaceholderScreen from '../screens/PlaceholderScreen';
 import { useAuthStore } from '../store/useAuthStore';
 import { restoreSession } from '../services/authService';
+import { usePushSetup } from '../hooks/usePushSetup';
 
 const Stack = createNativeStackNavigator();
 
 export default function RootNavigator() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const navigationRef = useRef(null);
+  usePushSetup(navigationRef);
 
   useEffect(() => {
     restoreSession();
   }, []);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <>
