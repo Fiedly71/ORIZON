@@ -10,14 +10,18 @@ import { StatusBar } from 'expo-status-bar';
 import RootNavigator from './navigation/RootNavigator';
 import { detectAndApplyLanguage } from './i18n';
 import { useProperty } from './store/useProperty';
+import { useUI } from './store/useUI';
 import { initAnalytics } from './services/analyticsService';
 
 export default function App() {
   useEffect(() => {
-    detectAndApplyLanguage();
-    useProperty.getState().hydrateFromCache?.();
-    useProperty.getState().loadProperties?.();
-    initAnalytics();
+    (async () => {
+      await useUI.getState().hydrate?.();
+      detectAndApplyLanguage();
+      useProperty.getState().hydrateFromCache?.();
+      useProperty.getState().loadProperties?.();
+      initAnalytics();
+    })();
     if (Platform.OS === 'android') {
       RNStatusBar.setBackgroundColor('#FFFFFF', true);
       RNStatusBar.setBarStyle('dark-content', true);

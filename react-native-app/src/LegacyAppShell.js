@@ -31,8 +31,10 @@ import {
 import { translations } from './i18n/translations';
 import { useAuthStore } from './store/useAuthStore';
 import { useFavorites } from './store/useFavorites';
+import { useUI } from './store/useUI';
 import { signOut as signOutUser, canPublish } from './services/authService';
 import { requestVisit } from './services/visitsService';
+import { shareProperty } from './services/shareService';
 
 const C = {
   bg: '#F2F5F8',
@@ -119,7 +121,11 @@ const serviceIconById = {
 
 export default function App() {
   const insets = useSafeAreaInsets();
-  const [language, setLanguage] = useState('fr');
+  // Langue + devise viennent du store global useUI (persiste).
+  const language = useUI((s) => s.language);
+  const setLanguage = useUI((s) => s.setLanguage);
+  const currency = useUI((s) => s.currency);
+  const setCurrency = useUI((s) => s.setCurrency);
   // Auth + onboarding sont gerees par RootNavigator/AuthNavigator desormais.
   // Quand ce shell est monte, l'utilisateur est deja authentifie -> on saute direct a 'app'.
   const [stage, setStage] = useState('app');
@@ -1332,6 +1338,9 @@ export default function App() {
               <Pressable style={styles.softBtn} onPress={() => toggleCompare(p)}>
                 <Text style={styles.softBtnTxt}>{text.compare}</Text>
               </Pressable>
+              <Pressable style={styles.softBtn} onPress={() => shareProperty(p, { language, currency, phone: p?.contact?.phone || agent?.phone })}>
+                <Text style={styles.softBtnTxt}>{text.shareProperty}</Text>
+              </Pressable>
               <Pressable style={styles.softBtn} onPress={() => openOverlay('report', p)}>
                 <Text style={styles.softBtnTxt}>{text.report}</Text>
               </Pressable>
@@ -1716,14 +1725,29 @@ export default function App() {
               <Text style={styles.sectionTitle}>{text.settingsTitle}</Text>
               <Text style={styles.sectionSub}>{text.language}</Text>
               <View style={styles.rowWrap}>
-                <Pressable style={styles.softBtn} onPress={() => setLanguage('fr')}>
+                <Pressable style={[styles.softBtn, language === 'fr' && { borderColor: C.primary }]} onPress={() => setLanguage('fr')}>
                   <Text style={styles.softBtnTxt}>{text.langFR}</Text>
                 </Pressable>
-                <Pressable style={styles.softBtn} onPress={() => setLanguage('ht')}>
+                <Pressable style={[styles.softBtn, language === 'ht' && { borderColor: C.primary }]} onPress={() => setLanguage('ht')}>
                   <Text style={styles.softBtnTxt}>{text.langHT}</Text>
                 </Pressable>
+                <Pressable style={[styles.softBtn, language === 'en' && { borderColor: C.primary }]} onPress={() => setLanguage('en')}>
+                  <Text style={styles.softBtnTxt}>EN</Text>
+                </Pressable>
+                <Pressable style={[styles.softBtn, language === 'es' && { borderColor: C.primary }]} onPress={() => setLanguage('es')}>
+                  <Text style={styles.softBtnTxt}>ES</Text>
+                </Pressable>
               </View>
-              <Text style={styles.sectionSub}>{text.notifications}: {text.notifEnabled}</Text>
+              <Text style={[styles.sectionSub, { marginTop: 12 }]}>Devise / Lajan</Text>
+              <View style={styles.rowWrap}>
+                <Pressable style={[styles.softBtn, currency === 'USD' && { borderColor: C.primary }]} onPress={() => setCurrency('USD')}>
+                  <Text style={styles.softBtnTxt}>USD ($)</Text>
+                </Pressable>
+                <Pressable style={[styles.softBtn, currency === 'HTG' && { borderColor: C.primary }]} onPress={() => setCurrency('HTG')}>
+                  <Text style={styles.softBtnTxt}>HTG (Gourdes)</Text>
+                </Pressable>
+              </View>
+              <Text style={[styles.sectionSub, { marginTop: 12 }]}>{text.notifications}: {text.notifEnabled}</Text>
             </View>
           </ScrollView>
         </View>
