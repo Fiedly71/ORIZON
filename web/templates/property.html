@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}} | ORIZON</title>
+  <meta name="description" content="{{DESCRIPTION}}" />
+
+  <!-- Open Graph (WhatsApp / Facebook / LinkedIn) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ORIZON" />
+  <meta property="og:title" content="{{TITLE}}" />
+  <meta property="og:description" content="{{DESCRIPTION}}" />
+  <meta property="og:image" content="{{IMAGE}}" />
+  <meta property="og:url" content="{{URL}}" />
+  <meta property="og:locale" content="fr_HT" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{TITLE}}" />
+  <meta name="twitter:description" content="{{DESCRIPTION}}" />
+  <meta name="twitter:image" content="{{IMAGE}}" />
+
+  <!-- Deep link iOS / Android -->
+  <link rel="alternate" href="orizon://property/{{ID}}" />
+
+  <style>
+    :root { --primary: #00A38D; --bg: #F2F5F8; --text: #0F172A; --muted: #64748B; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
+    header { display: flex; align-items: center; gap: 8px; padding: 12px 0; }
+    .logo { width: 32px; height: 32px; border-radius: 8px; background: var(--primary); color: #fff; display: grid; place-items: center; font-weight: 800; }
+    .name { font-weight: 700; }
+    .hero img { width: 100%; height: 280px; object-fit: cover; border-radius: 16px; background: #ddd; }
+    .card { background: #fff; border-radius: 16px; padding: 20px; margin-top: -28px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    h1 { font-size: 22px; margin-bottom: 6px; }
+    .loc { color: var(--muted); font-size: 14px; }
+    .price { color: var(--primary); font-size: 28px; font-weight: 800; margin: 12px 0; }
+    .specs { display: flex; gap: 16px; flex-wrap: wrap; padding: 12px 0; border-top: 1px solid #E2E8F0; border-bottom: 1px solid #E2E8F0; }
+    .spec { font-size: 13px; color: var(--muted); }
+    .spec strong { display: block; color: var(--text); font-size: 16px; }
+    .desc { margin: 16px 0; line-height: 1.5; color: #475569; }
+    .cta { display: block; background: var(--primary); color: #fff; text-align: center; padding: 14px; border-radius: 12px; text-decoration: none; font-weight: 700; margin-top: 16px; }
+    .cta-soft { display: block; background: transparent; color: var(--primary); border: 1px solid var(--primary); text-align: center; padding: 12px; border-radius: 12px; text-decoration: none; font-weight: 600; margin-top: 8px; }
+    footer { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 0; }
+  </style>
+
+  <script>
+    // Tente d'ouvrir l'app si installee, sinon fallback sur les stores.
+    (function () {
+      var ua = navigator.userAgent || '';
+      var deepLink = 'orizon://property/{{ID}}';
+      var androidStore = 'https://play.google.com/store/apps/details?id=com.orizon.mobile';
+      var iosStore = 'https://apps.apple.com/app/orizon-mobile/id000000';
+      function openApp() {
+        var t = Date.now();
+        window.location = deepLink;
+        setTimeout(function () {
+          if (Date.now() - t < 1600) {
+            if (/android/i.test(ua)) window.location = androidStore;
+            else if (/iphone|ipad|ipod/i.test(ua)) window.location = iosStore;
+          }
+        }, 1500);
+      }
+      window.__openApp = openApp;
+    })();
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">O</div>
+      <div class="name">ORIZON</div>
+    </header>
+
+    <div class="hero"><img src="{{IMAGE}}" alt="{{TITLE}}" /></div>
+
+    <div class="card">
+      <h1>{{TITLE}}</h1>
+      <div class="loc">{{LOCATION}}</div>
+      <div class="price">{{PRICE}}</div>
+
+      <div class="specs">
+        <div class="spec"><strong>{{BEDROOMS}}</strong>chambres</div>
+        <div class="spec"><strong>{{BATHROOMS}}</strong>sdb</div>
+        <div class="spec"><strong>{{AREA}} m&sup2;</strong>surface</div>
+      </div>
+
+      <p class="desc">{{DESCRIPTION}}</p>
+
+      <a href="javascript:__openApp()" class="cta">Ouvrir dans ORIZON</a>
+      <a href="https://orizon.app" class="cta-soft">Decouvrir d'autres biens</a>
+    </div>
+
+    <footer>
+      &copy; ORIZON - Immobilier intelligent pour Haiti
+    </footer>
+  </div>
+</body>
+</html>
