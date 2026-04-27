@@ -11,6 +11,7 @@ import { signOut, hydrateProfile, resendEmailVerification, canPublish } from '..
 
 const SECTIONS = [
   { key: 'MyListings',  icon: 'home-outline',          label: 'Mes annonces',     desc: 'Gere et modifie tes biens publies', publisherOnly: true },
+  { key: 'SellerStats', icon: 'stats-chart-outline',   label: 'Statistiques',     desc: 'Vues, contacts, favoris + boost premium', publisherOnly: true },
   { key: 'MyVisits',    icon: 'calendar-outline',      label: 'Mes visites',      desc: 'Visites a venir et historique' },
   { key: 'Payments',    icon: 'card-outline',          label: 'Paiements',        desc: 'Historique Stripe et MonCash' },
   { key: 'Favorites',   icon: 'heart-outline',         label: 'Favoris',          desc: 'Tes biens preferes' },

@@ -35,6 +35,7 @@ import { useUI } from './store/useUI';
 import { signOut as signOutUser, canPublish } from './services/authService';
 import { requestVisit } from './services/visitsService';
 import { shareProperty } from './services/shareService';
+import { trackView, trackContact, trackShare, trackFavorite } from './services/statsService';
 
 const C = {
   bg: '#F2F5F8',
@@ -373,11 +374,17 @@ export default function App() {
     ]);
   };
 
-  const openOverlay = (name, payload = null) => setOverlay({ name, payload });
+  const openOverlay = (name, payload = null) => {
+    setOverlay({ name, payload });
+    if (name === 'details' && payload?.id) {
+      trackView(payload.id).catch(() => {});
+    }
+  };
   const closeOverlay = () => setOverlay({ name: null, payload: null });
 
   const toggleFavorite = (id) => {
     toggleFavoriteStore(id);
+    trackFavorite(id).catch(() => {});
   };
 
   const toggleCompare = (property) => {
@@ -395,6 +402,7 @@ export default function App() {
   };
 
   const contactSeller = (property) => {
+    if (property?.id) trackContact(property.id).catch(() => {});
     const existingThread = threads.find((t) => t.propertyId === property.id);
     if (existingThread) {
       setActiveThreadId(existingThread.id);
@@ -1338,7 +1346,7 @@ export default function App() {
               <Pressable style={styles.softBtn} onPress={() => toggleCompare(p)}>
                 <Text style={styles.softBtnTxt}>{text.compare}</Text>
               </Pressable>
-              <Pressable style={styles.softBtn} onPress={() => shareProperty(p, { language, currency, phone: p?.contact?.phone || agent?.phone })}>
+              <Pressable style={styles.softBtn} onPress={() => { if (p?.id) trackShare(p.id).catch(() => {}); shareProperty(p, { language, currency, phone: p?.contact?.phone || agent?.phone }); }}>
                 <Text style={styles.softBtnTxt}>{text.shareProperty}</Text>
               </Pressable>
               <Pressable style={styles.softBtn} onPress={() => openOverlay('report', p)}>
