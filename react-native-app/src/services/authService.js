@@ -4,6 +4,8 @@
 // - Mode mock: sinon, un faux user est cree localement (pour developper sans Supabase).
 import { supabase, isSupabaseConfigured } from './supabase';
 import { useAuthStore } from '../store/useAuthStore';
+import { identify, resetAnalytics, track, EVT } from './analyticsService';
+import { setUserContext } from './errorService';
 
 const ROLES = ['Acheteur / Locataire', 'Proprietaire', 'Agence'];
 const PUBLISHER_ROLES = ['Proprietaire', 'Agence'];
@@ -33,10 +35,16 @@ function setSessionFromSupabase(data) {
       verified: false,
       canPublish: false,
     });
+    // Identify analytics + Sentry
+    try {
+      identify(u.id, { email: u.email, role: u.user_metadata?.role });
+      setUserContext({ id: u.id, email: u.email });
+    } catch {}
     // Hydrate la table profiles en arriere-plan (pas bloquant).
     hydrateProfile().catch(() => {});
   } else {
     setUser(null);
+    try { setUserContext(null); resetAnalytics(); } catch {}
   }
 }
 

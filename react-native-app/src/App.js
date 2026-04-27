@@ -12,10 +12,13 @@ import { detectAndApplyLanguage } from './i18n';
 import { useProperty } from './store/useProperty';
 import { useUI } from './store/useUI';
 import { initAnalytics } from './services/analyticsService';
+import { initErrorTracking } from './services/errorService';
+import AppErrorBoundary from './components/AppErrorBoundary';
 
 export default function App() {
   useEffect(() => {
     (async () => {
+      await initErrorTracking();
       await useUI.getState().hydrate?.();
       detectAndApplyLanguage();
       useProperty.getState().hydrateFromCache?.();
@@ -34,7 +37,9 @@ export default function App() {
       <SafeAreaProvider>
         <StatusBar style="dark" backgroundColor="#FFFFFF" translucent={false} />
         <BottomSheetModalProvider>
-          <RootNavigator />
+          <AppErrorBoundary>
+            <RootNavigator />
+          </AppErrorBoundary>
         </BottomSheetModalProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

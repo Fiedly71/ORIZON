@@ -23,6 +23,8 @@
 
 import { supabase, isSupabaseConfigured } from './supabase';
 import { useAuthStore } from '../store/useAuthStore';
+import { track, EVT } from './analyticsService';
+import { captureException } from './errorService';
 
 // Tarification publication
 export const LISTING_FEE_USD = 20;
@@ -93,11 +95,12 @@ async function markFailed(paymentId, reason) {
 // Paiement carte (Stripe sandbox/mock)
 export async function payListingWithStripe({ propertyId, label = 'ORIZON - Publication' }) {
   const { amount, currency } = feeFor(PROVIDERS.STRIPE);
+  track(EVT.startPayment, { provider: 'stripe', amount, currency, propertyId });
   const ins = await insertPendingPayment({
     provider: PROVIDERS.STRIPE, amount, currency, propertyId,
     metadata: { label, sandbox: true },
   });
-  if (!ins.ok) return ins;
+  if (!ins.ok) { track(EVT.paymentFail, { provider: 'stripe', step: 'insert', error: ins.error }); return ins; }
 
   // SANDBOX: simulation d'un PaymentSheet Stripe.
   await new Promise((r) => setTimeout(r, 1200));
@@ -105,8 +108,11 @@ export async function payListingWithStripe({ propertyId, label = 'ORIZON - Publi
   const conf = await confirmPaymentRpc(ins.payment.id);
   if (!conf.ok) {
     await markFailed(ins.payment.id, conf.error);
+    track(EVT.paymentFail, { provider: 'stripe', step: 'confirm', error: conf.error });
+    captureException(new Error('Stripe confirm failed: ' + conf.error), { paymentId: ins.payment.id });
     return { ok: false, error: conf.error };
   }
+  track(EVT.paymentSuccess, { provider: 'stripe', amount, currency });
   return {
     ok: true,
     paymentId: ins.payment.id,
@@ -119,11 +125,12 @@ export async function payListingWithStripe({ propertyId, label = 'ORIZON - Publi
 // Paiement MonCash (sandbox/mock)
 export async function payListingWithMonCash({ propertyId, phone, label = 'ORIZON - Publication' }) {
   const { amount, currency } = feeFor(PROVIDERS.MONCASH);
+  track(EVT.startPayment, { provider: 'moncash', amount, currency, propertyId });
   const ins = await insertPendingPayment({
     provider: PROVIDERS.MONCASH, amount, currency, propertyId,
     metadata: { label, phone: phone || null, sandbox: true },
   });
-  if (!ins.ok) return ins;
+  if (!ins.ok) { track(EVT.paymentFail, { provider: 'moncash', step: 'insert', error: ins.error }); return ins; }
 
   // SANDBOX: simulation de l'ouverture du WebBrowser MonCash.
   await new Promise((r) => setTimeout(r, 1500));
@@ -131,8 +138,11 @@ export async function payListingWithMonCash({ propertyId, phone, label = 'ORIZON
   const conf = await confirmPaymentRpc(ins.payment.id);
   if (!conf.ok) {
     await markFailed(ins.payment.id, conf.error);
+    track(EVT.paymentFail, { provider: 'moncash', step: 'confirm', error: conf.error });
+    captureException(new Error('MonCash confirm failed: ' + conf.error), { paymentId: ins.payment.id });
     return { ok: false, error: conf.error };
   }
+  track(EVT.paymentSuccess, { provider: 'moncash', amount, currency });
   return {
     ok: true,
     paymentId: ins.payment.id,
