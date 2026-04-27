@@ -9,14 +9,76 @@ import { propertyTypes, propertyAmenities } from '../data/mockData';
 import { pickImages, uploadImages } from '../services/storageService';
 import { useProperty } from '../store/useProperty';
 import { useAuthStore } from '../store/useAuthStore';
+import { canPublish } from '../services/authService';
 
 const STATUSES = ['A vendre', 'A louer'];
+const PUBLICATION_FEE_USD = 20;
+const PUBLICATION_FEE_HTG = 2500;
 
 export default function SellWizardScreen({ navigation }) {
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const addProperty = useProperty((s) => s.addProperty);
   const user = useAuthStore((s) => s.user);
+
+  // Garde de role: seuls Proprietaire/Agence peuvent publier.
+  if (!canPublish(user?.role)) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+            <Ionicons name="chevron-back" size={22} color={C.text} />
+          </Pressable>
+          <Text style={styles.title}>Publier une annonce</Text>
+          <View style={{ width: 22 }} />
+        </View>
+        <View style={styles.guardWrap}>
+          <Ionicons name="lock-closed-outline" size={48} color={C.muted} />
+          <Text style={styles.guardTitle}>Publication réservée aux Propriétaires & Agences</Text>
+          <Text style={styles.guardTxt}>
+            Ton compte actuel ({user?.role || 'inconnu'}) ne permet pas de publier d'annonces.
+            Pour vendre ou louer un bien sur ORIZON, crée un compte Propriétaire ou Agence
+            (vérification KYC requise).
+          </Text>
+          <View style={styles.guardPriceBox}>
+            <Ionicons name="information-circle-outline" size={18} color={C.primary} />
+            <Text style={styles.guardPriceTxt}>
+              Coût de publication : <Text style={{ fontWeight: '800' }}>{PUBLICATION_FEE_USD} USD ({PUBLICATION_FEE_HTG} HTG)</Text> par annonce.
+            </Text>
+          </View>
+          <Pressable style={styles.guardCta} onPress={() => navigation.goBack()}>
+            <Text style={styles.guardCtaTxt}>Retour à l'accueil</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Guard supplementaire: KYC valide (can_publish dans profiles).
+  if (user?.canPublish === false) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+            <Ionicons name="chevron-back" size={22} color={C.text} />
+          </Pressable>
+          <Text style={styles.title}>Publier une annonce</Text>
+          <View style={{ width: 22 }} />
+        </View>
+        <View style={styles.guardWrap}>
+          <Ionicons name="time-outline" size={48} color="#D97706" />
+          <Text style={styles.guardTitle}>Vérification en cours</Text>
+          <Text style={styles.guardTxt}>
+            Ton dossier KYC est en cours d'examen par notre équipe.
+            Tu pourras publier dès qu'il sera validé (24-48h en moyenne).
+          </Text>
+          <Pressable style={styles.guardCta} onPress={() => navigation.goBack()}>
+            <Text style={styles.guardCtaTxt}>D'accord</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const [data, setData] = useState({
     title: '',
@@ -172,13 +234,25 @@ export default function SellWizardScreen({ navigation }) {
               ))}
             </View>
             <Field label="PRIX (USD)" value={data.price} onChangeText={(v) => update('price', v)} keyboardType="number-pad" placeholder="ex: 95000" />
+
+            <View style={styles.feeBox}>
+              <Ionicons name="card-outline" size={20} color={C.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.feeTitle}>Frais de publication</Text>
+                <Text style={styles.feeTxt}>
+                  La publication de cette annonce coûte{' '}
+                  <Text style={{ fontWeight: '800' }}>{PUBLICATION_FEE_USD} USD ({PUBLICATION_FEE_HTG} HTG)</Text>.
+                  Le paiement sera demandé à l'étape suivante.
+                </Text>
+              </View>
+            </View>
           </View>
         )}
       </ScrollView>
 
       <View style={styles.footer}>
         <Pressable style={[styles.cta, busy && { opacity: 0.6 }]} onPress={next} disabled={busy}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>{step < 2 ? 'Continuer' : 'Publier'}</Text>}
+          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>{step < 2 ? 'Continuer' : `Payer ${PUBLICATION_FEE_USD}$ et publier`}</Text>}
         </Pressable>
       </View>
     </SafeAreaView>
@@ -244,4 +318,28 @@ const styles = StyleSheet.create({
   footer: { padding: 16, borderTopWidth: 1, borderTopColor: C.border, backgroundColor: '#fff' },
   cta: { backgroundColor: C.accent, paddingVertical: 14, borderRadius: 14, alignItems: 'center' },
   ctaTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
+
+  guardWrap: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    padding: 28, gap: 14,
+  },
+  guardTitle: { fontSize: 17, fontWeight: '800', color: C.text, textAlign: 'center' },
+  guardTxt: { fontSize: 13, color: C.muted, textAlign: 'center', lineHeight: 19 },
+  guardPriceBox: {
+    flexDirection: 'row', gap: 10, backgroundColor: C.primarySoft,
+    padding: 12, borderRadius: 12, alignItems: 'flex-start',
+  },
+  guardPriceTxt: { flex: 1, color: C.text, fontSize: 12, lineHeight: 17 },
+  guardCta: {
+    marginTop: 6, backgroundColor: C.accent,
+    paddingVertical: 14, paddingHorizontal: 28, borderRadius: 14,
+  },
+  guardCtaTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
+
+  feeBox: {
+    flexDirection: 'row', gap: 10, backgroundColor: C.primarySoft,
+    padding: 14, borderRadius: 12, marginTop: 8, alignItems: 'flex-start',
+  },
+  feeTitle: { color: C.text, fontWeight: '800', fontSize: 13, marginBottom: 2 },
+  feeTxt: { color: C.text, fontSize: 12, lineHeight: 17 },
 });

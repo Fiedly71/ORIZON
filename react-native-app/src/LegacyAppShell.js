@@ -30,7 +30,7 @@ import {
 } from './data/mockData';
 import { translations } from './i18n/translations';
 import { useAuthStore } from './store/useAuthStore';
-import { signOut as signOutUser } from './services/authService';
+import { signOut as signOutUser, canPublish } from './services/authService';
 
 const C = {
   bg: '#F2F5F8',
@@ -951,7 +951,23 @@ export default function App() {
     </ScrollView>
   );
 
-  const renderSell = () => (
+  const renderSell = () => {
+    if (!canPublish(user?.role)) {
+      return (
+        <ScrollView contentContainerStyle={styles.page} showsVerticalScrollIndicator={false}>
+          {renderTopBar()}
+          <View style={[styles.cardSoft, { alignItems: 'center', padding: 28, gap: 12 }]}>
+            <Ionicons name="lock-closed-outline" size={42} color={colors.muted} />
+            <Text style={[styles.sectionTitle, { textAlign: 'center' }]}>Publication réservée</Text>
+            <Text style={[styles.sectionSub, { textAlign: 'center', lineHeight: 18 }]}>
+              Seuls les Propriétaires et les Agences peuvent publier des annonces sur ORIZON.
+              {'\n\n'}Coût de publication : <Text style={{ fontWeight: '800' }}>20 USD (2 500 HTG)</Text> par annonce.
+            </Text>
+          </View>
+        </ScrollView>
+      );
+    }
+    return (
     <ScrollView contentContainerStyle={styles.page} showsVerticalScrollIndicator={false}>
       {renderTopBar()}
 
@@ -1102,7 +1118,8 @@ export default function App() {
         </View>
       ))}
     </ScrollView>
-  );
+    );
+  };
 
   const renderMessages = () => (
     <View style={styles.pageFill}>

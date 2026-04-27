@@ -5,7 +5,12 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { useAuthStore } from '../store/useAuthStore';
 
-const ROLES = ['Acheteur / Locataire', 'Proprietaire', 'Agence', 'Investisseur'];
+const ROLES = ['Acheteur / Locataire', 'Proprietaire', 'Agence'];
+const PUBLISHER_ROLES = ['Proprietaire', 'Agence'];
+
+export function canPublish(role) {
+  return PUBLISHER_ROLES.includes(role);
+}
 
 // --- helpers internes ---
 function setSessionFromSupabase(data) {
@@ -94,3 +99,4 @@ export async function restoreSession() {
 }
 
 export const AUTH_ROLES = ROLES;
+export const PUBLISHER_AUTH_ROLES = PUBLISHER_ROLES;
