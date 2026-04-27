@@ -117,7 +117,7 @@ export async function uploadImage(uri, { folder = 'misc', mime = 'image/jpeg', c
   }
 }
 
-export async function uploadImages(assets, { folder = 'misc', generateThumb = false } = {}) {
+export async function uploadImages(assets, { folder = 'misc', generateThumb = false, propertyId = null } = {}) {
   const urls = [];
   const thumbs = [];
   for (const a of assets) {
@@ -125,6 +125,13 @@ export async function uploadImages(assets, { folder = 'misc', generateThumb = fa
     if (!r.ok) return { ok: false, error: r.error, urls, thumbs };
     urls.push(r.url);
     thumbs.push(r.thumbUrl || r.url);
+    // Soumet a la queue de moderation (non bloquant).
+    if (folder !== 'avatars') {
+      try {
+        const { submitPhotoForReview } = require('./moderationService');
+        submitPhotoForReview({ propertyId, url: r.url }).catch(() => {});
+      } catch {}
+    }
   }
   return { ok: true, urls, thumbs };
 }

@@ -2,6 +2,7 @@
 // 'approved' visible publiquement.
 import { supabase, isSupabaseConfigured } from './supabase';
 import { useAuthStore } from '../store/useAuthStore';
+import { moderateText } from './moderationService';
 
 const TABLE = 'reviews';
 const mockStore = { items: [] };
@@ -24,6 +25,11 @@ function fromRow(r) {
 export async function leaveReview({ propertyId, agentId, rating, title, content }) {
   const userId = useAuthStore.getState().user?.id;
   if (!userId) return { ok: false, error: 'Non connecte' };
+
+  // Pre-moderation cote client (defense en profondeur).
+  const mod = moderateText(`${title || ''} ${content || ''}`);
+  const initialStatus = mod.ok ? 'pending' : 'flagged';
+
   const row = {
     property_id: propertyId || null,
     agent_id: agentId || null,
@@ -31,16 +37,16 @@ export async function leaveReview({ propertyId, agentId, rating, title, content 
     rating: Number(rating),
     title: title || '',
     content,
-    status: 'approved', // sandbox: auto-approuve (cf. db/reviews.sql)
+    status: initialStatus, // moderation manuelle (trigger SQL flag aussi)
   };
   if (!isSupabaseConfigured) {
     const item = { id: 'rev-' + Date.now(), ...row, created_at: new Date().toISOString() };
     mockStore.items.unshift(item);
-    return { ok: true, data: fromRow(item), mock: true };
+    return { ok: true, data: fromRow(item), mock: true, moderated: !mod.ok, reason: mod.reason };
   }
   const { data, error } = await supabase.from(TABLE).insert(row).select('*').single();
   if (error) return { ok: false, error: error.message };
-  return { ok: true, data: fromRow(data) };
+  return { ok: true, data: fromRow(data), moderated: !mod.ok, reason: mod.reason };
 }
 
 export async function listReviewsForProperty(propertyId) {
