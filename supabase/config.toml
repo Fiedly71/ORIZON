@@ -1,0 +1,13 @@
+project_id = "orizon"
+
+[functions.stripe-create-payment-intent]
+verify_jwt = true
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.moncash-create-order]
+verify_jwt = true
+
+[functions.moncash-verify]
+verify_jwt = true

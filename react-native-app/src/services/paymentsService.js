@@ -36,6 +36,12 @@ export const PROVIDERS = {
   MONCASH: 'moncash',
 };
 
+// Bascule REEL: quand true, on appelle les Supabase Edge Functions
+// (stripe-create-payment-intent / moncash-create-order / moncash-verify).
+// Sinon, on reste en SANDBOX (insert payments + confirm_payment direct).
+export const USE_REAL_PAYMENTS =
+  String(process.env.EXPO_PUBLIC_USE_REAL_PAYMENTS || '').toLowerCase() === 'true';
+
 export function feeFor(provider) {
   return provider === PROVIDERS.MONCASH
     ? { amount: LISTING_FEE_HTG, currency: 'HTG' }
@@ -92,10 +98,48 @@ async function markFailed(paymentId, reason) {
 
 // --------- API publique ---------
 
-// Paiement carte (Stripe sandbox/mock)
+// Paiement carte (Stripe sandbox/mock OU reel via Edge Function)
 export async function payListingWithStripe({ propertyId, label = 'ORIZON - Publication' }) {
   const { amount, currency } = feeFor(PROVIDERS.STRIPE);
-  track(EVT.startPayment, { provider: 'stripe', amount, currency, propertyId });
+  track(EVT.startPayment, { provider: 'stripe', amount, currency, propertyId, real: USE_REAL_PAYMENTS });
+
+  // ---- Mode REEL (production) ----
+  if (USE_REAL_PAYMENTS && isSupabaseConfigured) {
+    try {
+      const { data, error } = await supabase.functions.invoke('stripe-create-payment-intent', {
+        body: { amount, currency, propertyId, purpose: 'listing' },
+      });
+      if (error) throw error;
+      const { clientSecret, paymentIntentId, paymentRowId } = data || {};
+      if (!clientSecret) throw new Error('clientSecret manquant');
+
+      // Presente le PaymentSheet Stripe (necessite @stripe/stripe-react-native + StripeProvider).
+      let stripe;
+      try { stripe = require('@stripe/stripe-react-native'); } catch { stripe = null; }
+      if (!stripe?.initPaymentSheet) {
+        return { ok: false, error: '@stripe/stripe-react-native non installe (yarn add @stripe/stripe-react-native)' };
+      }
+      const init = await stripe.initPaymentSheet({
+        paymentIntentClientSecret: clientSecret,
+        merchantDisplayName: 'ORIZON',
+      });
+      if (init.error) throw new Error(init.error.message);
+      const present = await stripe.presentPaymentSheet();
+      if (present.error) {
+        track(EVT.paymentFail, { provider: 'stripe', step: 'present', error: present.error.message });
+        return { ok: false, error: present.error.message };
+      }
+      // Le webhook Stripe va appeler confirm_payment. On attend brievement.
+      track(EVT.paymentSuccess, { provider: 'stripe', amount, currency, real: true });
+      return { ok: true, paymentId: paymentRowId, reference: paymentIntentId, amount, currency };
+    } catch (e) {
+      captureException(e, { provider: 'stripe', mode: 'real' });
+      track(EVT.paymentFail, { provider: 'stripe', step: 'edge', error: e?.message });
+      return { ok: false, error: e?.message || String(e) };
+    }
+  }
+
+  // ---- Mode SANDBOX ----
   const ins = await insertPendingPayment({
     provider: PROVIDERS.STRIPE, amount, currency, propertyId,
     metadata: { label, sandbox: true },
@@ -122,10 +166,47 @@ export async function payListingWithStripe({ propertyId, label = 'ORIZON - Publi
   };
 }
 
-// Paiement MonCash (sandbox/mock)
+// Paiement MonCash (sandbox/mock OU reel via Edge Function)
 export async function payListingWithMonCash({ propertyId, phone, label = 'ORIZON - Publication' }) {
   const { amount, currency } = feeFor(PROVIDERS.MONCASH);
-  track(EVT.startPayment, { provider: 'moncash', amount, currency, propertyId });
+  track(EVT.startPayment, { provider: 'moncash', amount, currency, propertyId, real: USE_REAL_PAYMENTS });
+
+  // ---- Mode REEL ----
+  if (USE_REAL_PAYMENTS && isSupabaseConfigured) {
+    try {
+      const { data, error } = await supabase.functions.invoke('moncash-create-order', {
+        body: { amount, propertyId, purpose: 'listing' },
+      });
+      if (error) throw error;
+      const { orderId, redirectUrl } = data || {};
+      if (!redirectUrl) throw new Error('redirectUrl manquant');
+
+      let WB;
+      try { WB = require('expo-web-browser'); } catch { WB = null; }
+      if (!WB?.openAuthSessionAsync) {
+        return { ok: false, error: 'expo-web-browser non installe' };
+      }
+      const res = await WB.openAuthSessionAsync(redirectUrl, 'orizon://payment-return');
+      if (res?.type !== 'success' && res?.type !== 'dismiss') {
+        track(EVT.paymentFail, { provider: 'moncash', step: 'browser', type: res?.type });
+        return { ok: false, error: 'paiement annule' };
+      }
+      // Verifie le paiement cote serveur
+      const verify = await supabase.functions.invoke('moncash-verify', { body: { orderId } });
+      if (verify.error || !verify.data?.ok) {
+        track(EVT.paymentFail, { provider: 'moncash', step: 'verify', error: verify.error?.message });
+        return { ok: false, error: verify.error?.message || 'paiement non confirme' };
+      }
+      track(EVT.paymentSuccess, { provider: 'moncash', amount, currency, real: true });
+      return { ok: true, reference: orderId, amount, currency };
+    } catch (e) {
+      captureException(e, { provider: 'moncash', mode: 'real' });
+      track(EVT.paymentFail, { provider: 'moncash', step: 'edge', error: e?.message });
+      return { ok: false, error: e?.message || String(e) };
+    }
+  }
+
+  // ---- Mode SANDBOX ----
   const ins = await insertPendingPayment({
     provider: PROVIDERS.MONCASH, amount, currency, propertyId,
     metadata: { label, phone: phone || null, sandbox: true },
