@@ -145,12 +145,19 @@ export default function SellWizardScreen({ navigation }) {
         ownerName: user?.fullName || '',
         ownerType: user?.role || '',
         ownerId: user?.id || null,
+        // Important: la propriete est creee en mode 'unpaid'.
+        // Elle ne sera visible publiquement qu'apres confirmation du paiement
+        // (RPC confirm_payment cote DB).
+        paymentStatus: 'unpaid',
       };
       const r = await addProperty(payload);
       if (!r.ok) { Alert.alert('Publication', r.error || ''); return; }
-      Alert.alert('ORIZON', 'Annonce publiee avec succes.', [
-        { text: 'OK', onPress: () => navigation.goBack() },
-      ]);
+
+      // On enchaine sur l'ecran de paiement avec l'id de la propriete creee.
+      navigation.replace('Checkout', {
+        propertyId: r.data?.id || r.id || null,
+        propertyTitle: data.title,
+      });
     } finally {
       setBusy(false);
     }

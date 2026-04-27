@@ -43,6 +43,8 @@ function fromRow(r) {
     floors: r.floors ?? 0,
     lat: r.lat != null ? Number(r.lat) : null,
     lng: r.lng != null ? Number(r.lng) : null,
+    paymentStatus: r.payment_status || 'unpaid',
+    publishedAt: r.published_at || null,
   };
 }
 
@@ -73,6 +75,7 @@ function toRow(p) {
     floors: p.floors ?? 0,
     lat: p.lat ?? null,
     lng: p.lng ?? null,
+    payment_status: p.paymentStatus || 'unpaid',
   };
 }
 

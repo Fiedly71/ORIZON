@@ -1,102 +1,163 @@
-// Service de paiements ORIZON.
-// - Stripe: utilise le SDK natif via PaymentSheet. Necessite une Edge Function
-//   Supabase (ou backend) qui cree un PaymentIntent et renvoie le clientSecret.
-//   Endpoint attendu: <SUPABASE_URL>/functions/v1/create-payment-intent
-//   Body: { amount, currency, propertyId } -> { clientSecret, paymentIntentId }
+// ORIZON - Service de paiements (mode SANDBOX par defaut).
 //
-// - MonCash: redirige vers une URL de paiement (Edge Function ou backend MonCash)
-//   et ouvre WebBrowser. Endpoint attendu: /functions/v1/moncash-create
-//   Body: { amount, propertyId } -> { redirectUrl, orderId }
+// Frais de publication: 20 USD ou 2 500 HTG par annonce.
 //
-// Mode mock: simule un paiement reussi apres 1.2s pour la demo.
-import { initPaymentSheet, presentPaymentSheet } from '@stripe/stripe-react-native';
-import * as WebBrowser from 'expo-web-browser';
+// Deux fournisseurs supportes (sandbox/mock pour l'instant):
+//   - 'stripe'  : carte bancaire en USD (Visa/MasterCard)
+//   - 'moncash' : portefeuille mobile haitien en HTG
+//
+// En PROD, brancher:
+//   - Stripe via une Edge Function Supabase /create-payment-intent
+//     qui renvoie clientSecret -> consommer avec @stripe/stripe-react-native.
+//   - MonCash via /moncash-create qui renvoie redirectUrl -> ouvrir avec
+//     expo-web-browser, attendre la redirection orizon://payment-return,
+//     puis verifier l'orderId cote serveur.
+//
+// Ici en SANDBOX:
+//   1) On insere une ligne 'payments' (status=pending) liee a la propriete.
+//   2) On simule l'interaction utilisateur (1.2s d'attente).
+//   3) On appelle la RPC public.confirm_payment(payment_id) qui:
+//        - met payments.status='succeeded'
+//        - met properties.payment_status='paid' + published_at=now()
+//   4) On renvoie {ok:true, reference, paymentId}.
+
 import { supabase, isSupabaseConfigured } from './supabase';
 import { useAuthStore } from '../store/useAuthStore';
 
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+// Tarification publication
+export const LISTING_FEE_USD = 20;
+export const LISTING_FEE_HTG = 2500;
+export const USD_TO_HTG = 125; // taux de reference (sandbox)
 
-async function authedFetch(path, body) {
-  const session = (await supabase.auth.getSession()).data?.session;
-  const headers = {
-    'Content-Type': 'application/json',
-    apikey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '',
-  };
-  if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
-  const r = await fetch(`${SUPABASE_URL}/functions/v1${path}`, {
-    method: 'POST', headers, body: JSON.stringify(body),
-  });
-  const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
-  return data;
+export const PROVIDERS = {
+  STRIPE: 'stripe',
+  MONCASH: 'moncash',
+};
+
+export function feeFor(provider) {
+  return provider === PROVIDERS.MONCASH
+    ? { amount: LISTING_FEE_HTG, currency: 'HTG' }
+    : { amount: LISTING_FEE_USD, currency: 'USD' };
 }
 
-async function logPayment({ provider, amount, currency = 'USD', status, reference, propertyId, metadata }) {
-  if (!isSupabaseConfigured) return;
+// --------- Helpers internes ---------
+
+async function insertPendingPayment({ provider, amount, currency, propertyId, purpose = 'listing', metadata = {} }) {
   const userId = useAuthStore.getState().user?.id || null;
-  await supabase.from('payments').insert({
-    user_id: userId,
-    property_id: propertyId || null,
-    provider, amount, currency, status,
-    reference: reference || null,
-    metadata: metadata || {},
+  if (!isSupabaseConfigured) {
+    // mode mock total
+    return {
+      ok: true,
+      mock: true,
+      payment: {
+        id: `mock-pay-${Date.now()}`,
+        user_id: userId,
+        property_id: propertyId,
+        provider, purpose, amount, currency,
+        status: 'pending',
+      },
+    };
+  }
+  const { data, error } = await supabase
+    .from('payments')
+    .insert({
+      user_id: userId,
+      property_id: propertyId || null,
+      provider, purpose, amount, currency,
+      status: 'pending',
+      metadata,
+    })
+    .select()
+    .single();
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, payment: data };
+}
+
+async function confirmPaymentRpc(paymentId) {
+  if (!isSupabaseConfigured) return { ok: true, mock: true };
+  const { error } = await supabase.rpc('confirm_payment', { p_payment_id: paymentId });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+async function markFailed(paymentId, reason) {
+  if (!isSupabaseConfigured) return;
+  await supabase
+    .from('payments')
+    .update({ status: 'failed', metadata: { reason } })
+    .eq('id', paymentId);
+}
+
+// --------- API publique ---------
+
+// Paiement carte (Stripe sandbox/mock)
+export async function payListingWithStripe({ propertyId, label = 'ORIZON - Publication' }) {
+  const { amount, currency } = feeFor(PROVIDERS.STRIPE);
+  const ins = await insertPendingPayment({
+    provider: PROVIDERS.STRIPE, amount, currency, propertyId,
+    metadata: { label, sandbox: true },
   });
+  if (!ins.ok) return ins;
+
+  // SANDBOX: simulation d'un PaymentSheet Stripe.
+  await new Promise((r) => setTimeout(r, 1200));
+
+  const conf = await confirmPaymentRpc(ins.payment.id);
+  if (!conf.ok) {
+    await markFailed(ins.payment.id, conf.error);
+    return { ok: false, error: conf.error };
+  }
+  return {
+    ok: true,
+    paymentId: ins.payment.id,
+    reference: `stripe_sandbox_${ins.payment.id}`,
+    amount, currency,
+    mock: !isSupabaseConfigured,
+  };
 }
 
-// --- Stripe ---
-export async function payWithStripe({ amount, currency = 'USD', propertyId, label = 'ORIZON' }) {
-  if (!isSupabaseConfigured) {
-    await new Promise((r) => setTimeout(r, 1200));
-    return { ok: true, mock: true, reference: 'mock-stripe-' + Date.now() };
+// Paiement MonCash (sandbox/mock)
+export async function payListingWithMonCash({ propertyId, phone, label = 'ORIZON - Publication' }) {
+  const { amount, currency } = feeFor(PROVIDERS.MONCASH);
+  const ins = await insertPendingPayment({
+    provider: PROVIDERS.MONCASH, amount, currency, propertyId,
+    metadata: { label, phone: phone || null, sandbox: true },
+  });
+  if (!ins.ok) return ins;
+
+  // SANDBOX: simulation de l'ouverture du WebBrowser MonCash.
+  await new Promise((r) => setTimeout(r, 1500));
+
+  const conf = await confirmPaymentRpc(ins.payment.id);
+  if (!conf.ok) {
+    await markFailed(ins.payment.id, conf.error);
+    return { ok: false, error: conf.error };
   }
-  try {
-    const { clientSecret, paymentIntentId } = await authedFetch('/create-payment-intent', {
-      amount: Math.round(amount * 100), currency: currency.toLowerCase(), propertyId,
-    });
-    const init = await initPaymentSheet({
-      merchantDisplayName: label,
-      paymentIntentClientSecret: clientSecret,
-      allowsDelayedPaymentMethods: false,
-    });
-    if (init.error) return { ok: false, error: init.error.message };
-    const present = await presentPaymentSheet();
-    if (present.error) {
-      await logPayment({ provider: 'stripe', amount, currency, status: 'failed', reference: paymentIntentId, propertyId });
-      return { ok: false, error: present.error.message };
-    }
-    await logPayment({ provider: 'stripe', amount, currency, status: 'succeeded', reference: paymentIntentId, propertyId });
-    return { ok: true, reference: paymentIntentId };
-  } catch (e) {
-    return { ok: false, error: e.message || String(e) };
-  }
+  return {
+    ok: true,
+    paymentId: ins.payment.id,
+    reference: `moncash_sandbox_${ins.payment.id}`,
+    amount, currency,
+    mock: !isSupabaseConfigured,
+  };
 }
 
-// --- MonCash ---
-export async function payWithMonCash({ amount, propertyId, label = 'ORIZON' }) {
-  if (!isSupabaseConfigured) {
-    await new Promise((r) => setTimeout(r, 1200));
-    return { ok: true, mock: true, reference: 'mock-moncash-' + Date.now() };
-  }
-  try {
-    const { redirectUrl, orderId } = await authedFetch('/moncash-create', { amount, propertyId });
-    const result = await WebBrowser.openAuthSessionAsync(redirectUrl, 'orizon://payment-return');
-    if (result.type !== 'success') {
-      await logPayment({ provider: 'moncash', amount, status: 'failed', reference: orderId, propertyId, metadata: { label } });
-      return { ok: false, error: 'Paiement MonCash interrompu' };
-    }
-    await logPayment({ provider: 'moncash', amount, status: 'succeeded', reference: orderId, propertyId, metadata: { label } });
-    return { ok: true, reference: orderId };
-  } catch (e) {
-    return { ok: false, error: e.message || String(e) };
-  }
+// Helper generique
+export async function payListing({ provider, propertyId, phone }) {
+  if (provider === PROVIDERS.MONCASH) return payListingWithMonCash({ propertyId, phone });
+  return payListingWithStripe({ propertyId });
 }
 
+// Liste l'historique des paiements de l'utilisateur connecte.
 export async function listMyPayments() {
   if (!isSupabaseConfigured) return { ok: true, data: [], mock: true };
   const userId = useAuthStore.getState().user?.id;
   if (!userId) return { ok: true, data: [] };
   const { data, error } = await supabase
-    .from('payments').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+    .from('payments')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: data || [] };
 }
