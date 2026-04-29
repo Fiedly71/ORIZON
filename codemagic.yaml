@@ -312,9 +312,14 @@ workflows:
       - react-native-app/ios/build/OrizonMobile.xcarchive
     publishing:
       app_store_connect:
-        # Configurer dans Codemagic > Teams > App Store Connect API key
-        # Necessite : Issuer ID + Key ID + .p8 file
-        auth: integration
+        # Configurer Codemagic > Teams > Integrations > App Store Connect (API key)
+        # puis ajouter les 3 variables suivantes dans le group `orizon_ios` :
+        #   APP_STORE_CONNECT_PRIVATE_KEY (contenu du .p8)
+        #   APP_STORE_CONNECT_KEY_IDENTIFIER (Key ID)
+        #   APP_STORE_CONNECT_ISSUER_ID (Issuer ID)
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
         beta_groups:
           - Internal Testers
