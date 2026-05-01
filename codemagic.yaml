@@ -47,6 +47,104 @@ workflows:
     artifacts:
       - react-native-app/android/app/build/outputs/**/*.apk
 
+  android-test:
+    name: ORIZON Android TEST APK (release light, debug-signed, install-friendly)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      groups:
+        - orizon_env
+      node: 20.11.1
+      java: 17
+    cache:
+      cache_paths:
+        - ~/.gradle/caches
+        - $CM_BUILD_DIR/react-native-app/node_modules
+    scripts:
+      - name: Install dependencies
+        script: |
+          cd react-native-app
+          corepack enable
+          corepack prepare yarn@4.14.1 --activate
+          yarn config set nodeLinker node-modules
+          yarn install --no-immutable
+      - name: Write .env from Codemagic env vars
+        script: |
+          cd react-native-app
+          cat > .env <<EOF
+          EXPO_PUBLIC_SUPABASE_URL=$EXPO_PUBLIC_SUPABASE_URL
+          EXPO_PUBLIC_SUPABASE_ANON_KEY=$EXPO_PUBLIC_SUPABASE_ANON_KEY
+          EXPO_PUBLIC_POSTHOG_KEY=$EXPO_PUBLIC_POSTHOG_KEY
+          EXPO_PUBLIC_POSTHOG_HOST=$EXPO_PUBLIC_POSTHOG_HOST
+          EXPO_PUBLIC_COMPANY_NAME=$EXPO_PUBLIC_COMPANY_NAME
+          EXPO_PUBLIC_COMPANY_ADDRESS=$EXPO_PUBLIC_COMPANY_ADDRESS
+          EXPO_PUBLIC_COMPANY_WEBSITE=$EXPO_PUBLIC_COMPANY_WEBSITE
+          EXPO_PUBLIC_SUPPORT_EMAIL=$EXPO_PUBLIC_SUPPORT_EMAIL
+          EXPO_PUBLIC_SUPPORT_PHONE=$EXPO_PUBLIC_SUPPORT_PHONE
+          EXPO_PUBLIC_SUPPORT_WHATSAPP=$EXPO_PUBLIC_SUPPORT_WHATSAPP
+          EOF
+      - name: Expo prebuild (Android)
+        script: |
+          cd react-native-app
+          npx expo prebuild --platform android --no-install --clean
+      - name: Generate debug keystore (standard, signature v1+v2+v3 compatible toutes versions Android)
+        script: |
+          mkdir -p ~/.android
+          if [ ! -f ~/.android/debug.keystore ]; then
+            keytool -genkeypair -v \
+              -keystore ~/.android/debug.keystore \
+              -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass android -keypass android \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+      - name: Force release to use debug keystore + disable ProGuard + universal APK
+        script: |
+          cd react-native-app/android
+          cat >> app/build.gradle <<'GRADLE_EOF'
+
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file(System.getenv("HOME") + "/.android/debug.keystore")
+                      storePassword "android"
+                      keyAlias "androiddebugkey"
+                      keyPassword "android"
+                      v1SigningEnabled true
+                      v2SigningEnabled true
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                      minifyEnabled false
+                      shrinkResources false
+                      debuggable false
+                  }
+              }
+              packagingOptions {
+                  jniLibs {
+                      useLegacyPackaging true
+                  }
+              }
+          }
+          GRADLE_EOF
+      - name: Build Android Release APK (universal, no splits)
+        script: |
+          cd react-native-app/android
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=armeabi-v7a,arm64-v8a,x86,x86_64
+      - name: Show APK info
+        script: |
+          ls -lh react-native-app/android/app/build/outputs/apk/release/
+          # Verifier la signature
+          for apk in react-native-app/android/app/build/outputs/apk/release/*.apk; do
+            echo "=== $apk ==="
+            $ANDROID_SDK_ROOT/build-tools/*/apksigner verify --verbose "$apk" || true
+          done
+    artifacts:
+      - react-native-app/android/app/build/outputs/apk/release/*.apk
+
   android-release:
     name: ORIZON Android Release APK (light)
     max_build_duration: 60
