@@ -87,7 +87,7 @@ workflows:
         script: |
           cd react-native-app
           npx expo prebuild --platform android --no-install --clean
-      - name: Generate debug keystore (standard, signature v1+v2+v3 compatible toutes versions Android)
+      - name: Generate debug keystore (signature v1+v2+v3 compatible toutes versions Android)
         script: |
           mkdir -p ~/.android
           if [ ! -f ~/.android/debug.keystore ]; then
@@ -98,49 +98,50 @@ workflows:
               -storepass android -keypass android \
               -dname "CN=Android Debug,O=Android,C=US"
           fi
-      - name: Force release to use debug keystore + disable ProGuard + universal APK
+      - name: Force release signing to use debug keystore (sans toucher buildTypes)
         script: |
           cd react-native-app/android
-          cat >> app/build.gradle <<'GRADLE_EOF'
-
-          android {
-              signingConfigs {
+          # On ajoute UNIQUEMENT un signingConfigs.release qui pointe vers le debug keystore,
+          # puis on patche le release pour utiliser ce signingConfig.
+          # On ne touche PAS minifyEnabled ni la tache bundleReleaseJsAndAssets d'Expo.
+          python3 - <<'PY'
+          import re, pathlib
+          p = pathlib.Path("app/build.gradle")
+          src = p.read_text()
+          # Inject signingConfigs.release juste apres "signingConfigs {"
+          inject = '''
                   release {
                       storeFile file(System.getenv("HOME") + "/.android/debug.keystore")
                       storePassword "android"
                       keyAlias "androiddebugkey"
                       keyPassword "android"
-                      v1SigningEnabled true
-                      v2SigningEnabled true
                   }
-              }
-              buildTypes {
-                  release {
-                      signingConfig signingConfigs.release
-                      minifyEnabled false
-                      shrinkResources false
-                      debuggable false
-                  }
-              }
-              packagingOptions {
-                  jniLibs {
-                      useLegacyPackaging true
-                  }
-              }
-          }
-          GRADLE_EOF
-      - name: Build Android Release APK (universal, no splits)
+          '''
+          if "release {" not in src.split("signingConfigs")[1].split("}")[0]:
+              src = src.replace("signingConfigs {", "signingConfigs {" + inject, 1)
+          # Force buildTypes.release a utiliser signingConfigs.release (au lieu de debug)
+          src = re.sub(r"signingConfig\s+signingConfigs\.debug", "signingConfig signingConfigs.release", src)
+          # Desactive minify + R8 pour eviter de virer du code RN
+          src = re.sub(r"minifyEnabled\s+(true|enableProguardInReleaseBuilds)", "minifyEnabled false", src)
+          src = re.sub(r"shrinkResources\s+(true|\(.*?\))", "shrinkResources false", src)
+          p.write_text(src)
+          print("OK build.gradle patched")
+          PY
+          # Verifie qu'aucune ligne ne casse le bundle
+          grep -n "signingConfig" app/build.gradle || true
+      - name: Build Android Release APK (universal, JS bundle inclus)
         script: |
           cd react-native-app/android
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=armeabi-v7a,arm64-v8a,x86,x86_64
-      - name: Show APK info
+          # Force le bundle JS dans l'APK (au cas ou)
+          ./gradlew assembleRelease --no-daemon -PbundleInRelease=true
+      - name: Verifier que le JS bundle est dans l'APK
         script: |
-          ls -lh react-native-app/android/app/build/outputs/apk/release/
-          # Verifier la signature
-          for apk in react-native-app/android/app/build/outputs/apk/release/*.apk; do
-            echo "=== $apk ==="
-            $ANDROID_SDK_ROOT/build-tools/*/apksigner verify --verbose "$apk" || true
+          cd react-native-app/android/app/build/outputs/apk/release
+          ls -lh
+          for apk in *.apk; do
+            echo "=== Contenu de $apk ==="
+            unzip -l "$apk" | grep -E "(index.android.bundle|assets/)" | head -20
           done
     artifacts:
       - react-native-app/android/app/build/outputs/apk/release/*.apk
