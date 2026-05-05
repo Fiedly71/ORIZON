@@ -98,50 +98,65 @@ workflows:
               -storepass android -keypass android \
               -dname "CN=Android Debug,O=Android,C=US"
           fi
-      - name: Force release signing to use debug keystore (sans toucher buildTypes)
+      - name: Bundle JS manuellement (garantit index.android.bundle dans assets/)
+        script: |
+          cd react-native-app
+          mkdir -p android/app/src/main/assets
+          mkdir -p android/app/src/main/res
+          npx react-native bundle \
+            --platform android \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res
+          echo "=== Verif bundle ==="
+          ls -lh android/app/src/main/assets/index.android.bundle
+      - name: Reecrire build.gradle avec config debug-signed simple
         script: |
           cd react-native-app/android
-          # On ajoute UNIQUEMENT un signingConfigs.release qui pointe vers le debug keystore,
-          # puis on patche le release pour utiliser ce signingConfig.
-          # On ne touche PAS minifyEnabled ni la tache bundleReleaseJsAndAssets d'Expo.
-          python3 - <<'PY'
-          import re, pathlib
-          p = pathlib.Path("app/build.gradle")
-          src = p.read_text()
-          # Inject signingConfigs.release juste apres "signingConfigs {"
-          inject = '''
-                  release {
+          # On supprime toute logique de signing complexe et on cree un release qui
+          # utilise simplement le debug keystore, SANS toucher au reste du gradle d'Expo.
+          # Le bundle JS est deja dans assets/, donc Expo n'a meme plus besoin de bundler.
+          cat > app/signing.gradle <<'GRADLE_EOF'
+          android {
+              signingConfigs {
+                  releaseDebug {
                       storeFile file(System.getenv("HOME") + "/.android/debug.keystore")
                       storePassword "android"
                       keyAlias "androiddebugkey"
                       keyPassword "android"
                   }
-          '''
-          if "release {" not in src.split("signingConfigs")[1].split("}")[0]:
-              src = src.replace("signingConfigs {", "signingConfigs {" + inject, 1)
-          # Force buildTypes.release a utiliser signingConfigs.release (au lieu de debug)
-          src = re.sub(r"signingConfig\s+signingConfigs\.debug", "signingConfig signingConfigs.release", src)
-          # Desactive minify + R8 pour eviter de virer du code RN
-          src = re.sub(r"minifyEnabled\s+(true|enableProguardInReleaseBuilds)", "minifyEnabled false", src)
-          src = re.sub(r"shrinkResources\s+(true|\(.*?\))", "shrinkResources false", src)
-          p.write_text(src)
-          print("OK build.gradle patched")
-          PY
-          # Verifie qu'aucune ligne ne casse le bundle
-          grep -n "signingConfig" app/build.gradle || true
-      - name: Build Android Release APK (universal, JS bundle inclus)
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.releaseDebug
+                      minifyEnabled false
+                      shrinkResources false
+                  }
+              }
+          }
+          GRADLE_EOF
+          # Inclure le fichier dans build.gradle si pas deja present
+          if ! grep -q "apply from: 'signing.gradle'" app/build.gradle; then
+            echo "" >> app/build.gradle
+            echo "apply from: 'signing.gradle'" >> app/build.gradle
+          fi
+          echo "=== Tail de build.gradle ==="
+          tail -20 app/build.gradle
+      - name: Build Android Release APK
         script: |
           cd react-native-app/android
           chmod +x gradlew
-          # Force le bundle JS dans l'APK (au cas ou)
-          ./gradlew assembleRelease --no-daemon -PbundleInRelease=true
-      - name: Verifier que le JS bundle est dans l'APK
+          ./gradlew assembleRelease --no-daemon
+      - name: Verifier APK final
         script: |
           cd react-native-app/android/app/build/outputs/apk/release
           ls -lh
           for apk in *.apk; do
             echo "=== Contenu de $apk ==="
-            unzip -l "$apk" | grep -E "(index.android.bundle|assets/)" | head -20
+            unzip -l "$apk" | grep -E "index.android.bundle" || echo "BUNDLE MANQUANT !"
+            echo "=== Signature ==="
+            $ANDROID_SDK_ROOT/build-tools/*/apksigner verify --verbose "$apk" 2>&1 | head -10 || true
           done
     artifacts:
       - react-native-app/android/app/build/outputs/apk/release/*.apk
