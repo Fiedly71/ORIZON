@@ -1,6 +1,7 @@
 // messagingService - Conversations et messages avec Supabase + realtime.
 import { supabase, isSupabaseConfigured } from './supabase';
 import { useAuthStore } from '../store/useAuthStore';
+import { sanitizeMessage } from '../utils/antifraud';
 
 const mock = { conversations: [], messages: {} };
 
@@ -107,7 +108,9 @@ export async function listMessages(conversationId) {
 export async function sendMessage(conversationId, body) {
   const uid = useAuthStore.getState().user?.id || null;
   if (!uid) return { ok: false, error: 'Non connecte' };
-  const text = String(body || '').trim();
+  const check = sanitizeMessage(body);
+  if (!check.ok) return { ok: false, error: check.error };
+  const text = check.body;
   if (!text) return { ok: false, error: 'Message vide' };
 
   if (!isSupabaseConfigured) {
