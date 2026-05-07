@@ -14,6 +14,7 @@ const SECTIONS = [
   { key: 'MyListings',  icon: 'home-outline',          label: 'Mes annonces',     desc: 'Gere et modifie tes biens publies', publisherOnly: true },
   { key: 'SellerStats', icon: 'stats-chart-outline',   label: 'Statistiques',     desc: 'Vues, contacts, favoris + boost premium', publisherOnly: true },
   { key: 'MyVisits',    icon: 'calendar-outline',      label: 'Mes visites',      desc: 'Visites a venir et historique' },
+  { key: 'PhoneVerify', icon: 'phone-portrait-outline', label: 'Verifier mon telephone', desc: 'Confirme ton numero pour publier' },
   { key: 'Payments',    icon: 'card-outline',          label: 'Paiements',        desc: 'Historique Stripe et MonCash' },
   { key: 'Favorites',   icon: 'heart-outline',         label: 'Favoris',          desc: 'Tes biens preferes' },
   { key: 'Alerts',      icon: 'notifications-outline', label: 'Alertes',          desc: 'Critere -> notification automatique' },
@@ -25,6 +26,7 @@ const SECTIONS = [
   { key: 'Terms',       icon: 'document-text-outline',     label: "Conditions d'utilisation", desc: 'CGU ORIZON' },
   { key: 'Privacy',     icon: 'lock-closed-outline',       label: 'Politique de confidentialite', desc: 'Comment nous traitons tes donnees' },
   { key: 'BlockedUsers',icon: 'ban-outline',               label: 'Utilisateurs bloques', desc: 'Gere ta liste de blocages' },
+  { key: 'Admin',       icon: 'shield-outline',            label: 'Moderation',           desc: 'Outils admin', adminOnly: true },
 ];
 
 function KycBadge({ user }) {
@@ -137,6 +139,7 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.list}>
           {SECTIONS
             .filter((s) => !s.publisherOnly || canPublish(user?.role))
+            .filter((s) => !s.adminOnly || user?.role === 'admin')
             .map((s, i, arr) => (
               <Pressable
                 key={s.key}
