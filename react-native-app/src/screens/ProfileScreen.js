@@ -22,6 +22,7 @@ const SECTIONS = [
   { key: 'Kyc',         icon: 'shield-checkmark-outline', label: 'Verification (KYC)', desc: 'Obtiens le badge "verifie"', publisherOnly: true },
   { key: 'Settings',    icon: 'settings-outline',      label: 'Parametres',       desc: 'Langue, notifications, donnees' },
   { key: 'Help',        icon: 'help-circle-outline',   label: 'Aide / FAQ',       desc: 'Reponses aux questions frequentes' },
+  { key: 'Support',     icon: 'chatbubbles-outline',   label: 'Contacter le support', desc: 'Reponse sous 24h' },
   { key: 'About',       icon: 'information-circle-outline', label: 'A propos',     desc: 'ORIZON, contact, mentions legales' },
   { key: 'Terms',       icon: 'document-text-outline',     label: "Conditions d'utilisation", desc: 'CGU ORIZON' },
   { key: 'Privacy',     icon: 'lock-closed-outline',       label: 'Politique de confidentialite', desc: 'Comment nous traitons tes donnees' },

@@ -27,6 +27,7 @@ import ConversationScreen from '../screens/ConversationScreen';
 import PhoneVerifyScreen from '../screens/PhoneVerifyScreen';
 import AdminScreen from '../screens/AdminScreen';
 import SavedSearchesScreen from '../screens/SavedSearchesScreen';
+import SupportScreen from '../screens/SupportScreen';
 import { useAuthStore } from '../store/useAuthStore';
 import { restoreSession } from '../services/authService';
 import { usePushSetup } from '../hooks/usePushSetup';
@@ -76,6 +77,7 @@ export default function RootNavigator() {
             <Stack.Screen name="Conversation" component={ConversationScreen} />
             <Stack.Screen name="PhoneVerify" component={PhoneVerifyScreen} />
             <Stack.Screen name="Admin" component={AdminScreen} />
+            <Stack.Screen name="Support" component={SupportScreen} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />
