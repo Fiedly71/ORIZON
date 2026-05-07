@@ -46,7 +46,7 @@ export default function SavedSearchesScreen({ navigation }) {
   };
 
   const openSearch = (s) => {
-    navigation.navigate('Main', { screen: 'Explore', params: { initialFilters: s.criteria } });
+    navigation.navigate('App', { screen: 'Explore', params: { initialFilters: s.criteria } });
   };
 
   return (

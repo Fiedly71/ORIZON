@@ -31,6 +31,8 @@ import SupportScreen from '../screens/SupportScreen';
 import BoostListingScreen from '../screens/BoostListingScreen';
 import CompareScreen from '../screens/CompareScreen';
 import AgencyManageScreen from '../screens/AgencyManageScreen';
+import KycScreen from '../screens/KycScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 import { useAuthStore } from '../store/useAuthStore';
 import { restoreSession } from '../services/authService';
 import { usePushSetup } from '../hooks/usePushSetup';
@@ -84,8 +86,8 @@ export default function RootNavigator() {
             <Stack.Screen name="Favorites" component={FavoritesScreen} />
             <Stack.Screen name="SellerStats" component={SellerStatsScreen} />
             <Stack.Screen name="Alerts" component={SavedSearchesScreen} />
-            <Stack.Screen name="Kyc" component={PlaceholderScreen} initialParams={{ title: 'Verification (KYC)', note: 'Soumets ton selfie + piece pour obtenir le badge verifie.' }} />
-            <Stack.Screen name="Settings" component={PlaceholderScreen} initialParams={{ title: 'Parametres', note: 'Langue, notifications, donnees.' }} />
+            <Stack.Screen name="Kyc" component={KycScreen} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="Help" component={HelpScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
             <Stack.Screen name="Terms" component={LegalScreen} initialParams={{ kind: 'terms' }} />

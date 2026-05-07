@@ -17,6 +17,9 @@ export const useUI = create((set, get) => ({
   language: 'fr',
   languageManuallySet: false,
   currency: 'USD', // 'USD' | 'HTG'
+  theme: 'light', // 'light' | 'dark' | 'system'
+  notifPush: true,
+  notifEmail: true,
   hydrated: false,
 
   hydrate: async () => {
@@ -28,6 +31,9 @@ export const useUI = create((set, get) => ({
           language: p.language || 'fr',
           languageManuallySet: !!p.languageManuallySet,
           currency: p.currency || 'USD',
+          theme: p.theme || 'light',
+          notifPush: p.notifPush !== false,
+          notifEmail: p.notifEmail !== false,
           hydrated: true,
         });
       } else {
@@ -48,6 +54,10 @@ export const useUI = create((set, get) => ({
     set({ currency });
     persist({ currency });
   },
+
+  setTheme: (theme) => { set({ theme }); persist({ theme }); },
+  setNotifPush: (notifPush) => { set({ notifPush }); persist({ notifPush }); },
+  setNotifEmail: (notifEmail) => { set({ notifEmail }); persist({ notifEmail }); },
 
   overlay: { name: null, payload: null },
   openOverlay: (name, payload = null) => set({ overlay: { name, payload } }),
