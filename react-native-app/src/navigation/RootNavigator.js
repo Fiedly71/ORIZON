@@ -3,8 +3,9 @@
 import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LegacyAppShell from '../LegacyAppShell';
+import MainTabs from './MainTabs';
 import AuthNavigator from './AuthNavigator';
+import PropertyDetailScreen from '../screens/PropertyDetailScreen';
 import MapScreen from '../screens/MapScreen';
 import SellWizardScreen from '../screens/SellWizardScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -42,7 +43,12 @@ export default function RootNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <>
-            <Stack.Screen name="App" component={LegacyAppShell} />
+            <Stack.Screen name="App" component={MainTabs} />
+            <Stack.Screen
+              name="PropertyDetail"
+              component={PropertyDetailScreen}
+              options={{ animation: 'slide_from_bottom' }}
+            />
             <Stack.Screen name="Map" component={MapScreen} />
             <Stack.Screen name="SellWizard" component={SellWizardScreen} />
             <Stack.Screen name="Checkout" component={CheckoutScreen} />
