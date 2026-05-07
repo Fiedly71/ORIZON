@@ -14,6 +14,7 @@ import { useUI } from './store/useUI';
 import { initAnalytics } from './services/analyticsService';
 import { initErrorTracking } from './services/errorService';
 import AppErrorBoundary from './components/AppErrorBoundary';
+import { ToastProvider } from './components/Toast';
 
 export default function App() {
   useEffect(() => {
@@ -37,9 +38,11 @@ export default function App() {
       <SafeAreaProvider>
         <StatusBar style="dark" backgroundColor="#FFFFFF" translucent={false} />
         <BottomSheetModalProvider>
-          <AppErrorBoundary>
-            <RootNavigator />
-          </AppErrorBoundary>
+          <ToastProvider>
+            <AppErrorBoundary>
+              <RootNavigator />
+            </AppErrorBoundary>
+          </ToastProvider>
         </BottomSheetModalProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -20,6 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { C, radii, spacing } from '../theme/colors';
 import { useFavorites } from '../store/useFavorites';
 import VisitBookingSheet from '../components/VisitBookingSheet';
+import ImageViewer from '../components/ImageViewer';
 import { openConversation } from '../services/messagingService';
 import { isSuperhost } from '../utils/superhost';
 
@@ -47,6 +48,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
   const item = params.item || {};
   const [activeImg, setActiveImg] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
   const superhost = isSuperhost(item);
 
   const favIds = useFavorites((s) => s.ids);
@@ -100,8 +102,10 @@ export default function PropertyDetailScreen({ navigation, route }) {
               const idx = Math.round(e.nativeEvent.contentOffset.x / W);
               setActiveImg(idx);
             }}
-            renderItem={({ item: uri }) => (
-              <Image source={{ uri }} style={styles.hero} resizeMode="cover" />
+            renderItem={({ item: uri, index }) => (
+              <Pressable onPress={() => { setActiveImg(index); setViewerOpen(true); }}>
+                <Image source={{ uri }} style={styles.hero} resizeMode="cover" />
+              </Pressable>
             )}
           />
           <View style={styles.heroDots}>
@@ -252,6 +256,12 @@ export default function PropertyDetailScreen({ navigation, route }) {
         visible={bookingOpen}
         onClose={() => setBookingOpen(false)}
         property={item}
+      />
+      <ImageViewer
+        visible={viewerOpen}
+        images={photos}
+        initialIndex={activeImg}
+        onClose={() => setViewerOpen(false)}
       />
     </View>
   );
