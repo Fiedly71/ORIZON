@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { C } from '../theme/colors';
 import ExploreScreen from '../screens/ExploreScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
-import TripsScreen from '../screens/TripsScreen';
 import MessagesScreen from '../screens/MessagesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
@@ -34,7 +33,6 @@ export default function MainTabs() {
           const icons = {
             Explore: focused ? 'search' : 'search-outline',
             Favorites: focused ? 'heart' : 'heart-outline',
-            Trips: focused ? 'airplane' : 'airplane-outline',
             Messages: focused ? 'chatbubbles' : 'chatbubbles-outline',
             ProfileTab: focused ? 'person-circle' : 'person-circle-outline',
           };
@@ -51,11 +49,6 @@ export default function MainTabs() {
         name="Favorites"
         component={FavoritesScreen}
         options={{ title: 'Favoris' }}
-      />
-      <Tab.Screen
-        name="Trips"
-        component={TripsScreen}
-        options={{ title: 'Voyages' }}
       />
       <Tab.Screen
         name="Messages"
