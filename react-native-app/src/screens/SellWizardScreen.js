@@ -129,6 +129,15 @@ export default function SellWizardScreen({ navigation }) {
     try {
       const up = await uploadImages(data.images, { folder: 'properties', generateThumb: true });
       if (!up.ok) { Alert.alert('Upload', up.error || ''); return; }
+
+      // Geocodage auto de l'adresse (silencieux si echec)
+      let geo = { lat: null, lng: null };
+      try {
+        const { geocodeAddress } = await import('../services/geocodingService');
+        const g = await geocodeAddress(data.location);
+        if (g.ok) geo = { lat: g.lat, lng: g.lng };
+      } catch {}
+
       const payload = {
         title: data.title,
         location: data.location,
@@ -146,6 +155,8 @@ export default function SellWizardScreen({ navigation }) {
         ownerName: user?.fullName || '',
         ownerType: user?.role || '',
         ownerId: user?.id || null,
+        lat: geo.lat,
+        lng: geo.lng,
         // Important: la propriete est creee en mode 'unpaid'.
         // Elle ne sera visible publiquement qu'apres confirmation du paiement
         // (RPC confirm_payment cote DB).
