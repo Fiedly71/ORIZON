@@ -26,6 +26,7 @@ import BlockedUsersScreen from '../screens/BlockedUsersScreen';
 import ConversationScreen from '../screens/ConversationScreen';
 import PhoneVerifyScreen from '../screens/PhoneVerifyScreen';
 import AdminScreen from '../screens/AdminScreen';
+import SavedSearchesScreen from '../screens/SavedSearchesScreen';
 import { useAuthStore } from '../store/useAuthStore';
 import { restoreSession } from '../services/authService';
 import { usePushSetup } from '../hooks/usePushSetup';
@@ -64,7 +65,7 @@ export default function RootNavigator() {
             <Stack.Screen name="Mortgage" component={MortgageScreen} />
             <Stack.Screen name="Favorites" component={FavoritesScreen} />
             <Stack.Screen name="SellerStats" component={SellerStatsScreen} />
-            <Stack.Screen name="Alerts" component={PlaceholderScreen} initialParams={{ title: 'Alertes', note: 'Cree des criteres pour recevoir une notif quand un bien correspond.' }} />
+            <Stack.Screen name="Alerts" component={SavedSearchesScreen} />
             <Stack.Screen name="Kyc" component={PlaceholderScreen} initialParams={{ title: 'Verification (KYC)', note: 'Soumets ton selfie + piece pour obtenir le badge verifie.' }} />
             <Stack.Screen name="Settings" component={PlaceholderScreen} initialParams={{ title: 'Parametres', note: 'Langue, notifications, donnees.' }} />
             <Stack.Screen name="Help" component={HelpScreen} />

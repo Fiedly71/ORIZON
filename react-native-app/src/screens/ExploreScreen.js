@@ -19,6 +19,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { C, radii, spacing } from '../theme/colors';
 import PropertyCardAirbnb from '../components/PropertyCardAirbnb';
 import AdvancedFilterSheet from '../components/AdvancedFilterSheet';
+import { saveSearch } from '../services/savedSearchesService';
+import { useToast } from '../components/Toast';
 import { listProperties } from '../services/propertiesService';
 import { useFavorites } from '../store/useFavorites';
 import { isSuperhost } from '../utils/superhost';
@@ -41,6 +43,7 @@ const STATUS_FILTERS = [
 ];
 
 export default function ExploreScreen({ navigation }) {
+  const toast = useToast();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -148,6 +151,20 @@ export default function ExploreScreen({ navigation }) {
             ]}>{s.label}</Text>
           </Pressable>
         ))}
+        {(search || category !== 'all' || status !== 'all' || advFilter) && (
+          <Pressable
+            style={styles.saveSearchBtn}
+            onPress={async () => {
+              const criteria = { q: search || undefined, type: category !== 'all' ? category : undefined, status: status !== 'all' ? status : undefined, ...(advFilter || {}) };
+              const name = (search || category !== 'all' ? `${search || category}` : 'Mes filtres');
+              const r = await saveSearch({ name, criteria, frequency: 'daily' });
+              toast.show(r.ok ? 'Recherche sauvegardee' : (r.error || 'Echec'), { type: r.ok ? 'success' : 'error' });
+            }}
+          >
+            <Ionicons name="bookmark-outline" size={14} color={C.primary} />
+            <Text style={styles.saveSearchTxt}>Sauvegarder</Text>
+          </Pressable>
+        )}
       </View>
 
       {/* Pills categories */}
@@ -309,6 +326,18 @@ const styles = StyleSheet.create({
   statusTxtActive: {
     color: '#fff',
   },
+  saveSearchBtn: {
+    marginLeft: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: C.primary,
+  },
+  saveSearchTxt: { color: C.primary, fontSize: 12, fontWeight: '700' },
   catsRow: {
     paddingHorizontal: spacing.xxl,
     gap: spacing.xxl,
