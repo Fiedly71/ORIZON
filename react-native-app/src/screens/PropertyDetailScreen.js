@@ -21,6 +21,7 @@ import { C, radii, spacing } from '../theme/colors';
 import { useFavorites } from '../store/useFavorites';
 import VisitBookingSheet from '../components/VisitBookingSheet';
 import ImageViewer from '../components/ImageViewer';
+import MortgageMini from '../components/MortgageMini';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { openConversation } from '../services/messagingService';
 import { isSuperhost } from '../utils/superhost';
@@ -224,6 +225,14 @@ export default function PropertyDetailScreen({ navigation, route }) {
                   </View>
                 ))}
               </View>
+              <View style={styles.divider} />
+            </>
+          )}
+
+          {/* Simulateur d'hypotheque (uniquement biens a vendre) */}
+          {!isRent && Number(item.price) > 0 && (
+            <>
+              <MortgageMini price={Number(item.price)} />
               <View style={styles.divider} />
             </>
           )}

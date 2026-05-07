@@ -85,12 +85,21 @@ export async function listProperties({ page = 0, pageSize = 20 } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: propertiesSeed, mock: true };
   const from = page * pageSize;
   const to = from + pageSize - 1;
+  // Filtre public : seuls les biens approuves par la moderation sont visibles
+  // (le RLS DB l'autorise mais on filtre cote client pour limiter le payload).
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
+    .eq('moderation_status', 'approved')
     .order('posted_at', { ascending: false })
     .range(from, to);
-  if (error) return { ok: false, error: error.message, data: [] };
+  if (error) {
+    // Si la colonne moderation_status n'existe pas encore (DB pas migree),
+    // on retombe sur la requete d'origine.
+    const r2 = await supabase.from(TABLE).select('*').order('posted_at', { ascending: false }).range(from, to);
+    if (r2.error) return { ok: false, error: r2.error.message, data: [] };
+    return { ok: true, data: (r2.data || []).map(fromRow), hasMore: (r2.data || []).length === pageSize };
+  }
   return { ok: true, data: (data || []).map(fromRow), hasMore: (data || []).length === pageSize };
 }
 
