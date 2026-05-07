@@ -19,8 +19,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { C, radii, spacing } from '../theme/colors';
 import PropertyCardAirbnb from '../components/PropertyCardAirbnb';
 import AdvancedFilterSheet from '../components/AdvancedFilterSheet';
+import SkeletonCard from '../components/SkeletonCard';
 import { saveSearch } from '../services/savedSearchesService';
 import { useToast } from '../components/Toast';
+import { getCurrentPosition, distanceKm } from '../services/locationService';
 import { listProperties } from '../services/propertiesService';
 import { useFavorites } from '../store/useFavorites';
 import { isSuperhost } from '../utils/superhost';
@@ -42,6 +44,13 @@ const STATUS_FILTERS = [
   { key: 'rent', label: 'A louer',  match: ['A louer', 'A lwe', 'rent', 'For rent'] },
 ];
 
+const SORTS = [
+  { key: 'recent', label: 'Plus recent', icon: 'time-outline' },
+  { key: 'price_asc', label: 'Prix croissant', icon: 'arrow-up' },
+  { key: 'price_desc', label: 'Prix decroissant', icon: 'arrow-down' },
+  { key: 'near', label: 'Pres de moi', icon: 'navigate' },
+];
+
 export default function ExploreScreen({ navigation }) {
   const toast = useToast();
   const [items, setItems] = useState([]);
@@ -52,6 +61,8 @@ export default function ExploreScreen({ navigation }) {
   const [status, setStatus] = useState('all');
   const [advFilter, setAdvFilter] = useState(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [sortKey, setSortKey] = useState('recent');
+  const [myPos, setMyPos] = useState(null);
 
   const favIds = useFavorites((s) => s.ids);
   const toggleFav = useFavorites((s) => s.toggle);
@@ -103,8 +114,26 @@ export default function ExploreScreen({ navigation }) {
       if (a.types?.length > 0) out = out.filter((p) => a.types.includes(p.type));
       if (a.superhostOnly) out = out.filter(isSuperhost);
     }
+    // Tri
+    if (sortKey === 'price_asc') out = [...out].sort((a, b) => Number(a.price) - Number(b.price));
+    else if (sortKey === 'price_desc') out = [...out].sort((a, b) => Number(b.price) - Number(a.price));
+    else if (sortKey === 'near' && myPos) {
+      out = [...out]
+        .filter((p) => p.lat && p.lng)
+        .map((p) => ({ ...p, _dist: distanceKm(myPos, { lat: p.lat, lng: p.lng }) }))
+        .sort((a, b) => a._dist - b._dist);
+    }
     return out;
-  }, [items, category, status, search, advFilter]);
+  }, [items, category, status, search, advFilter, sortKey, myPos]);
+
+  const onSelectSort = async (key) => {
+    if (key === 'near') {
+      const r = await getCurrentPosition();
+      if (!r.ok) { toast.show('Geolocalisation refusee', { type: 'error' }); return; }
+      setMyPos(r.coords);
+    }
+    setSortKey(key);
+  };
 
   const renderHeader = () => (
     <View style={styles.headerWrap}>
@@ -195,6 +224,19 @@ export default function ExploreScreen({ navigation }) {
           );
         })}
       </ScrollView>
+
+      {/* Tri */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortRow}>
+        {SORTS.map((s) => {
+          const active = sortKey === s.key;
+          return (
+            <Pressable key={s.key} onPress={() => onSelectSort(s.key)} style={[styles.sortPill, active && styles.sortPillActive]}>
+              <Ionicons name={s.icon} size={13} color={active ? '#fff' : C.text} />
+              <Text style={[styles.sortTxt, active && { color: '#fff' }]}>{s.label}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
     </View>
   );
 
@@ -202,9 +244,8 @@ export default function ExploreScreen({ navigation }) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         {renderHeader()}
-        <View style={styles.loadingWrap}>
-          <ActivityIndicator size="large" color={C.primary} />
-          <Text style={styles.loadingTxt}>Chargement des biens...</Text>
+        <View style={{ paddingTop: spacing.lg }}>
+          {[0, 1, 2].map((i) => <SkeletonCard key={i} />)}
         </View>
       </SafeAreaView>
     );
@@ -338,6 +379,10 @@ const styles = StyleSheet.create({
     borderColor: C.primary,
   },
   saveSearchTxt: { color: C.primary, fontSize: 12, fontWeight: '700' },
+  sortRow: { paddingHorizontal: spacing.xxl, paddingVertical: spacing.md, gap: spacing.md, flexDirection: 'row' },
+  sortPill: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: spacing.md, paddingVertical: 6, borderRadius: radii.pill, backgroundColor: C.surface },
+  sortPillActive: { backgroundColor: C.primary },
+  sortTxt: { fontSize: 12, fontWeight: '600', color: C.text },
   catsRow: {
     paddingHorizontal: spacing.xxl,
     gap: spacing.xxl,

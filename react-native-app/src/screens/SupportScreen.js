@@ -10,7 +10,7 @@ import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToast } from '../components/Toast';
 
-const WHATSAPP_NUMBER = '50931234567'; // a remplacer par le vrai numero ORIZON
+const WHATSAPP_NUMBER = process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP || '50931234567';
 
 export default function SupportScreen({ navigation }) {
   const user = useAuthStore((s) => s.user);

@@ -9,6 +9,16 @@ const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
 
 export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
+// En build production, on alerte si les variables manquent (mais on ne crash pas
+// pour permettre les ecrans demo / mock).
+if (!isSupabaseConfigured && !__DEV__) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    '[ORIZON] EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY manquants. ' +
+    'L\'app demarre en mode mock. Configurer les variables avant le deploiement final.'
+  );
+}
+
 export const supabase = createClient(
   SUPABASE_URL || 'https://placeholder.supabase.co',
   SUPABASE_ANON_KEY || 'public-anon-key-placeholder',

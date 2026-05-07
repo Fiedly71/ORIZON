@@ -38,6 +38,16 @@ export function track(event, props = {}) {
   try { client?.capture(event, props); } catch {}
 }
 
+// Helpers shortcuts pour les events ORIZON courants
+export const trackSearch = (q, filters = {}) => track('search', { q, ...filters });
+export const trackViewProperty = (id, extra = {}) => track('view_property', { id, ...extra });
+export const trackContact = (id, channel) => track('contact_property', { id, channel });
+export const trackBookVisit = (id) => track('book_visit', { id });
+export const trackSaveSearch = (name) => track('saved_search', { name });
+export const trackBoost = (id, days) => track('boost_listing', { id, days });
+export const trackFavorite = (id, state) => track('favorite', { id, state });
+
+
 export function identify(userId, traits = {}) {
   try { client?.identify(userId, traits); } catch {}
 }

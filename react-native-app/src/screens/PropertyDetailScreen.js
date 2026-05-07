@@ -22,6 +22,7 @@ import { useFavorites } from '../store/useFavorites';
 import VisitBookingSheet from '../components/VisitBookingSheet';
 import ImageViewer from '../components/ImageViewer';
 import MortgageMini from '../components/MortgageMini';
+import PriceHistoryChart from '../components/PriceHistoryChart';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { openConversation } from '../services/messagingService';
 import { isSuperhost } from '../utils/superhost';
@@ -59,7 +60,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
 
   const photos = (item.images && item.images.length > 0)
     ? item.images
-    : (item.image ? [item.image] : ['https://picsum.photos/seed/orizon/800/800']);
+    : (item.image ? [item.image] : ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800']);
 
   const isRent = item.status === 'A louer' || item.status === 'A lwe' || item.status === 'rent';
 
@@ -232,6 +233,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
           {/* Simulateur d'hypotheque (uniquement biens a vendre) */}
           {!isRent && Number(item.price) > 0 && (
             <>
+              <PriceHistoryChart propertyId={item.id} currentPrice={item.price} />
               <MortgageMini price={Number(item.price)} />
               <View style={styles.divider} />
             </>

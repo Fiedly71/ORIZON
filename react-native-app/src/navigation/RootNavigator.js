@@ -28,11 +28,28 @@ import PhoneVerifyScreen from '../screens/PhoneVerifyScreen';
 import AdminScreen from '../screens/AdminScreen';
 import SavedSearchesScreen from '../screens/SavedSearchesScreen';
 import SupportScreen from '../screens/SupportScreen';
+import BoostListingScreen from '../screens/BoostListingScreen';
+import CompareScreen from '../screens/CompareScreen';
+import AgencyManageScreen from '../screens/AgencyManageScreen';
 import { useAuthStore } from '../store/useAuthStore';
 import { restoreSession } from '../services/authService';
 import { usePushSetup } from '../hooks/usePushSetup';
 
 const Stack = createNativeStackNavigator();
+
+// Deep links : orizon://property/:id  &  https://orizon.app/property/:id
+const linking = {
+  prefixes: ['orizon://', 'https://orizon.app', 'https://www.orizon.app'],
+  config: {
+    screens: {
+      App: { screens: { Explore: 'explore' } },
+      PropertyDetail: 'property/:id',
+      Conversation: 'chat/:id',
+      Compare: 'compare',
+      Auth: { screens: { Login: 'login', Register: 'register' } },
+    },
+  },
+};
 
 export default function RootNavigator() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -44,7 +61,7 @@ export default function RootNavigator() {
   }, []);
 
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer ref={navigationRef} linking={linking}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
           <>
@@ -78,6 +95,9 @@ export default function RootNavigator() {
             <Stack.Screen name="PhoneVerify" component={PhoneVerifyScreen} />
             <Stack.Screen name="Admin" component={AdminScreen} />
             <Stack.Screen name="Support" component={SupportScreen} />
+            <Stack.Screen name="BoostListing" component={BoostListingScreen} />
+            <Stack.Screen name="Compare" component={CompareScreen} />
+            <Stack.Screen name="AgencyManage" component={AgencyManageScreen} />
           </>
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />

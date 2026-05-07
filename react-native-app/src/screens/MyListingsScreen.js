@@ -29,14 +29,23 @@ export default function MyListingsScreen({ navigation }) {
         contentContainerStyle={{ padding: 16, gap: 12 }}
         ListEmptyComponent={<EmptyState icon="home-outline" title="Aucune annonce publiee" message="Publie ton premier bien en quelques minutes." ctaLabel="Publier une annonce" onCta={() => navigation.navigate('SellWizard')} />}
         renderItem={({ item }) => (
-          <Pressable style={styles.card}>
+          <View style={styles.card}>
             <Image source={{ uri: item.image }} style={styles.thumb} />
             <View style={{ flex: 1 }}>
               <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
               <Text style={styles.sub} numberOfLines={1}>{item.location}</Text>
               <Text style={styles.price}>${(item.price || 0).toLocaleString()}</Text>
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 6 }}>
+                <Pressable
+                  style={styles.boostBtn}
+                  onPress={() => navigation.navigate('BoostListing', { propertyId: item.id, propertyTitle: item.title })}
+                >
+                  <Ionicons name="rocket" size={12} color="#F5B301" />
+                  <Text style={styles.boostTxt}>{item.is_premium ? 'Boostee' : 'Booster'}</Text>
+                </Pressable>
+              </View>
             </View>
-          </Pressable>
+          </View>
         )}
       />
     </SafeAreaView>
@@ -79,4 +88,6 @@ const styles = StyleSheet.create({
   title: { fontSize: 13, fontWeight: '700', color: C.text },
   sub: { fontSize: 11, color: C.muted, marginTop: 2 },
   price: { fontSize: 15, fontWeight: '800', color: C.primary, marginTop: 6 },
+  boostBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: '#FEF3C7' },
+  boostTxt: { color: '#92400E', fontWeight: '700', fontSize: 11 },
 });

@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { C } from '../theme/colors';
 import { getMyStats } from '../services/statsService';
 import { boostListing, BOOST_PLANS } from '../services/premiumService';
+import { getEventsLast7Days } from '../services/statsHistoryService';
+import MiniBarChart from '../components/MiniBarChart';
 import { useUI } from '../store/useUI';
 
 export default function SellerStatsScreen({ navigation }) {
@@ -13,11 +15,14 @@ export default function SellerStatsScreen({ navigation }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
+  const [history, setHistory] = useState(null);
 
   const load = async () => {
     setLoading(true);
     const r = await getMyStats();
     setItems(r.data || []);
+    const h = await getEventsLast7Days();
+    if (h.ok) setHistory(h);
     setLoading(false);
   };
 
@@ -70,6 +75,15 @@ export default function SellerStatsScreen({ navigation }) {
         <Kpi icon="call-outline" value={totals.contacts} label="Contacts" />
         <Kpi icon="heart-outline" value={totals.favs} label="Favoris" />
       </View>
+
+      {history && (
+        <View style={styles.chartCard}>
+          <Text style={styles.chartTitle}>Vues - 7 derniers jours</Text>
+          <MiniBarChart data={history.views} labels={history.labels} color={C.primary} />
+          <Text style={[styles.chartTitle, { marginTop: 12 }]}>Contacts - 7 derniers jours</Text>
+          <MiniBarChart data={history.contacts} labels={history.labels} color={C.gold || '#F5B301'} />
+        </View>
+      )}
 
       {loading ? (
         <ActivityIndicator color={C.primary} style={{ marginTop: 24 }} />
@@ -144,6 +158,8 @@ function Metric({ label, value }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
+  chartCard: { margin: 16, padding: 14, borderRadius: 14, borderWidth: 1, borderColor: C.border, backgroundColor: '#fff' },
+  chartTitle: { fontSize: 12, fontWeight: '700', color: C.muted, marginBottom: 8, letterSpacing: 0.5 },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 12,

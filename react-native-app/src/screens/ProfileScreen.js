@@ -13,6 +13,7 @@ import { deleteMyAccount } from '../services/accountService';
 const SECTIONS = [
   { key: 'MyListings',  icon: 'home-outline',          label: 'Mes annonces',     desc: 'Gere et modifie tes biens publies', publisherOnly: true },
   { key: 'SellerStats', icon: 'stats-chart-outline',   label: 'Statistiques',     desc: 'Vues, contacts, favoris + boost premium', publisherOnly: true },
+  { key: 'AgencyManage', icon: 'business-outline',     label: 'Mon agence',       desc: 'Cree une agence et invite des agents', publisherOnly: true },
   { key: 'MyVisits',    icon: 'calendar-outline',      label: 'Mes visites',      desc: 'Visites a venir et historique' },
   { key: 'PhoneVerify', icon: 'phone-portrait-outline', label: 'Verifier mon telephone', desc: 'Confirme ton numero pour publier' },
   { key: 'Payments',    icon: 'card-outline',          label: 'Paiements',        desc: 'Historique Stripe et MonCash' },

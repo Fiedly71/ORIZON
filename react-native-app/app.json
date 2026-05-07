@@ -3,6 +3,7 @@
     "name": "ORIZON Mobile",
     "slug": "orizon-mobile",
     "version": "1.0.0",
+    "scheme": "orizon",
     "android": {
       "package": "com.orizon.mobile",
       "versionCode": 1,
