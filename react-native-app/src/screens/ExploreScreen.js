@@ -24,6 +24,8 @@ import { saveSearch } from '../services/savedSearchesService';
 import { useToast } from '../components/Toast';
 import { getCurrentPosition, distanceKm } from '../services/locationService';
 import { listProperties } from '../services/propertiesService';
+import { SECTIONS, getSectionItems } from '../services/sectionsService';
+import HorizontalSection from '../components/HorizontalSection';
 import { useFavorites } from '../store/useFavorites';
 import { isSuperhost } from '../utils/superhost';
 
@@ -88,8 +90,7 @@ export default function ExploreScreen({ navigation }) {
       out = out.filter((p) =>
         (p.type || '').toLowerCase() === category.toLowerCase()
       );
-    }
-    if (status !== 'all') {
+    }    if (status !== 'all') {
       const sFilter = STATUS_FILTERS.find((s) => s.key === status);
       if (sFilter) {
         out = out.filter((p) => sFilter.match.includes(p.status));
@@ -134,6 +135,23 @@ export default function ExploreScreen({ navigation }) {
     }
     setSortKey(key);
   };
+
+  // Mode "sections" : actif quand aucun filtre n'est applique.
+  const isFiltering =
+    !!search.trim() || category !== 'all' || status !== 'all' ||
+    (advFilter && Object.keys(advFilter).length > 0) || sortKey !== 'recent';
+
+  const sectionsToShow = useMemo(() => {
+    if (isFiltering || items.length === 0) return [];
+    return SECTIONS
+      .map((s) => ({ section: s, items: getSectionItems(s, items, myPos, 8) }))
+      .filter((x) => x.items.length > 0);
+  }, [items, isFiltering, myPos]);
+
+  // Au mount, on tente de geolocaliser silencieusement pour activer "A proximite"
+  useEffect(() => {
+    getCurrentPosition().then((r) => { if (r.ok) setMyPos(r.coords); }).catch(() => {});
+  }, []);
 
   const renderHeader = () => (
     <View style={styles.headerWrap}>
@@ -253,39 +271,64 @@ export default function ExploreScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <FlatList
-        data={filtered}
-        keyExtractor={(it) => String(it.id)}
-        ListHeaderComponent={renderHeader}
-        stickyHeaderIndices={[]}
-        renderItem={({ item }) => (
-          <View style={styles.cardWrap}>
-            <PropertyCardAirbnb
-              item={item}
-              isFavorite={favIds.includes(item.id)}
+      {!isFiltering && sectionsToShow.length > 0 ? (
+        <FlatList
+          data={sectionsToShow}
+          keyExtractor={(x) => x.section.id}
+          ListHeaderComponent={renderHeader}
+          renderItem={({ item }) => (
+            <HorizontalSection
+              section={item.section}
+              items={item.items}
+              isFavorite={(id) => favIds.includes(id)}
               onFavorite={(id) => toggleFav(id)}
-              onOpen={(it) => navigation.navigate('PropertyDetail', { id: it.id, item: it })}
+              onItemPress={(it) => navigation.navigate('PropertyDetail', { id: it.id, item: it })}
+              onSeeAll={() => navigation.navigate('SectionDetail', { sectionId: item.section.id })}
             />
-          </View>
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptyWrap}>
-            <Ionicons name="search-outline" size={48} color={C.muted} />
-            <Text style={styles.emptyTitle}>Aucun bien trouve</Text>
-            <Text style={styles.emptyTxt}>Modifie tes filtres ou ta recherche.</Text>
-          </View>
-        }
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => { setRefreshing(true); load(); }}
-            colors={[C.primary]}
-            tintColor={C.primary}
-          />
-        }
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: spacing.xxl }}
-      />
+          )}
+          refreshControl={
+            <RefreshControl refreshing={refreshing}
+              onRefresh={() => { setRefreshing(true); load(); }}
+              colors={[C.primary]} tintColor={C.primary} />
+          }
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: spacing.xxl }}
+        />
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={(it) => String(it.id)}
+          ListHeaderComponent={renderHeader}
+          stickyHeaderIndices={[]}
+          renderItem={({ item }) => (
+            <View style={styles.cardWrap}>
+              <PropertyCardAirbnb
+                item={item}
+                isFavorite={favIds.includes(item.id)}
+                onFavorite={(id) => toggleFav(id)}
+                onOpen={(it) => navigation.navigate('PropertyDetail', { id: it.id, item: it })}
+              />
+            </View>
+          )}
+          ListEmptyComponent={
+            <View style={styles.emptyWrap}>
+              <Ionicons name="search-outline" size={48} color={C.muted} />
+              <Text style={styles.emptyTitle}>Aucun bien trouve</Text>
+              <Text style={styles.emptyTxt}>Modifie tes filtres ou ta recherche.</Text>
+            </View>
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => { setRefreshing(true); load(); }}
+              colors={[C.primary]}
+              tintColor={C.primary}
+            />
+          }
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: spacing.xxl }}
+        />
+      )}
 
       <AdvancedFilterSheet
         visible={filterOpen}

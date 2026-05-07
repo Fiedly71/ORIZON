@@ -33,6 +33,7 @@ import CompareScreen from '../screens/CompareScreen';
 import AgencyManageScreen from '../screens/AgencyManageScreen';
 import KycScreen from '../screens/KycScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import SectionDetailScreen from '../screens/SectionDetailScreen';
 import { useAuthStore } from '../store/useAuthStore';
 import { restoreSession } from '../services/authService';
 import { usePushSetup } from '../hooks/usePushSetup';
@@ -88,6 +89,7 @@ export default function RootNavigator() {
             <Stack.Screen name="Alerts" component={SavedSearchesScreen} />
             <Stack.Screen name="Kyc" component={KycScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen name="SectionDetail" component={SectionDetailScreen} />
             <Stack.Screen name="Help" component={HelpScreen} />
             <Stack.Screen name="About" component={AboutScreen} />
             <Stack.Screen name="Terms" component={LegalScreen} initialParams={{ kind: 'terms' }} />
