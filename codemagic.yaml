@@ -103,14 +103,18 @@ workflows:
           cd react-native-app
           mkdir -p android/app/src/main/assets
           mkdir -p android/app/src/main/res
-          npx react-native bundle \
+          # Expo SDK 54 : utiliser expo export:embed (pas react-native bundle)
+          npx expo export:embed \
             --platform android \
             --dev false \
             --entry-file index.js \
             --bundle-output android/app/src/main/assets/index.android.bundle \
-            --assets-dest android/app/src/main/res
+            --assets-dest android/app/src/main/res \
+            --reset-cache
           echo "=== Verif bundle ==="
           ls -lh android/app/src/main/assets/index.android.bundle
+          echo "=== Premieres lignes du bundle (debug) ==="
+          head -c 500 android/app/src/main/assets/index.android.bundle | od -c | head -5
       - name: Reecrire build.gradle avec config debug-signed simple
         script: |
           cd react-native-app/android
