@@ -6,6 +6,7 @@ import { C } from '../theme/colors';
 import { Header } from './MyListingsScreen';
 import EmptyState from '../components/EmptyState';
 import { listMyVisits, cancelVisit, confirmVisit, declineVisit } from '../services/visitsService';
+import { openConversation } from '../services/messagingService';
 import { useAuthStore } from '../store/useAuthStore';
 import { canPublish } from '../services/authService';
 
@@ -26,6 +27,13 @@ export default function MyVisitsScreen({ navigation }) {
   useEffect(() => { reload(); }, [tab]);
 
   const action = async (fn, id) => { await fn(id); reload(); };
+
+  const goChat = async (item) => {
+    const otherId = tab === 'visitor' ? item.ownerId : item.visitorId;
+    if (!item.propertyId || !otherId) return;
+    const r = await openConversation({ propertyId: item.propertyId, ownerId: otherId });
+    if (r.ok) navigation.navigate('Conversation', { conversationId: r.id, otherUserId: otherId, propertyId: item.propertyId });
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -51,6 +59,9 @@ export default function MyVisitsScreen({ navigation }) {
             <Text style={styles.title}>Visite #{String(item.id).slice(0, 6)}</Text>
             <Text style={styles.sub}>Prevue le {new Date(item.scheduledAt).toLocaleString('fr-FR')}</Text>
             <Text style={[styles.status, statusColor(item.status)]}>{labelStatus(item.status)}</Text>
+            <Pressable style={styles.btnGhost} onPress={() => goChat(item)}>
+              <Text style={styles.btnGhostTxt}>{tab === 'visitor' ? 'Discuter avec le proprietaire' : 'Discuter avec le visiteur'}</Text>
+            </Pressable>
             {tab === 'visitor' && item.status === 'requested' && (
               <Pressable style={styles.btnGhost} onPress={() => action(cancelVisit, item.id)}>
                 <Text style={styles.btnGhostTxt}>Annuler</Text>

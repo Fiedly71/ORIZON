@@ -21,6 +21,7 @@ import { C, radii, spacing } from '../theme/colors';
 import { useFavorites } from '../store/useFavorites';
 import VisitBookingSheet from '../components/VisitBookingSheet';
 import ImageViewer from '../components/ImageViewer';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { openConversation } from '../services/messagingService';
 import { isSuperhost } from '../utils/superhost';
 
@@ -229,13 +230,30 @@ export default function PropertyDetailScreen({ navigation, route }) {
 
           {/* Localisation */}
           <Text style={styles.sectionTitle}>Localisation</Text>
-          <Pressable
-            style={styles.mapPlaceholder}
-            onPress={() => navigation.navigate('Map')}
-          >
-            <Ionicons name="map" size={32} color={C.primary} />
-            <Text style={styles.mapPlaceholderTxt}>Voir sur la carte</Text>
-          </Pressable>
+          {item.lat && item.lng ? (
+            <Pressable onPress={() => navigation.navigate('Map')}>
+              <MapView
+                provider={PROVIDER_DEFAULT}
+                style={styles.miniMap}
+                pointerEvents="none"
+                initialRegion={{ latitude: Number(item.lat), longitude: Number(item.lng), latitudeDelta: 0.01, longitudeDelta: 0.01 }}
+              >
+                <Marker coordinate={{ latitude: Number(item.lat), longitude: Number(item.lng) }} />
+              </MapView>
+              <View style={styles.miniMapBadge}>
+                <Ionicons name="expand" size={14} color="#fff" />
+                <Text style={styles.miniMapBadgeTxt}>Plein ecran</Text>
+              </View>
+            </Pressable>
+          ) : (
+            <Pressable
+              style={styles.mapPlaceholder}
+              onPress={() => navigation.navigate('Map')}
+            >
+              <Ionicons name="map" size={32} color={C.primary} />
+              <Text style={styles.mapPlaceholderTxt}>Voir sur la carte</Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
 
@@ -370,6 +388,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   mapPlaceholderTxt: { color: C.text, fontWeight: '600' },
+  miniMap: { width: '100%', height: 180, borderRadius: radii.lg },
+  miniMapBadge: { position: 'absolute', right: 10, top: 10, backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 14, paddingHorizontal: 10, paddingVertical: 4, flexDirection: 'row', alignItems: 'center', gap: 4 },
+  miniMapBadgeTxt: { color: '#fff', fontSize: 11, fontWeight: '600' },
   bottomBar: {
     position: 'absolute',
     bottom: 0,
