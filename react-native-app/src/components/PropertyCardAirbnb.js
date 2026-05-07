@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { C, radii, spacing } from '../theme/colors';
+import { isSuperhost } from '../utils/superhost';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = SCREEN_W - spacing.xxl * 2; // 16px de chaque cote
@@ -86,7 +87,13 @@ export default function PropertyCardAirbnb({
 
         {/* Badges */}
         <View style={styles.badgesRow}>
-          {item.featured && (
+          {isSuperhost(item) && (
+            <View style={[styles.badge, { backgroundColor: C.accent }]}>
+              <Ionicons name="trophy" size={11} color="#fff" />
+              <Text style={styles.badgeTxt}>  Superhost</Text>
+            </View>
+          )}
+          {item.featured && !isSuperhost(item) && (
             <View style={[styles.badge, { backgroundColor: C.accent }]}>
               <Text style={styles.badgeTxt}>★ Coup de coeur</Text>
             </View>

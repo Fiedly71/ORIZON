@@ -76,8 +76,20 @@ export default function MapScreen({ navigation }) {
             key={m.id}
             coordinate={{ latitude: m._coords.lat, longitude: m._coords.lng }}
             onPress={() => setSelected(m)}
-            pinColor={C.primary}
-          />
+            tracksViewChanges={false}
+          >
+            <View style={[
+              styles.priceMarker,
+              selected?.id === m.id && styles.priceMarkerActive,
+            ]}>
+              <Text style={[
+                styles.priceMarkerTxt,
+                selected?.id === m.id && styles.priceMarkerTxtActive,
+              ]}>
+                ${Math.round((m.price || 0) / 1000)}k
+              </Text>
+            </View>
+          </Marker>
         ))}
       </MapView>
 
@@ -115,4 +127,23 @@ const styles = StyleSheet.create({
   cardPrice: { fontSize: 16, fontWeight: '800', color: C.primary, marginTop: 6 },
   cta: { marginTop: 10, backgroundColor: C.accent, paddingVertical: 11, borderRadius: 12, alignItems: 'center' },
   ctaTxt: { color: '#fff', fontWeight: '700', fontSize: 12 },
+  priceMarker: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
+  },
+  priceMarkerActive: {
+    backgroundColor: C.primary,
+    borderColor: C.primary,
+  },
+  priceMarkerTxt: { color: C.text, fontWeight: '700', fontSize: 12 },
+  priceMarkerTxtActive: { color: '#fff' },
 });

@@ -19,6 +19,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { C, radii, spacing } from '../theme/colors';
 import { useFavorites } from '../store/useFavorites';
+import VisitBookingSheet from '../components/VisitBookingSheet';
+import { openConversation } from '../services/messagingService';
+import { isSuperhost } from '../utils/superhost';
 
 const { width: W } = Dimensions.get('window');
 const HERO_H = Math.round(W * 0.75);
@@ -43,6 +46,8 @@ export default function PropertyDetailScreen({ navigation, route }) {
   const params = route?.params || {};
   const item = params.item || {};
   const [activeImg, setActiveImg] = useState(0);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const superhost = isSuperhost(item);
 
   const favIds = useFavorites((s) => s.ids);
   const toggleFav = useFavorites((s) => s.toggle);
@@ -58,21 +63,23 @@ export default function PropertyDetailScreen({ navigation, route }) {
     Alert.alert('Partage', 'Lien copie : orizon.ht/p/' + item.id);
   };
 
-  const onVisit = () => {
-    Alert.alert(
-      'Demander une visite',
-      'La demande de visite sera envoyee au proprietaire.',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Envoyer', onPress: () => {
-          Alert.alert('OK', 'Demande envoyee ! Le proprietaire te contactera bientot.');
-        }},
-      ]
-    );
-  };
+  const onVisit = () => setBookingOpen(true);
 
-  const onContact = () => {
-    Alert.alert('Contact', 'Ouvre la messagerie avec le proprietaire (a venir).');
+  const onContact = async () => {
+    if (!item.ownerId) {
+      Alert.alert('Indisponible', 'Aucun proprietaire associe a cette annonce.');
+      return;
+    }
+    const r = await openConversation({ propertyId: item.id, ownerId: item.ownerId });
+    if (r.ok) {
+      navigation.navigate('Conversation', {
+        conversationId: r.data.id,
+        title: item.ownerName || 'Proprietaire',
+        role: 'buyer',
+      });
+    } else {
+      Alert.alert('Erreur', r.error || 'Impossible d\'ouvrir la conversation.');
+    }
   };
 
   return (
@@ -131,6 +138,13 @@ export default function PropertyDetailScreen({ navigation, route }) {
             <Ionicons name="location" size={14} color={C.muted} />
             <Text style={styles.location}>{item.location}</Text>
           </View>
+
+          {superhost && (
+            <View style={styles.superBadge}>
+              <Ionicons name="trophy" size={12} color="#fff" />
+              <Text style={styles.superBadgeTxt}>Superhost ORIZON</Text>
+            </View>
+          )}
 
           {item.rating > 0 && (
             <View style={styles.metaRow}>
@@ -233,6 +247,12 @@ export default function PropertyDetailScreen({ navigation, route }) {
           </Pressable>
         </View>
       </SafeAreaView>
+
+      <VisitBookingSheet
+        visible={bookingOpen}
+        onClose={() => setBookingOpen(false)}
+        property={item}
+      />
     </View>
   );
 }
@@ -365,4 +385,11 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
   },
   ctaTxt: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  superBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: C.accent, alignSelf: 'flex-start',
+    paddingHorizontal: spacing.md, paddingVertical: 4,
+    borderRadius: radii.pill, marginTop: spacing.md,
+  },
+  superBadgeTxt: { color: '#fff', fontSize: 11, fontWeight: '700' },
 });

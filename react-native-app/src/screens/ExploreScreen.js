@@ -18,8 +18,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { C, radii, spacing } from '../theme/colors';
 import PropertyCardAirbnb from '../components/PropertyCardAirbnb';
+import AdvancedFilterSheet from '../components/AdvancedFilterSheet';
 import { listProperties } from '../services/propertiesService';
 import { useFavorites } from '../store/useFavorites';
+import { isSuperhost } from '../utils/superhost';
 
 const CATEGORIES = [
   { key: 'all',        label: 'Tout',        icon: 'apps-outline' },
@@ -45,6 +47,8 @@ export default function ExploreScreen({ navigation }) {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [status, setStatus] = useState('all');
+  const [advFilter, setAdvFilter] = useState(null);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const favIds = useFavorites((s) => s.ids);
   const toggleFav = useFavorites((s) => s.toggle);
@@ -85,8 +89,19 @@ export default function ExploreScreen({ navigation }) {
         (p.type || '').toLowerCase().includes(q)
       );
     }
+    if (advFilter) {
+      const a = advFilter;
+      if (a.minPrice) out = out.filter((p) => Number(p.price) >= Number(a.minPrice));
+      if (a.maxPrice) out = out.filter((p) => Number(p.price) <= Number(a.maxPrice));
+      if (a.minBeds > 0) out = out.filter((p) => Number(p.bedrooms || 0) >= a.minBeds);
+      if (a.minBaths > 0) out = out.filter((p) => Number(p.bathrooms || 0) >= a.minBaths);
+      if (a.minArea) out = out.filter((p) => Number(p.area || 0) >= Number(a.minArea));
+      if (a.maxArea) out = out.filter((p) => Number(p.area || 0) <= Number(a.maxArea));
+      if (a.types?.length > 0) out = out.filter((p) => a.types.includes(p.type));
+      if (a.superhostOnly) out = out.filter(isSuperhost);
+    }
     return out;
-  }, [items, category, status, search]);
+  }, [items, category, status, search, advFilter]);
 
   const renderHeader = () => (
     <View style={styles.headerWrap}>
@@ -103,6 +118,13 @@ export default function ExploreScreen({ navigation }) {
             returnKeyType="search"
           />
         </View>
+        <Pressable
+          style={styles.filterBtn}
+          onPress={() => setFilterOpen(true)}
+          hitSlop={8}
+        >
+          <Ionicons name="options-outline" size={18} color={C.text} />
+        </Pressable>
         <Pressable
           style={styles.filterBtn}
           onPress={() => navigation.navigate('Map')}
@@ -205,6 +227,13 @@ export default function ExploreScreen({ navigation }) {
         }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: spacing.xxl }}
+      />
+
+      <AdvancedFilterSheet
+        visible={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        value={advFilter}
+        onApply={setAdvFilter}
       />
     </SafeAreaView>
   );
