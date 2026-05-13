@@ -1,9 +1,11 @@
 // MainTabs - Navigation par onglets bas Airbnb-style :
-// Explorer / Favoris / Voyages / Messages / Profil
+// Explorer / Favoris / Messages / Profil
+// Adapte aux barres systeme Android (gesture nav) via useSafeAreaInsets.
 import React from 'react';
+import { Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { C } from '../theme/colors';
 import ExploreScreen from '../screens/ExploreScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import MessagesScreen from '../screens/MessagesScreen';
@@ -12,22 +14,28 @@ import ProfileScreen from '../screens/ProfileScreen';
 const Tab = createBottomTabNavigator();
 
 export default function MainTabs() {
+  const insets = useSafeAreaInsets();
+  // Hauteur de base + bottom inset (gesture nav Android, home indicator iOS)
+  const bottomPad = Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: C.primary,
-        tabBarInactiveTintColor: C.muted,
+        tabBarActiveTintColor: '#000',
+        tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
           backgroundColor: '#fff',
-          borderTopColor: C.border,
-          height: 64,
-          paddingBottom: 8,
-          paddingTop: 6,
+          borderTopColor: '#E5E7EB',
+          borderTopWidth: 1,
+          height: 56 + bottomPad,
+          paddingBottom: bottomPad,
+          paddingTop: 8,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
+          marginTop: 2,
         },
         tabBarIcon: ({ color, size, focused }) => {
           const icons = {
@@ -36,7 +44,7 @@ export default function MainTabs() {
             Messages: focused ? 'chatbubbles' : 'chatbubbles-outline',
             ProfileTab: focused ? 'person-circle' : 'person-circle-outline',
           };
-          return <Ionicons name={icons[route.name] || 'ellipse'} size={size} color={color} />;
+          return <Ionicons name={icons[route.name] || 'ellipse'} size={22} color={color} />;
         },
       })}
     >

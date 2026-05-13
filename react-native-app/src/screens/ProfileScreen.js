@@ -1,34 +1,71 @@
-// Ecran Profil ORIZON - vue d'ensemble + acces rapides aux sections.
-// Affiche le vrai profil (depuis useAuthStore alimente par hydrateProfile),
-// permet d'ouvrir EditProfile et expose un badge KYC.
+// Ecran Profil ORIZON - Design epure noir et blanc.
+// Items groupes par categorie, sans redondance.
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { C } from '../theme/colors';
 import { useAuthStore } from '../store/useAuthStore';
 import { signOut, hydrateProfile, resendEmailVerification, canPublish } from '../services/authService';
 import { deleteMyAccount } from '../services/accountService';
 
-const SECTIONS = [
-  { key: 'MyListings',  icon: 'home-outline',          label: 'Mes annonces',     desc: 'Gere et modifie tes biens publies', publisherOnly: true },
-  { key: 'SellerStats', icon: 'stats-chart-outline',   label: 'Statistiques',     desc: 'Vues, contacts, favoris + boost premium', publisherOnly: true },
-  { key: 'AgencyManage', icon: 'business-outline',     label: 'Mon agence',       desc: 'Cree une agence et invite des agents', publisherOnly: true },
-  { key: 'MyVisits',    icon: 'calendar-outline',      label: 'Mes visites',      desc: 'Visites a venir et historique' },
-  { key: 'PhoneVerify', icon: 'phone-portrait-outline', label: 'Verifier mon telephone', desc: 'Confirme ton numero pour publier' },
-  { key: 'Payments',    icon: 'card-outline',          label: 'Paiements',        desc: 'Historique Stripe et MonCash' },
-  { key: 'Favorites',   icon: 'heart-outline',         label: 'Favoris',          desc: 'Tes biens preferes' },
-  { key: 'Alerts',      icon: 'notifications-outline', label: 'Alertes',          desc: 'Critere -> notification automatique' },
-  { key: 'Mortgage',    icon: 'calculator-outline',    label: "Calculateur d'hypotheque", desc: 'Banques HT - simulations' },
-  { key: 'Kyc',         icon: 'shield-checkmark-outline', label: 'Verification (KYC)', desc: 'Obtiens le badge "verifie"', publisherOnly: true },
-  { key: 'Settings',    icon: 'settings-outline',      label: 'Parametres',       desc: 'Langue, notifications, donnees' },
-  { key: 'Help',        icon: 'help-circle-outline',   label: 'Aide / FAQ',       desc: 'Reponses aux questions frequentes' },
-  { key: 'Support',     icon: 'chatbubbles-outline',   label: 'Contacter le support', desc: 'Reponse sous 24h' },
-  { key: 'About',       icon: 'information-circle-outline', label: 'A propos',     desc: 'ORIZON, contact, mentions legales' },
-  { key: 'Terms',       icon: 'document-text-outline',     label: "Conditions d'utilisation", desc: 'CGU ORIZON' },
-  { key: 'Privacy',     icon: 'lock-closed-outline',       label: 'Politique de confidentialite', desc: 'Comment nous traitons tes donnees' },
-  { key: 'BlockedUsers',icon: 'ban-outline',               label: 'Utilisateurs bloques', desc: 'Gere ta liste de blocages' },
-  { key: 'Admin',       icon: 'shield-outline',            label: 'Moderation',           desc: 'Outils admin', adminOnly: true },
+const M = {
+  bg: '#FFFFFF',
+  surface: '#FAFAFA',
+  border: '#E5E5E5',
+  borderStrong: '#D4D4D4',
+  text: '#0A0A0A',
+  textSoft: '#525252',
+  muted: '#737373',
+};
+
+const GROUPS = [
+  {
+    title: 'Mon activite',
+    items: [
+      { key: 'MyListings',   icon: 'home-outline',          label: 'Mes annonces',  publisherOnly: true },
+      { key: 'SellerStats',  icon: 'stats-chart-outline',   label: 'Statistiques',  publisherOnly: true },
+      { key: 'AgencyManage', icon: 'business-outline',      label: 'Mon agence',    publisherOnly: true },
+      { key: 'MyVisits',     icon: 'calendar-outline',      label: 'Mes visites' },
+      { key: 'Favorites',    icon: 'heart-outline',         label: 'Favoris' },
+      { key: 'Alerts',       icon: 'notifications-outline', label: 'Recherches sauvegardees' },
+    ],
+  },
+  {
+    title: 'Verification & Securite',
+    items: [
+      { key: 'Kyc',          icon: 'shield-checkmark-outline', label: "Verification d'identite (KYC)", publisherOnly: true },
+      { key: 'PhoneVerify',  icon: 'phone-portrait-outline',   label: 'Verifier mon telephone' },
+      { key: 'BlockedUsers', icon: 'ban-outline',              label: 'Utilisateurs bloques' },
+    ],
+  },
+  {
+    title: 'Outils',
+    items: [
+      { key: 'Payments',  icon: 'card-outline',       label: 'Historique paiements' },
+      { key: 'Mortgage',  icon: 'calculator-outline', label: "Calculateur d'hypotheque" },
+    ],
+  },
+  {
+    title: 'Aide',
+    items: [
+      { key: 'Help',     icon: 'help-circle-outline',        label: 'Aide / FAQ' },
+      { key: 'Support',  icon: 'chatbubbles-outline',        label: 'Contacter le support' },
+      { key: 'About',    icon: 'information-circle-outline', label: 'A propos' },
+    ],
+  },
+  {
+    title: 'Legal',
+    items: [
+      { key: 'Terms',    icon: 'document-text-outline', label: "Conditions d'utilisation" },
+      { key: 'Privacy',  icon: 'lock-closed-outline',   label: 'Politique de confidentialite' },
+    ],
+  },
+  {
+    title: 'Administration',
+    items: [
+      { key: 'Admin',    icon: 'shield-outline', label: 'Moderation', adminOnly: true },
+    ],
+  },
 ];
 
 function KycBadge({ user }) {
@@ -36,16 +73,16 @@ function KycBadge({ user }) {
   if (!canPublish(user.role)) return null;
   if (user.verified) {
     return (
-      <View style={[styles.badge, { backgroundColor: '#DCFCE7' }]}>
-        <Ionicons name="checkmark-circle" size={14} color="#15803D" />
-        <Text style={[styles.badgeTxt, { color: '#15803D' }]}>Verifie</Text>
+      <View style={[styles.badge, { backgroundColor: '#000', borderColor: '#000' }]}>
+        <Ionicons name="checkmark" size={11} color="#fff" />
+        <Text style={[styles.badgeTxt, { color: '#fff' }]}>Verifie</Text>
       </View>
     );
   }
   return (
-    <View style={[styles.badge, { backgroundColor: '#FEF3C7' }]}>
-      <Ionicons name="time-outline" size={14} color="#B45309" />
-      <Text style={[styles.badgeTxt, { color: '#B45309' }]}>KYC en attente</Text>
+    <View style={[styles.badge, { backgroundColor: '#fff', borderColor: M.borderStrong }]}>
+      <Ionicons name="time-outline" size={11} color={M.text} />
+      <Text style={[styles.badgeTxt, { color: M.text }]}>KYC en attente</Text>
     </View>
   );
 }
@@ -54,8 +91,6 @@ export default function ProfileScreen({ navigation }) {
   const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
-    // Recharge le profil a chaque entree dans l'ecran (au cas ou le KYC
-    // viendrait d'etre approuve cote admin).
     hydrateProfile().catch(() => {});
   }, []);
 
@@ -69,23 +104,37 @@ export default function ProfileScreen({ navigation }) {
 
   const initial = (user?.fullName || user?.email || 'U').slice(0, 1).toUpperCase();
   const showEmailWarning = user && !user.emailConfirmedAt;
+  const isAdmin = user?.role === 'admin';
+  const isPublisher = canPublish(user?.role);
+
+  const filterItems = (items) =>
+    items.filter((it) => {
+      if (it.publisherOnly && !isPublisher) return false;
+      if (it.adminOnly && !isAdmin) return false;
+      return true;
+    });
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-        {/* Bandeau email non verifie */}
+        <View style={styles.topBar}>
+          <Text style={styles.topTitle}>Profil</Text>
+          <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={10}>
+            <Ionicons name="settings-outline" size={22} color={M.text} />
+          </Pressable>
+        </View>
+
         {showEmailWarning && (
           <Pressable style={styles.warningBanner} onPress={onResend}>
-            <Ionicons name="mail-unread-outline" size={18} color="#92400E" />
+            <Ionicons name="mail-unread-outline" size={18} color={M.text} />
             <View style={{ flex: 1 }}>
               <Text style={styles.warningTitle}>Verifie ton email</Text>
               <Text style={styles.warningTxt}>Touche pour renvoyer le mail de verification.</Text>
             </View>
-            <Ionicons name="chevron-forward" size={16} color="#92400E" />
+            <Ionicons name="chevron-forward" size={16} color={M.text} />
           </Pressable>
         )}
 
-        {/* En-tete profil */}
         <View style={styles.headerCard}>
           <Pressable
             style={styles.avatarWrap}
@@ -100,7 +149,7 @@ export default function ProfileScreen({ navigation }) {
               </View>
             )}
             <View style={styles.cameraDot}>
-              <Ionicons name="camera" size={12} color="#fff" />
+              <Ionicons name="camera" size={11} color="#fff" />
             </View>
           </Pressable>
 
@@ -113,60 +162,50 @@ export default function ProfileScreen({ navigation }) {
               {user?.role && <Text style={styles.role}>{user.role}</Text>}
               <KycBadge user={user} />
             </View>
-            {user?.address ? (
-              <Text style={styles.metaTxt} numberOfLines={1}>
-                <Ionicons name="location-outline" size={11} color={C.muted} /> {user.address}
-              </Text>
-            ) : null}
           </View>
         </View>
 
-        {/* Actions rapides */}
         <View style={styles.quickRow}>
           <Pressable style={styles.quickBtn} onPress={() => navigation.navigate('EditProfile')}>
-            <Ionicons name="create-outline" size={16} color={C.primary} />
+            <Ionicons name="create-outline" size={15} color={M.text} />
             <Text style={styles.quickTxt}>Modifier</Text>
           </Pressable>
           <Pressable style={styles.quickBtn} onPress={() => navigation.navigate('ResetPassword', { fromProfile: true })}>
-            <Ionicons name="key-outline" size={16} color={C.primary} />
+            <Ionicons name="key-outline" size={15} color={M.text} />
             <Text style={styles.quickTxt}>Mot de passe</Text>
           </Pressable>
-          <Pressable style={styles.quickBtn} onPress={() => navigation.navigate('Payments')}>
-            <Ionicons name="card-outline" size={16} color={C.primary} />
-            <Text style={styles.quickTxt}>Paiements</Text>
-          </Pressable>
         </View>
 
-        {/* Liste des sections */}
-        <View style={styles.list}>
-          {SECTIONS
-            .filter((s) => !s.publisherOnly || canPublish(user?.role))
-            .filter((s) => !s.adminOnly || user?.role === 'admin')
-            .map((s, i, arr) => (
-              <Pressable
-                key={s.key}
-                style={[styles.rowItem, i === arr.length - 1 && { borderBottomWidth: 0 }]}
-                onPress={() => navigation.navigate(s.key)}
-              >
-                <View style={styles.iconWrap}>
-                  <Ionicons name={s.icon} size={18} color={C.primary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.rowLabel}>{s.label}</Text>
-                  <Text style={styles.rowDesc} numberOfLines={1}>{s.desc}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={C.muted} />
-              </Pressable>
-            ))}
-        </View>
+        {GROUPS.map((group) => {
+          const items = filterItems(group.items);
+          if (items.length === 0) return null;
+          return (
+            <View key={group.title} style={styles.group}>
+              <Text style={styles.groupTitle}>{group.title}</Text>
+              <View style={styles.list}>
+                {items.map((s, i) => (
+                  <Pressable
+                    key={s.key}
+                    style={[styles.rowItem, i === items.length - 1 && { borderBottomWidth: 0 }]}
+                    onPress={() => navigation.navigate(s.key)}
+                  >
+                    <Ionicons name={s.icon} size={20} color={M.text} style={{ width: 24 }} />
+                    <Text style={styles.rowLabel}>{s.label}</Text>
+                    <Ionicons name="chevron-forward" size={16} color={M.muted} />
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          );
+        })}
 
         <Pressable style={styles.signOut} onPress={signOut}>
-          <Ionicons name="log-out-outline" size={18} color={C.danger} />
+          <Ionicons name="log-out-outline" size={18} color={M.text} />
           <Text style={styles.signOutTxt}>Se deconnecter</Text>
         </Pressable>
 
         <Pressable
-          style={[styles.signOut, { borderColor: C.danger, backgroundColor: '#FEF2F2', marginTop: 8 }]}
+          style={styles.deleteBtn}
           onPress={() => {
             Alert.alert(
               'Supprimer mon compte ?',
@@ -185,81 +224,102 @@ export default function ProfileScreen({ navigation }) {
             );
           }}
         >
-          <Ionicons name="trash-outline" size={18} color={C.danger} />
-          <Text style={styles.signOutTxt}>Supprimer mon compte</Text>
+          <Ionicons name="trash-outline" size={16} color="#DC2626" />
+          <Text style={styles.deleteTxt}>Supprimer mon compte</Text>
         </Pressable>
+
+        <Text style={styles.version}>ORIZON v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
-  body: { padding: 16, gap: 14, paddingBottom: 40 },
+  safe: { flex: 1, backgroundColor: M.bg },
+  body: { padding: 16, gap: 16, paddingBottom: 40 },
+
+  topBar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  topTitle: { fontSize: 28, fontWeight: '800', color: M.text, letterSpacing: -0.5 },
 
   warningBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: '#FEF3C7', padding: 12, borderRadius: 12,
-    borderWidth: 1, borderColor: '#FCD34D',
+    backgroundColor: M.surface, padding: 12, borderRadius: 10,
+    borderWidth: 1, borderColor: M.borderStrong,
   },
-  warningTitle: { fontSize: 12, fontWeight: '800', color: '#92400E' },
-  warningTxt: { fontSize: 11, color: '#92400E', marginTop: 1 },
+  warningTitle: { fontSize: 13, fontWeight: '700', color: M.text },
+  warningTxt: { fontSize: 11, color: M.textSoft, marginTop: 2 },
 
   headerCard: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
-    padding: 16, borderRadius: 16, backgroundColor: C.surface,
-    borderWidth: 1, borderColor: C.border,
+    paddingVertical: 8,
   },
   avatarWrap: { position: 'relative' },
   avatar: {
-    width: 64, height: 64, borderRadius: 32, backgroundColor: C.primary,
+    width: 64, height: 64, borderRadius: 32, backgroundColor: '#000',
     alignItems: 'center', justifyContent: 'center',
   },
   avatarImg: {
-    width: 64, height: 64, borderRadius: 32, backgroundColor: C.surface,
+    width: 64, height: 64, borderRadius: 32, backgroundColor: M.surface,
   },
-  avatarTxt: { color: '#fff', fontWeight: '800', fontSize: 24 },
+  avatarTxt: { color: '#fff', fontWeight: '800', fontSize: 26 },
   cameraDot: {
-    position: 'absolute', bottom: 0, right: 0,
+    position: 'absolute', bottom: -2, right: -2,
     width: 22, height: 22, borderRadius: 11,
-    backgroundColor: C.accent, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#000', alignItems: 'center', justifyContent: 'center',
     borderWidth: 2, borderColor: '#fff',
   },
-  name: { fontSize: 17, fontWeight: '800', color: C.text },
-  email: { fontSize: 12, color: C.muted },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 2 },
-  role: { fontSize: 11, color: C.primary, fontWeight: '700', letterSpacing: 0.5 },
-  metaTxt: { fontSize: 11, color: C.muted, marginTop: 2 },
+  name: { fontSize: 18, fontWeight: '800', color: M.text },
+  email: { fontSize: 12, color: M.muted },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: 4 },
+  role: { fontSize: 10, color: M.text, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 },
 
   badge: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999,
+    borderWidth: 1,
   },
-  badgeTxt: { fontSize: 10, fontWeight: '800' },
+  badgeTxt: { fontSize: 10, fontWeight: '700' },
 
   quickRow: { flexDirection: 'row', gap: 8 },
   quickBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    paddingVertical: 12, borderRadius: 12,
-    backgroundColor: C.primarySoft, borderWidth: 1, borderColor: C.primarySoft,
+    paddingVertical: 12, borderRadius: 10,
+    backgroundColor: M.surface, borderWidth: 1, borderColor: M.border,
   },
-  quickTxt: { fontSize: 12, color: C.primary, fontWeight: '700' },
+  quickTxt: { fontSize: 12, color: M.text, fontWeight: '700' },
 
-  list: { backgroundColor: '#fff', borderRadius: 16, borderWidth: 1, borderColor: C.border, overflow: 'hidden' },
+  group: { gap: 8 },
+  groupTitle: {
+    fontSize: 11, fontWeight: '700', color: M.muted,
+    textTransform: 'uppercase', letterSpacing: 1.2, paddingHorizontal: 4,
+  },
+  list: {
+    backgroundColor: '#fff', borderRadius: 12,
+    borderWidth: 1, borderColor: M.border, overflow: 'hidden',
+  },
   rowItem: {
-    flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.border,
+    flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, paddingHorizontal: 14,
+    borderBottomWidth: 1, borderBottomColor: M.border,
   },
-  iconWrap: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: C.primarySoft,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  rowLabel: { fontSize: 13, color: C.text, fontWeight: '700' },
-  rowDesc:  { fontSize: 11, color: C.muted, marginTop: 2 },
+  rowLabel: { flex: 1, fontSize: 14, color: M.text, fontWeight: '500' },
 
   signOut: {
-    marginTop: 4, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    paddingVertical: 14, borderRadius: 14, borderWidth: 1.5, borderColor: C.danger,
+    marginTop: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    paddingVertical: 14, borderRadius: 10, borderWidth: 1, borderColor: M.borderStrong,
+    backgroundColor: '#fff',
   },
-  signOutTxt: { color: C.danger, fontWeight: '700', fontSize: 13 },
+  signOutTxt: { color: M.text, fontWeight: '700', fontSize: 14 },
+
+  deleteBtn: {
+    marginTop: 8, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    paddingVertical: 12,
+  },
+  deleteTxt: { color: '#DC2626', fontWeight: '600', fontSize: 12 },
+
+  version: {
+    textAlign: 'center', fontSize: 11, color: M.muted, marginTop: 16,
+  },
 });

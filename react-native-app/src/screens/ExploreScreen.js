@@ -175,13 +175,6 @@ export default function ExploreScreen({ navigation }) {
         >
           <Ionicons name="options-outline" size={18} color={C.text} />
         </Pressable>
-        <Pressable
-          style={styles.filterBtn}
-          onPress={() => navigation.navigate('Map')}
-          hitSlop={8}
-        >
-          <Ionicons name="map-outline" size={18} color={C.text} />
-        </Pressable>
       </Pressable>
 
       {/* Filtres rapides A vendre / A louer */}
