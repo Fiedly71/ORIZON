@@ -65,16 +65,12 @@ export default function AboutScreen({ navigation }) {
         </Section>
 
         <Section title="Mentions legales">
-          <Pressable style={styles.legalRow} onPress={() => open(`${COMPANY.website}/cgu`)}>
+          <Pressable style={styles.legalRow} onPress={() => open('https://fiedly71.github.io/ORIZON/terms.html')}>
             <Text style={styles.legalTxt}>Conditions generales d utilisation</Text>
             <Ionicons name="chevron-forward" size={16} color={C.muted} />
           </Pressable>
-          <Pressable style={styles.legalRow} onPress={() => open(`${COMPANY.website}/confidentialite`)}>
+          <Pressable style={styles.legalRow} onPress={() => open('https://fiedly71.github.io/ORIZON/privacy.html')}>
             <Text style={styles.legalTxt}>Politique de confidentialite</Text>
-            <Ionicons name="chevron-forward" size={16} color={C.muted} />
-          </Pressable>
-          <Pressable style={styles.legalRow} onPress={() => open(`${COMPANY.website}/cookies`)}>
-            <Text style={styles.legalTxt}>Cookies</Text>
             <Ionicons name="chevron-forward" size={16} color={C.muted} />
           </Pressable>
         </Section>
