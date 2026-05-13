@@ -1,4 +1,143 @@
 workflows:
+  android-universal:
+    name: ORIZON Android UNIVERSAL APK (1 seul fichier installable partout)
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      groups:
+        - orizon_env
+      node: 20.11.1
+      java: 17
+    cache:
+      cache_paths:
+        - ~/.gradle/caches
+        - $CM_BUILD_DIR/react-native-app/node_modules
+    scripts:
+      - name: Install dependencies
+        script: |
+          cd react-native-app
+          corepack enable
+          corepack prepare yarn@4.14.1 --activate
+          yarn config set nodeLinker node-modules
+          yarn install --no-immutable
+      - name: Write .env from Codemagic env vars
+        script: |
+          cd react-native-app
+          cat > .env <<EOF
+          EXPO_PUBLIC_SUPABASE_URL=$EXPO_PUBLIC_SUPABASE_URL
+          EXPO_PUBLIC_SUPABASE_ANON_KEY=$EXPO_PUBLIC_SUPABASE_ANON_KEY
+          EXPO_PUBLIC_POSTHOG_KEY=$EXPO_PUBLIC_POSTHOG_KEY
+          EXPO_PUBLIC_POSTHOG_HOST=$EXPO_PUBLIC_POSTHOG_HOST
+          EXPO_PUBLIC_COMPANY_NAME=$EXPO_PUBLIC_COMPANY_NAME
+          EXPO_PUBLIC_COMPANY_ADDRESS=$EXPO_PUBLIC_COMPANY_ADDRESS
+          EXPO_PUBLIC_COMPANY_WEBSITE=$EXPO_PUBLIC_COMPANY_WEBSITE
+          EXPO_PUBLIC_SUPPORT_EMAIL=$EXPO_PUBLIC_SUPPORT_EMAIL
+          EXPO_PUBLIC_SUPPORT_PHONE=$EXPO_PUBLIC_SUPPORT_PHONE
+          EXPO_PUBLIC_SUPPORT_WHATSAPP=$EXPO_PUBLIC_SUPPORT_WHATSAPP
+          EOF
+      - name: Expo prebuild (Android)
+        script: |
+          cd react-native-app
+          npx expo prebuild --platform android --no-install --clean
+      - name: Generate debug keystore (compatible toutes versions Android)
+        script: |
+          mkdir -p ~/.android
+          if [ ! -f ~/.android/debug.keystore ]; then
+            keytool -genkeypair -v \
+              -keystore ~/.android/debug.keystore \
+              -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass android -keypass android \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+      - name: Bundle JS manuellement (avec env vars inlinees)
+        script: |
+          cd react-native-app
+          mkdir -p android/app/src/main/assets
+          mkdir -p android/app/src/main/res
+          export EXPO_PUBLIC_SUPABASE_URL="$EXPO_PUBLIC_SUPABASE_URL"
+          export EXPO_PUBLIC_SUPABASE_ANON_KEY="$EXPO_PUBLIC_SUPABASE_ANON_KEY"
+          export EXPO_PUBLIC_POSTHOG_KEY="$EXPO_PUBLIC_POSTHOG_KEY"
+          export EXPO_PUBLIC_POSTHOG_HOST="$EXPO_PUBLIC_POSTHOG_HOST"
+          export EXPO_PUBLIC_COMPANY_NAME="$EXPO_PUBLIC_COMPANY_NAME"
+          export EXPO_PUBLIC_COMPANY_ADDRESS="$EXPO_PUBLIC_COMPANY_ADDRESS"
+          export EXPO_PUBLIC_COMPANY_WEBSITE="$EXPO_PUBLIC_COMPANY_WEBSITE"
+          export EXPO_PUBLIC_SUPPORT_EMAIL="$EXPO_PUBLIC_SUPPORT_EMAIL"
+          export EXPO_PUBLIC_SUPPORT_PHONE="$EXPO_PUBLIC_SUPPORT_PHONE"
+          export EXPO_PUBLIC_SUPPORT_WHATSAPP="$EXPO_PUBLIC_SUPPORT_WHATSAPP"
+          npx expo export:embed \
+            --platform android \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res \
+            --reset-cache
+          ls -lh android/app/src/main/assets/index.android.bundle
+      - name: Config UNIVERSAL APK (1 seul APK pour toutes architectures, debug-signed)
+        script: |
+          cd react-native-app/android
+          # CLE: on DESACTIVE les splits ABI pour avoir UN SEUL APK universel
+          # qui contient toutes les architectures (armv7, arm64, x86, x86_64).
+          # Plus volumineux (~80MB) mais installable partout sans confusion.
+          cat > app/universal.gradle <<'GRADLE_EOF'
+          android {
+              signingConfigs {
+                  releaseUniversal {
+                      storeFile file(System.getenv("HOME") + "/.android/debug.keystore")
+                      storePassword "android"
+                      keyAlias "androiddebugkey"
+                      keyPassword "android"
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.releaseUniversal
+                      minifyEnabled false
+                      shrinkResources false
+                  }
+              }
+              splits {
+                  abi {
+                      enable false
+                  }
+                  density {
+                      enable false
+                  }
+              }
+              packagingOptions {
+                  jniLibs {
+                      useLegacyPackaging true
+                  }
+              }
+          }
+          GRADLE_EOF
+          if ! grep -q "apply from: 'universal.gradle'" app/build.gradle; then
+            echo "" >> app/build.gradle
+            echo "apply from: 'universal.gradle'" >> app/build.gradle
+          fi
+      - name: Build APK universel
+        script: |
+          cd react-native-app/android
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+      - name: Renommer en orizon-universal.apk pour clarte
+        script: |
+          cd react-native-app/android/app/build/outputs/apk/release
+          ls -lh
+          # Trouver l'APK universel (pas de suffixe ABI)
+          APK=$(ls *.apk | grep -v -E "(armeabi|arm64|x86)" | head -1)
+          if [ -n "$APK" ]; then
+            cp "$APK" "orizon-universal.apk"
+            echo "APK universel cree: orizon-universal.apk ($(du -h orizon-universal.apk | cut -f1))"
+          fi
+          # Verifier que le bundle est dedans
+          unzip -l orizon-universal.apk | grep "index.android.bundle" || echo "BUNDLE MANQUANT !"
+          # Verifier la signature
+          $ANDROID_SDK_ROOT/build-tools/*/apksigner verify --verbose orizon-universal.apk 2>&1 | head -8 || true
+    artifacts:
+      - react-native-app/android/app/build/outputs/apk/release/orizon-universal.apk
+      - react-native-app/android/app/build/outputs/apk/release/*.apk
+
   android-debug:
     name: ORIZON Android Debug APK
     max_build_duration: 60
