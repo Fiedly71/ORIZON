@@ -37,8 +37,13 @@ export default function EditProfileScreen({ navigation }) {
     }
     const asset = r.assets?.[0];
     if (!asset) return;
+
+    // 1) PREVIEW IMMEDIAT avec l'URI locale, des la selection.
+    update('avatarUrl', asset.uri);
+
     setUploading(true);
     try {
+      // 2) Upload vers Supabase en arriere-plan
       const up = await uploadImage(asset.uri, {
         folder: 'avatars', mime: asset.mime, compress: 0.6, generateThumb: false,
       });
@@ -46,7 +51,13 @@ export default function EditProfileScreen({ navigation }) {
         Alert.alert('Upload', up.error || 'Echec upload');
         return;
       }
+      // 3) Remplace par l'URL Supabase finale
       update('avatarUrl', up.url || asset.uri);
+
+      // 4) AUTO-SAVE de l'avatar dans le profil (sans attendre Enregistrer)
+      try {
+        await updateProfile({ avatarUrl: up.url });
+      } catch {}
     } finally {
       setUploading(false);
     }
