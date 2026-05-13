@@ -2,7 +2,7 @@ workflows:
   android-universal:
     name: ORIZON Android UNIVERSAL APK (1 seul fichier installable partout)
     max_build_duration: 60
-    instance_type: linux_x2
+    instance_type: linux
     environment:
       groups:
         - orizon_env
