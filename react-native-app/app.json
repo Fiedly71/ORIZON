@@ -4,9 +4,14 @@
     "slug": "orizon-mobile",
     "version": "1.0.0",
     "scheme": "orizon",
+    "icon": "./assets/icon.png",
     "android": {
       "package": "com.orizon.mobile",
       "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1D4ED8"
+      },
       "edgeToEdgeEnabled": false,
       "statusBar": {
         "barStyle": "dark-content",
@@ -40,6 +45,7 @@
     "userInterfaceStyle": "light",
     "primaryColor": "#1D4ED8",
     "splash": {
+      "image": "./assets/splash.png",
       "backgroundColor": "#1D4ED8",
       "resizeMode": "contain"
     },
