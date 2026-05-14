@@ -599,3 +599,90 @@ workflows:
         submit_to_testflight: true
         beta_groups:
           - Internal Testers
+
+  android-production-aab:
+    name: ORIZON Android PRODUCTION (AAB signe pour Google Play)
+    max_build_duration: 90
+    instance_type: mac_mini_m2
+    environment:
+      groups:
+        - orizon_env
+        - orizon_keystore   # Doit contenir : CM_KEYSTORE (base64), CM_KEYSTORE_PASSWORD, CM_KEY_ALIAS, CM_KEY_PASSWORD
+      android_signing:
+        - orizon_upload_keystore  # Codemagic UI > Code signing identities > Android keystore
+      node: 20.11.1
+      java: 17
+    cache:
+      cache_paths:
+        - ~/.gradle/caches
+        - $CM_BUILD_DIR/react-native-app/node_modules
+    scripts:
+      - name: Install dependencies
+        script: |
+          cd react-native-app
+          corepack enable
+          corepack prepare yarn@4.14.1 --activate
+          yarn config set nodeLinker node-modules
+          yarn install --no-immutable
+      - name: Write .env from Codemagic env vars
+        script: |
+          cd react-native-app
+          cat > .env <<EOF
+          EXPO_PUBLIC_SUPABASE_URL=$EXPO_PUBLIC_SUPABASE_URL
+          EXPO_PUBLIC_SUPABASE_ANON_KEY=$EXPO_PUBLIC_SUPABASE_ANON_KEY
+          EXPO_PUBLIC_POSTHOG_KEY=$EXPO_PUBLIC_POSTHOG_KEY
+          EXPO_PUBLIC_POSTHOG_HOST=$EXPO_PUBLIC_POSTHOG_HOST
+          EXPO_PUBLIC_COMPANY_NAME=$EXPO_PUBLIC_COMPANY_NAME
+          EXPO_PUBLIC_COMPANY_ADDRESS=$EXPO_PUBLIC_COMPANY_ADDRESS
+          EXPO_PUBLIC_COMPANY_WEBSITE=$EXPO_PUBLIC_COMPANY_WEBSITE
+          EXPO_PUBLIC_SUPPORT_EMAIL=$EXPO_PUBLIC_SUPPORT_EMAIL
+          EXPO_PUBLIC_SUPPORT_PHONE=$EXPO_PUBLIC_SUPPORT_PHONE
+          EXPO_PUBLIC_SUPPORT_WHATSAPP=$EXPO_PUBLIC_SUPPORT_WHATSAPP
+          EOF
+      - name: Expo prebuild (Android)
+        script: |
+          cd react-native-app
+          npx expo prebuild --platform android --no-install --clean
+      - name: Configure release signing
+        script: |
+          cd react-native-app/android
+          # Codemagic injects keystore automatically via android_signing block above.
+          # On verifie juste que app/build.gradle a bien le signingConfig release.
+          if ! grep -q "signingConfigs" app/build.gradle; then
+            echo "WARNING: signingConfigs absent. Configurez le keystore upload dans Codemagic UI."
+          fi
+      - name: Bundle JS pour release
+        script: |
+          cd react-native-app
+          mkdir -p android/app/src/main/assets
+          mkdir -p android/app/src/main/res
+          npx expo export:embed \
+            --platform android \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res \
+            --reset-cache
+      - name: Build AAB release
+        script: |
+          cd react-native-app/android
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon --stacktrace
+      - name: Rename AAB
+        script: |
+          cd react-native-app/android/app/build/outputs/bundle/release
+          ls -lh
+          cp app-release.aab orizon-production.aab || true
+    artifacts:
+      - react-native-app/android/app/build/outputs/bundle/release/*.aab
+      - react-native-app/android/app/build/outputs/mapping/release/mapping.txt
+    publishing:
+      google_play:
+        # Configurer Codemagic > Teams > Integrations > Google Play
+        # puis ajouter GCLOUD_SERVICE_ACCOUNT_CREDENTIALS dans le group orizon_keystore
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal   # internal | alpha | beta | production
+        submit_as_draft: true
+        in_app_update_priority: 3
+
+
