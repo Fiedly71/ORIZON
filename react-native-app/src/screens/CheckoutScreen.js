@@ -29,15 +29,15 @@ export default function CheckoutScreen({ navigation, route }) {
   const isMonCash = provider === PROVIDERS.MONCASH;
 
   const submit = async () => {
-    if (isMonCash && phone.trim().length < 8) {
-      Alert.alert('MonCash', 'Entre ton numéro MonCash (8 chiffres).');
+    // MonCash : on redirige vers l'ecran manuel (paiement hors-app + soumission preuve).
+    if (isMonCash) {
+      navigation.replace('MonCashManual', { propertyId, amount: LISTING_FEE_HTG, purpose: 'listing' });
       return;
     }
+
     setBusy(true);
     try {
-      const r = isMonCash
-        ? await payListingWithMonCash({ propertyId, phone })
-        : await payListingWithStripe({ propertyId });
+      const r = await payListingWithStripe({ propertyId });
 
       if (!r.ok) {
         Alert.alert('Paiement échoué', r.error || 'Réessaie.');

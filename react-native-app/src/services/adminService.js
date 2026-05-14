@@ -196,12 +196,32 @@ export async function listPayments({ filter = 'all', limit = 100 } = {}) {
     .select('*')
     .order('created_at', { ascending: false })
     .limit(limit);
+  if (filter === 'pending') q = q.eq('status', 'pending');
   if (filter === 'succeeded') q = q.eq('status', 'succeeded');
   if (filter === 'failed') q = q.eq('status', 'failed');
   if (filter === 'refunded') q = q.eq('refunded', true);
   const { data, error } = await q;
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: data || [] };
+}
+
+// Approuve un paiement MonCash manuel (active la propriete liee)
+export async function approveMonCashPayment(paymentId) {
+  if (!isSupabaseConfigured) return { ok: true };
+  const { error } = await supabase.rpc('approve_payment', { p_payment_id: paymentId });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+// Rejette un paiement MonCash manuel (avec raison)
+export async function rejectMonCashPayment(paymentId, reason) {
+  if (!isSupabaseConfigured) return { ok: true };
+  const { error } = await supabase.rpc('reject_payment', {
+    p_payment_id: paymentId,
+    p_reason: reason || 'Reference introuvable',
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
 }
 
 export async function refundPayment(paymentId, reason = '') {

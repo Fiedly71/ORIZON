@@ -31,6 +31,12 @@ export const LISTING_FEE_USD = 20;
 export const LISTING_FEE_HTG = 2500;
 export const USD_TO_HTG = 125; // taux de reference (sandbox)
 
+// MonCash MANUEL - numero receveur central TROKE/ORIZON
+// Le client paye sur ce numero MonCash, puis soumet la reference via l'app.
+// L'admin valide manuellement.
+export const MONCASH_RECEIVER_NUMBER = '39934388';
+export const MONCASH_RECEIVER_NAME = 'ORIZON';
+
 export const PROVIDERS = {
   STRIPE: 'stripe',
   MONCASH: 'moncash',
@@ -252,3 +258,70 @@ export async function listMyPayments() {
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: data || [] };
 }
+
+// ============================================================
+// MONCASH MANUEL - paiement hors-bande avec validation admin
+// ============================================================
+//
+// Workflow :
+//   1. Le client paye 2500 HTG sur MonCash 39934388 (USSD *202# ou app MonCash)
+//   2. Il recoit un SMS de confirmation avec une reference unique
+//   3. Il revient dans l'app et soumet : reference + son numero
+//   4. submitMonCashManual() cree un payment status=pending
+//   5. Un admin verifie le SMS sur son telephone receveur et approuve
+//   6. La RPC approve_payment confirme le paiement et active la propriete
+
+export async function submitMonCashManual({ propertyId, reference, phone, amount, currency = 'HTG', purpose = 'listing' }) {
+  if (!reference || reference.trim().length < 4) {
+    return { ok: false, error: 'Reference MonCash invalide (4 caracteres minimum)' };
+  }
+  if (!phone || phone.replace(/\D/g, '').length < 8) {
+    return { ok: false, error: 'Numero de telephone invalide' };
+  }
+
+  const fee = amount || LISTING_FEE_HTG;
+
+  track(EVT.startPayment, { provider: 'moncash_manual', amount: fee, currency, propertyId });
+
+  if (!isSupabaseConfigured) {
+    return {
+      ok: true,
+      mock: true,
+      paymentId: `mock-${Date.now()}`,
+      message: 'Paiement enregistre (mode demo). Un admin va valider sous peu.',
+    };
+  }
+
+  try {
+    const { data, error } = await supabase.rpc('submit_moncash_payment', {
+      p_property_id: propertyId || null,
+      p_amount: fee,
+      p_currency: currency,
+      p_purpose: purpose,
+      p_reference: reference.trim().toUpperCase(),
+      p_phone: phone.trim(),
+    });
+    if (error) {
+      track(EVT.paymentFail, { provider: 'moncash_manual', error: error.message });
+      return { ok: false, error: error.message };
+    }
+    return {
+      ok: true,
+      paymentId: data,
+      message: 'Paiement soumis. Un admin va verifier ta reference et activer ta publication sous peu (quelques minutes a quelques heures).',
+    };
+  } catch (e) {
+    captureException(e, { provider: 'moncash_manual' });
+    return { ok: false, error: e?.message || String(e) };
+  }
+}
+
+// Instructions affichees au client
+export function getMonCashInstructions(amount = LISTING_FEE_HTG) {
+  return [
+    `Compose *202# ou ouvre l'app MonCash`,
+    `Envoie ${amount} HTG au numero ${MONCASH_RECEIVER_NUMBER} (${MONCASH_RECEIVER_NAME})`,
+    `Note la reference recue par SMS, puis reviens ici pour la soumettre`,
+  ];
+}
+

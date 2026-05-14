@@ -34,6 +34,7 @@ import AgencyManageScreen from '../screens/AgencyManageScreen';
 import KycScreen from '../screens/KycScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SectionDetailScreen from '../screens/SectionDetailScreen';
+import MonCashManualScreen from '../screens/MonCashManualScreen';
 import { useAuthStore } from '../store/useAuthStore';
 import { restoreSession } from '../services/authService';
 import { usePushSetup } from '../hooks/usePushSetup';
@@ -98,6 +99,7 @@ export default function RootNavigator() {
             <Stack.Screen name="Conversation" component={ConversationScreen} />
             <Stack.Screen name="PhoneVerify" component={PhoneVerifyScreen} />
             <Stack.Screen name="Admin" component={AdminScreen} />
+            <Stack.Screen name="MonCashManual" component={MonCashManualScreen} />
             <Stack.Screen name="Support" component={SupportScreen} />
             <Stack.Screen name="BoostListing" component={BoostListingScreen} />
             <Stack.Screen name="Compare" component={CompareScreen} />

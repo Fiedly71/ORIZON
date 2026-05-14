@@ -14,6 +14,7 @@ import {
   listProperties, moderateProperty,
   listPhotosForReview,
   listPayments, refundPayment,
+  approveMonCashPayment, rejectMonCashPayment,
   listPendingKyc, decideKyc,
   listReports, resolveReport,
 } from '../services/adminService';
@@ -34,6 +35,7 @@ const TABS = [
   { key: 'overview', label: 'Vue d\'ensemble', icon: 'grid-outline' },
   { key: 'users', label: 'Utilisateurs', icon: 'people-outline' },
   { key: 'pending', label: 'En attente', icon: 'time-outline' },
+  { key: 'moncash', label: 'MonCash', icon: 'wallet-outline' },
   { key: 'photos', label: 'Photos', icon: 'images-outline' },
   { key: 'revenue', label: 'Revenus', icon: 'cash-outline' },
   { key: 'kyc', label: 'KYC Agences', icon: 'shield-checkmark-outline' },
@@ -70,6 +72,9 @@ export default function AdminScreen({ navigation }) {
         setData(r.ok ? r.data : []);
       } else if (k === 'photos') {
         const r = await listPhotosForReview();
+        setData(r.ok ? r.data : []);
+      } else if (k === 'moncash') {
+        const r = await listPayments({ filter: 'pending' });
         setData(r.ok ? r.data : []);
       } else if (k === 'revenue') {
         const r = await listPayments({ filter: 'all' });
@@ -301,6 +306,7 @@ function ListView({ tab, data, loading, refreshing, onRefresh, reload }) {
         if (tab === 'users') return <UserRow item={item} reload={reload} />;
         if (tab === 'pending') return <PendingRow item={item} reload={reload} />;
         if (tab === 'photos') return <PhotoRow item={item} reload={reload} />;
+        if (tab === 'moncash') return <MonCashPendingRow item={item} reload={reload} />;
         if (tab === 'revenue') return <PaymentRow item={item} reload={reload} />;
         if (tab === 'kyc') return <KycRow item={item} reload={reload} />;
         if (tab === 'reports') return <ReportRow item={item} reload={reload} />;
@@ -425,6 +431,66 @@ function PaymentRow({ item, reload }) {
           <Text style={styles.btnTxt}>Rembourser</Text>
         </Pressable>
       ) : null}
+    </View>
+  );
+}
+
+function MonCashPendingRow({ item, reload }) {
+  const approve = () => {
+    Alert.alert(
+      'Approuver ce paiement',
+      `Verifie sur ton telephone que tu as bien recu ${fmt(item.amount)} avec la reference ${item.moncash_reference} de ${item.moncash_phone || '?'}.\n\nApprouver active immediatement le service du client.`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Approuver',
+          onPress: async () => {
+            const r = await approveMonCashPayment(item.id);
+            if (!r.ok) Alert.alert('Erreur', r.error);
+            reload();
+          },
+        },
+      ],
+    );
+  };
+  const reject = () => {
+    Alert.alert(
+      'Rejeter ce paiement',
+      'Le client sera notifie et pourra refaire la demarche.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Rejeter',
+          style: 'destructive',
+          onPress: async () => {
+            const r = await rejectMonCashPayment(item.id, 'Reference introuvable sur MonCash');
+            if (!r.ok) Alert.alert('Erreur', r.error);
+            reload();
+          },
+        },
+      ],
+    );
+  };
+  return (
+    <View style={styles.row}>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.rowTitle}>{fmt(item.amount)} {item.currency || 'HTG'}</Text>
+        <Text style={styles.rowSub}>Ref : {item.moncash_reference || '—'}</Text>
+        <Text style={styles.rowSub}>Tel client : {item.moncash_phone || '—'}</Text>
+        <Text style={styles.rowSub}>{new Date(item.created_at).toLocaleString('fr-FR')}</Text>
+        <View style={styles.tagsRow}>
+          <Tag>{item.purpose || 'listing'}</Tag>
+          {item.property_id ? <Tag dark>Annonce liee</Tag> : null}
+        </View>
+      </View>
+      <View style={{ gap: 6 }}>
+        <Pressable onPress={approve} style={[styles.btn, styles.btnOk]}>
+          <Text style={styles.btnTxt}>Approuver</Text>
+        </Pressable>
+        <Pressable onPress={reject} style={[styles.btn, styles.btnDanger]}>
+          <Text style={styles.btnTxt}>Rejeter</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
