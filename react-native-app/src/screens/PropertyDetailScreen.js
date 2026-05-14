@@ -190,7 +190,12 @@ export default function PropertyDetailScreen({ navigation, route }) {
               </Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.hostTitle}>Propose par {item.ownerName || 'le proprietaire'}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={styles.hostTitle}>Propose par {item.ownerName || 'le proprietaire'}</Text>
+                {item.verified && (
+                  <Ionicons name="checkmark-circle" size={14} color={C.primary} />
+                )}
+              </View>
               <Text style={styles.hostSub}>{item.ownerType || 'Proprietaire individuel'}</Text>
             </View>
             <Pressable style={styles.contactBtn} onPress={onContact}>

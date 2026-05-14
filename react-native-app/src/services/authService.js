@@ -81,6 +81,8 @@ export async function hydrateProfile() {
     bio: data.bio || null,
     verified: !!data.verified,
     canPublish: !!data.can_publish,
+    verificationLevel: data.verification_level || (data.verified ? 'basic' : 'none'),
+    verifiedAt: data.verified_at || null,
   });
   return { ok: true, data };
 }

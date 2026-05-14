@@ -68,17 +68,21 @@ const GROUPS = [
   },
 ];
 
+const LEVEL_LABEL = { basic: 'Verifie', pro: 'Verifie Pro', premium: 'Verifie Premium' };
+
 function KycBadge({ user }) {
   if (!user) return null;
-  if (!canPublish(user.role)) return null;
   if (user.verified) {
+    const level = user.verificationLevel || 'basic';
+    const label = LEVEL_LABEL[level] || 'Verifie';
     return (
       <View style={[styles.badge, { backgroundColor: '#000', borderColor: '#000' }]}>
-        <Ionicons name="checkmark" size={11} color="#fff" />
-        <Text style={[styles.badgeTxt, { color: '#fff' }]}>Verifie</Text>
+        <Ionicons name="checkmark-circle" size={12} color="#fff" />
+        <Text style={[styles.badgeTxt, { color: '#fff' }]}>{label}</Text>
       </View>
     );
   }
+  if (!canPublish(user.role)) return null;
   return (
     <View style={[styles.badge, { backgroundColor: '#fff', borderColor: M.borderStrong }]}>
       <Ionicons name="time-outline" size={11} color={M.text} />
