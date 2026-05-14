@@ -24,10 +24,16 @@
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
-        "READ_MEDIA_IMAGES",
-        "com.google.android.gms.permission.AD_ID"
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.READ_MEDIA_IMAGES",
+        "com.google.android.gms.permission.AD_ID",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.READ_MEDIA_IMAGES",
+        "com.google.android.gms.permission.AD_ID",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "ios": {
@@ -58,7 +64,8 @@
     "updates": {
       "enabled": true,
       "fallbackToCacheTimeout": 0,
-      "checkAutomatically": "ON_LOAD"
+      "checkAutomatically": "ON_LOAD",
+      "url": "https://u.expo.dev/36afb92f-c94d-4881-b448-04db7ffafb67"
     },
     "plugins": [
       [
@@ -80,6 +87,12 @@
           "userTrackingPermission": "ORIZON utilise ces donnees pour ameliorer ton experience et te proposer des biens pertinents. Aucune donnee n'est vendue a des tiers."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "36afb92f-c94d-4881-b448-04db7ffafb67"
+      }
+    },
+    "owner": "fiedly71"
   }
 }
