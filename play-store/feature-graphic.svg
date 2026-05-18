@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 500" width="1024" height="500">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B1220"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#FBBF24"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="500" fill="url(#bg)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="900" cy="100" r="180" fill="#1F2937" opacity="0.6"/>
+  <circle cx="120" cy="430" r="120" fill="#1F2937" opacity="0.5"/>
+
+  <!-- House icon -->
+  <g transform="translate(120,170)">
+    <path d="M0 80 L80 0 L160 80 L160 160 L0 160 Z" fill="url(#accent)"/>
+    <rect x="60" y="100" width="40" height="60" fill="#0B1220"/>
+    <rect x="20" y="100" width="30" height="30" fill="#0B1220"/>
+    <rect x="110" y="100" width="30" height="30" fill="#0B1220"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="340" y="240" font-family="Helvetica, Arial, sans-serif"
+        font-size="120" font-weight="900" fill="#FFFFFF" letter-spacing="6">
+    ORIZON
+  </text>
+
+  <!-- Underline accent -->
+  <rect x="340" y="260" width="340" height="6" fill="url(#accent)"/>
+
+  <!-- Tagline -->
+  <text x="340" y="320" font-family="Helvetica, Arial, sans-serif"
+        font-size="34" font-weight="500" fill="#E5E7EB">
+    Immobilier en Haïti
+  </text>
+
+  <text x="340" y="370" font-family="Helvetica, Arial, sans-serif"
+        font-size="22" font-weight="400" fill="#9CA3AF">
+    Acheter · Louer · Vendre — partout dans le pays
+  </text>
+
+  <!-- Badge -->
+  <g transform="translate(340,400)">
+    <rect x="0" y="0" width="220" height="48" rx="24" fill="url(#accent)"/>
+    <text x="110" y="32" font-family="Helvetica, Arial, sans-serif"
+          font-size="20" font-weight="800" fill="#0B1220" text-anchor="middle">
+      100% LOCAL · 2025
+    </text>
+  </g>
+</svg>

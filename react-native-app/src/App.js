@@ -13,6 +13,7 @@ import { useProperty } from './store/useProperty';
 import { useUI } from './store/useUI';
 import { initAnalytics } from './services/analyticsService';
 import { initErrorTracking } from './services/errorService';
+import { requestTrackingPermissionAsync } from 'expo-tracking-transparency';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import { ToastProvider } from './components/Toast';
 
@@ -24,6 +25,10 @@ export default function App() {
       detectAndApplyLanguage();
       useProperty.getState().hydrateFromCache?.();
       useProperty.getState().loadProperties?.();
+      // iOS: demander l'autorisation de tracking AVANT d'init analytics (sinon Apple rejette)
+      if (Platform.OS === 'ios') {
+        try { await requestTrackingPermissionAsync(); } catch (_) {}
+      }
       initAnalytics();
     })();
     if (Platform.OS === 'android') {

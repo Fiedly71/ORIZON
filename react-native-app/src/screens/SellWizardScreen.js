@@ -54,6 +54,32 @@ export default function SellWizardScreen({ navigation }) {
     );
   }
 
+  // Guard email verifie: obligatoire pour publier (conformite stores + anti-fraude).
+  if (user && !user.emailConfirmedAt) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+            <Ionicons name="chevron-back" size={22} color={C.text} />
+          </Pressable>
+          <Text style={styles.title}>Publier une annonce</Text>
+          <View style={{ width: 22 }} />
+        </View>
+        <View style={styles.guardWrap}>
+          <Ionicons name="mail-unread-outline" size={48} color="#D97706" />
+          <Text style={styles.guardTitle}>Vérifie ton email d'abord</Text>
+          <Text style={styles.guardTxt}>
+            Pour publier une annonce, tu dois confirmer ton adresse email.
+            Vérifie ta boîte de réception (et les spams) pour trouver le lien de confirmation.
+          </Text>
+          <Pressable style={styles.guardCta} onPress={() => navigation.navigate('Profile')}>
+            <Text style={styles.guardCtaTxt}>Aller au profil</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   // Guard supplementaire: KYC valide (can_publish dans profiles).
   if (user?.canPublish === false) {
     return (
