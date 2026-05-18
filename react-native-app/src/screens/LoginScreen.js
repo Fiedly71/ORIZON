@@ -1,6 +1,6 @@
 // Ecran de connexion ORIZON
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { C } from '../theme/colors';
@@ -26,7 +26,12 @@ export default function LoginScreen({ navigation }) {
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
         <View style={styles.hero}>
-          <Text style={styles.brand}>ORIZON</Text>
+          <Image
+            source={require('../../assets/logo-vertical.png')}
+            style={styles.logoImg}
+            resizeMode="contain"
+            accessibilityLabel="ORIZON"
+          />
           <Text style={styles.h1}>Bon retour</Text>
           <Text style={styles.sub}>Connecte-toi pour continuer.</Text>
         </View>
@@ -83,8 +88,9 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
   page: { flexGrow: 1, padding: 20, gap: 18 },
-  hero: { gap: 4, marginTop: 8 },
+  hero: { gap: 4, marginTop: 8, alignItems: 'center' },
   brand: { color: C.primary, fontWeight: '800', letterSpacing: 3, fontSize: 13 },
+  logoImg: { width: 150, height: 160, alignSelf: 'center', marginBottom: 6 },
   h1: { color: C.text, fontSize: 24, fontWeight: '800' },
   sub: { color: C.muted, fontSize: 13 },
   form: { gap: 10 },

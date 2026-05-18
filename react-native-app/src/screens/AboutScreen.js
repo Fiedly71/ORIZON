@@ -26,10 +26,12 @@ export default function AboutScreen({ navigation }) {
       <Header title="A propos" onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }}>
         <View style={styles.hero}>
-          <View style={styles.logo}>
-            <Text style={styles.logoTxt}>O</Text>
-          </View>
-          <Text style={styles.brand}>ORIZON</Text>
+          <Image
+            source={require('../../assets/logo-vertical.png')}
+            style={{ width: 160, height: 170, alignSelf: 'center' }}
+            resizeMode="contain"
+            accessibilityLabel="ORIZON"
+          />
           <Text style={styles.tag}>Immobilier intelligent en Haiti et dans la Caraibe</Text>
           <Text style={styles.version}>Version {VERSION}</Text>
         </View>

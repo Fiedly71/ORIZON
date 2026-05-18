@@ -50,7 +50,13 @@ export default function OnboardingScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.skipRow}>
+      <View style={styles.topBar}>
+        <Image
+          source={require('../../assets/logo-horizontal.png')}
+          style={styles.brandLogo}
+          resizeMode="contain"
+          accessibilityLabel="ORIZON"
+        />
         <Pressable onPress={finish} hitSlop={8}>
           <Text style={styles.skip}>Passer</Text>
         </Pressable>
@@ -91,6 +97,8 @@ export default function OnboardingScreen({ navigation }) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
   skipRow: { paddingHorizontal: 20, paddingTop: 6, alignItems: 'flex-end' },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: 6 },
+  brandLogo: { width: 120, height: 36 },
   skip: { color: C.muted, fontSize: 13, fontWeight: '600' },
   slide: { alignItems: 'center', justifyContent: 'flex-start', paddingTop: 12 },
   img: { width: width - 40, height: width - 60, borderRadius: 24, backgroundColor: C.surface },

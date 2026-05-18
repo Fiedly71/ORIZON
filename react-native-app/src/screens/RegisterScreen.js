@@ -151,7 +151,12 @@ export default function RegisterScreen({ navigation }) {
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
           <View style={styles.hero}>
-            <Text style={styles.brand}>ORIZON</Text>
+            <Image
+              source={require('../../assets/logo-vertical.png')}
+              style={styles.logoImg}
+              resizeMode="contain"
+              accessibilityLabel="ORIZON"
+            />
             <Text style={styles.h1}>Crée ton compte</Text>
             <Text style={styles.sub}>Choisis le type de compte qui te correspond.</Text>
           </View>
@@ -215,7 +220,12 @@ export default function RegisterScreen({ navigation }) {
         </Pressable>
 
         <View style={styles.hero}>
-          <Text style={styles.brand}>ORIZON</Text>
+          <Image
+            source={require('../../assets/logo-horizontal.png')}
+            style={styles.logoHorz}
+            resizeMode="contain"
+            accessibilityLabel="ORIZON"
+          />
           <Text style={styles.h1}>{role}</Text>
           <Text style={styles.sub}>
             {isPublisher
@@ -362,8 +372,10 @@ const styles = StyleSheet.create({
   page: { flexGrow: 1, padding: 20, gap: 16, paddingBottom: 40 },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   backTxt: { color: C.text, fontWeight: '600', fontSize: 13 },
-  hero: { gap: 4, marginTop: 4 },
+  hero: { gap: 4, marginTop: 4, alignItems: 'center' },
   brand: { color: C.primary, fontWeight: '800', letterSpacing: 3, fontSize: 13 },
+  logoImg: { width: 130, height: 140, alignSelf: 'center', marginBottom: 4 },
+  logoHorz: { width: 180, height: 56, alignSelf: 'center', marginBottom: 4 },
   h1: { color: C.text, fontSize: 24, fontWeight: '800' },
   sub: { color: C.muted, fontSize: 13, lineHeight: 18 },
   form: { gap: 10 },
