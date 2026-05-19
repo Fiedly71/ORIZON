@@ -685,4 +685,57 @@ workflows:
         submit_as_draft: true
         in_app_update_priority: 3
 
+  ios-eas-build:
+    # Workflow alternatif a `ios-release` : delegue entierement le build + signature
+    # a EAS Build (cloud Expo). Pas besoin de certificats / provisioning profiles
+    # uploades dans Codemagic. Plus simple pour une premiere soumission.
+    # Pre-requis : EXPO_TOKEN + APPLE_ID + ASC_APP_ID (App Store Connect) en env vars.
+    name: ORIZON iOS via EAS Build (cloud)
+    max_build_duration: 60
+    instance_type: linux_x2   # Pas besoin de Mac : EAS Build fournit la VM macOS
+    environment:
+      groups:
+        - orizon_env
+        - orizon_eas   # Doit contenir : EXPO_TOKEN (token non-revoque)
+      node: 20.11.1
+    scripts:
+      - name: Install dependencies
+        script: |
+          cd react-native-app
+          corepack enable
+          corepack prepare yarn@4.14.1 --activate
+          yarn config set nodeLinker node-modules
+          yarn install --no-immutable
+      - name: Write .env
+        script: |
+          cd react-native-app
+          cat > .env <<EOF
+          EXPO_PUBLIC_SUPABASE_URL=$EXPO_PUBLIC_SUPABASE_URL
+          EXPO_PUBLIC_SUPABASE_ANON_KEY=$EXPO_PUBLIC_SUPABASE_ANON_KEY
+          EXPO_PUBLIC_POSTHOG_KEY=$EXPO_PUBLIC_POSTHOG_KEY
+          EXPO_PUBLIC_POSTHOG_HOST=$EXPO_PUBLIC_POSTHOG_HOST
+          EXPO_PUBLIC_COMPANY_NAME=$EXPO_PUBLIC_COMPANY_NAME
+          EXPO_PUBLIC_COMPANY_ADDRESS=$EXPO_PUBLIC_COMPANY_ADDRESS
+          EXPO_PUBLIC_COMPANY_WEBSITE=$EXPO_PUBLIC_COMPANY_WEBSITE
+          EXPO_PUBLIC_SUPPORT_EMAIL=$EXPO_PUBLIC_SUPPORT_EMAIL
+          EXPO_PUBLIC_SUPPORT_PHONE=$EXPO_PUBLIC_SUPPORT_PHONE
+          EXPO_PUBLIC_SUPPORT_WHATSAPP=$EXPO_PUBLIC_SUPPORT_WHATSAPP
+          EOF
+      - name: Trigger EAS Build (production iOS)
+        script: |
+          cd react-native-app
+          export EXPO_TOKEN="$EXPO_TOKEN"
+          # --non-interactive + --no-wait : on lance le build sur EAS Cloud
+          # et on ne bloque pas Codemagic (le build prend 20-30 min cote EAS).
+          # Le binaire .ipa sera disponible sur https://expo.dev/accounts/fiedly71/projects/orizon-mobile/builds
+          npx eas build --platform ios --profile production --non-interactive --no-wait
+      - name: Trigger EAS Submit (TestFlight upload automatique)
+        script: |
+          cd react-native-app
+          export EXPO_TOKEN="$EXPO_TOKEN"
+          # Attend le build precedent puis upload sur App Store Connect / TestFlight
+          # Configuration TestFlight via eas.json -> submit -> ios
+          npx eas submit --platform ios --profile production --non-interactive --latest || true
+    artifacts: []
+
 

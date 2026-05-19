@@ -14,7 +14,23 @@
       "android": {
         "buildType": "app-bundle"
       },
+      "ios": {
+        "autoIncrement": "buildNumber"
+      },
       "channel": "production"
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "REMPLACER_PAR_TON_APPLE_ID@example.com",
+        "ascAppId": "REMPLACER_PAR_ASC_APP_ID_NUMERIQUE",
+        "appleTeamId": "REMPLACER_PAR_TEAM_ID_10_CHAR"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
+      }
     }
   }
 }
