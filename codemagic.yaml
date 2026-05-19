@@ -178,13 +178,18 @@ workflows:
         script: |
           cd react-native-app
           npx expo prebuild --platform android --no-install --clean
-      - name: Build Android Debug APK
-        script: |
-          cd react-native-app/android
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
     artifacts:
       - react-native-app/android/app/build/outputs/**/*.apk
+    publishing:
+      # Distribution beta : email automatique aux testeurs avec lien APK
+      # Configure dans Codemagic UI > Settings > Notifications > Email
+      # OU laisse vide pour seulement avoir l'artefact en download manuel.
+      email:
+        recipients:
+          - $BETA_TESTERS_EMAILS   # ex: "user1@example.com,user2@example.com" dans env group orizon_env
+        notify:
+          success: true
+          failure: true
 
   android-test:
     name: ORIZON Android TEST APK (release light, debug-signed, install-friendly)
@@ -322,6 +327,16 @@ workflows:
           done
     artifacts:
       - react-native-app/android/app/build/outputs/apk/release/*.apk
+    publishing:
+      # Distribution beta : email automatique avec lien APK telechargeable.
+      # Configure dans Codemagic UI > Environment variables > Group `orizon_env` :
+      #   BETA_TESTERS_EMAILS = "tic@example.com,beta1@example.com"
+      email:
+        recipients:
+          - $BETA_TESTERS_EMAILS
+        notify:
+          success: true
+          failure: true
 
   android-release:
     name: ORIZON Android Release APK (light)

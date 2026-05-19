@@ -34,12 +34,12 @@ if (-not $installed) {
 $screens = @(
     @{ name = "01_onboarding";    deeplink = "orizon://onboarding";        wait = 4 ; desc = "Page d'accueil onboarding" },
     @{ name = "02_login";         deeplink = "orizon://login";             wait = 3 ; desc = "Connexion" },
-    @{ name = "03_home_search";   deeplink = "orizon://(tabs)";            wait = 5 ; desc = "Recherche / liste de biens" },
+    @{ name = "03_home_search";   deeplink = "orizon://explore";           wait = 5 ; desc = "Recherche / liste de biens" },
     @{ name = "04_property";      deeplink = "orizon://property/1";        wait = 5 ; desc = "Fiche detaillee bien" },
     @{ name = "05_map";           deeplink = "orizon://map";               wait = 6 ; desc = "Carte interactive" },
     @{ name = "06_mortgage";      deeplink = "orizon://mortgage";          wait = 3 ; desc = "Simulateur de pret" },
     @{ name = "07_my_listings";   deeplink = "orizon://my-listings";       wait = 3 ; desc = "Mes annonces (proprio)" },
-    @{ name = "08_profile";       deeplink = "orizon://profile";           wait = 3 ; desc = "Profil utilisateur" }
+    @{ name = "08_profile";       deeplink = "orizon://tab/account";       wait = 3 ; desc = "Profil utilisateur" }
 )
 
 foreach ($s in $screens) {
