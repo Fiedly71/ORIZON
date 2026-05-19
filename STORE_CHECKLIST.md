@@ -1,29 +1,23 @@
 # ORIZON - Checklist publication App Store + Play Store
 
-## 1. Comptes developpeur
+## 1. Comptes developpeur (SEULS BLOQUANTS RESTANTS)
 - [ ] **Apple Developer Program** (99 USD/an) — https://developer.apple.com/programs/
 - [ ] **Google Play Console** (25 USD une fois) — https://play.google.com/console/
   - Verification d'identite obligatoire (passeport / CIN), 2-7 jours
 
 ## 2. Build production
-- [ ] Lancer Codemagic workflow `android-aab` → recupere `app-release.aab`
-- [ ] Lancer Codemagic workflow `ios-release` → publie auto sur TestFlight
-- [ ] Tester l'AAB sur device physique via `bundletool build-apks`
+- [x] **Build AAB Android via EAS Cloud** — keystore auto-genere, lance le 19/05/2026
+  - Build : https://expo.dev/accounts/fiedly71/projects/orizon-mobile/builds/f03073f9-06c1-46f0-a03a-b77f643231b3
+- [x] Codemagic workflow `android-production-aab` configure (relais)
+- [x] Codemagic workflow `ios-eas-build` configure (delegue build+signing a EAS Cloud)
+- [ ] Lancer build iOS via `eas build --platform ios` (requiert compte Apple)
+- [ ] Tester l'AAB sur device physique
 - [ ] Tester TestFlight sur iPhone reel
 
 ## 3. Signature Android (PROD)
-- [ ] Generer keystore prod (a faire UNE seule fois, garder en lieu sur):
-  ```bash
-  keytool -genkeypair -v -keystore orizon-upload.keystore -alias orizon-upload \
-    -keyalg RSA -keysize 2048 -validity 10000
-  ```
-- [ ] Encoder en base64: `base64 orizon-upload.keystore > keystore.b64`
-- [ ] Ajouter dans Codemagic env group `orizon_keystore`:
-  - `ORIZON_UPLOAD_KEYSTORE_B64` (contenu du fichier .b64)
-  - `ORIZON_KEYSTORE_PASS`
-  - `ORIZON_KEY_ALIAS` = `orizon-upload`
-  - `ORIZON_KEY_PASS`
-- [ ] **Activer Play App Signing** dans Play Console (Google gere la cle de signature finale)
+- [x] **Keystore prod genere et stocke par EAS Cloud** (server-side, geree automatiquement par Expo)
+- [x] EAS gere la cle d'upload + Play App Signing prend le relais cote Google
+- [ ] Activer Play App Signing dans Play Console (au moment de la 1ere upload AAB)
 
 ## 4. Signature iOS (PROD)
 - [ ] Creer un certificat Distribution dans Apple Developer (Certificates, IDs & Profiles)
@@ -34,28 +28,31 @@
 
 ## 5. Assets stores
 ### Icones
-- [ ] iOS: 1024x1024 PNG, sans transparence, sans coins arrondis (Apple les ajoute)
-- [ ] Android: 512x512 PNG (Play Store) + adaptive icon dans `app.json`
+- [x] iOS: 1024x1024 PNG sans transparence (`react-native-app/assets/icon.png`)
+- [x] Android: 512x512 PNG (`play-store/icon-512.png`) + adaptive icon 1024x1024 (`adaptive-icon.png`)
 
 ### Screenshots (a faire sur device reel ou simulateur)
-- [ ] iPhone 6.7" (1290x2796) - 3 minimum, 10 max
+- [x] Script automatise pret : `play-store/auto-screenshots.ps1` (8 deeplinks valides)
+- [ ] iPhone 6.7" (1290x2796) - 3 minimum, 10 max (a capturer sur simulateur)
 - [ ] iPhone 6.5" (1242x2688)
-- [ ] iPhone 5.5" (1242x2208) - optionnel
 - [ ] iPad 12.9" (2048x2732) - obligatoire si supportsTablet=true
-- [ ] Android Phone (1080x1920 ou ratio 16:9)
+- [ ] Android Phone (1080x1920 ou ratio 16:9) — lancer `auto-screenshots.ps1` avec emulateur
 - [ ] Android Tablet 7" + 10"
 
 ### Feature Graphic Play Store
-- [ ] 1024x500 PNG/JPG
+- [x] `play-store/feature-graphic.png` 1024x500 PNG (logo officiel + 3 features + badge 2026)
 
-## 6. Pages legales (HEBERGER en HTTPS)
-- [x] [privacy.html](privacy.html) → uploader sur https://orizon.ht/privacy
-- [x] [terms.html](terms.html) → uploader sur https://orizon.ht/terms
-- [x] [support.html](support.html) → uploader sur https://orizon.ht/support
+## 6. Pages legales (HEBERGER en HTTPS) — LIVE
+- [x] privacy.html — https://fiedly71.github.io/ORIZON/privacy.html (HTTP 200)
+- [x] terms.html — https://fiedly71.github.io/ORIZON/terms.html (HTTP 200)
+- [x] support.html — https://fiedly71.github.io/ORIZON/support.html (HTTP 200)
+- [x] delete-account.html — https://fiedly71.github.io/ORIZON/delete-account.html (HTTP 200)
+- [ ] Migrer vers https://orizon.ht/* quand le domaine sera achete (custom domain dans Settings > Pages)
 
 ## 7. Privacy Manifest iOS
 - [x] [react-native-app/ios/PrivacyInfo.xcprivacy](react-native-app/ios/PrivacyInfo.xcprivacy) cree
-- [ ] Verifier qu'il est inclus dans le bundle apres `expo prebuild`
+- [x] Toutes les permissions iOS declarees dans `app.json` infoPlist (Location, Camera, PhotoLibrary, Tracking ATT)
+- [ ] Verifier inclusion bundle apres premier build iOS EAS
 
 ## 8. Fiches stores - textes a preparer
 
