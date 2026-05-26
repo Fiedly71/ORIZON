@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Pressable, Image, TextInput, Alert, ActivityIndicator,
+  ActionSheetIOS, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,10 +30,58 @@ export default function KycScreen({ navigation }) {
   }, []);
 
   const pick = async (key) => {
-    const r = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7,
+    const options = [
+      { text: 'Camera', onPress: async () => await takePhoto(key) },
+      { text: 'Galerie', onPress: async () => await pickFromGallery(key) },
+      { text: 'Annuler', style: 'cancel' },
+    ];
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { options: options.map((o) => o.text), cancelButtonIndex: 2, userInterfaceStyle: 'light' },
+        (i) => {
+          if (i === 0) takePhoto(key);
+          else if (i === 1) pickFromGallery(key);
+        }
+      );
+    } else {
+      Alert.alert('Photo', 'Choisir source', options);
+    }
+  };
+
+  const takePhoto = async (key) => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Camera', 'Permission refusee');
+      return;
+    }
+    const res = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+      allowsEditing: true,
+      aspect: [4, 3],
     });
-    if (!r.canceled) setForm({ ...form, [key]: r.assets[0].uri });
+    if (res.canceled) return;
+    const asset = res.assets?.[0];
+    if (!asset) return;
+    setForm({ ...form, [key]: asset.uri });
+  };
+
+  const pickFromGallery = async (key) => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Galerie', 'Permission refusee');
+      return;
+    }
+    const res = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+      allowsMultipleSelection: false,
+    });
+    if (res.canceled) return;
+    const asset = res.assets?.[0];
+    if (!asset) return;
+    setForm({ ...form, [key]: asset.uri });
   };
 
   const submit = async () => {
