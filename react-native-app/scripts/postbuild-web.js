@@ -103,11 +103,15 @@ const SPLASH_HTML = `
         }
         function watchRoot() {
           var root = document.getElementById('root');
-          if (!root) return;
+          if (!root) { setTimeout(watchRoot, 50); return; }
+          if (root.childElementCount > 0) { hideSplash(); return; }
           var mo = new MutationObserver(function () {
             if (root.childElementCount > 0) { mo.disconnect(); hideSplash(); }
           });
-          mo.observe(root, { childList: true });
+          mo.observe(root, { childList: true, subtree: true });
+          setTimeout(function () {
+            if (root.childElementCount > 0) { mo.disconnect(); hideSplash(); }
+          }, 500);
           setTimeout(hideSplash, 25000);
         }
         if (document.readyState === 'loading') {

@@ -4,6 +4,14 @@
   "outputDirectory": "react-native-app/dist",
   "installCommand": "echo 'install handled by buildCommand'",
   "framework": null,
+  "build": {
+    "env": {
+      "EXPO_PUBLIC_SUPABASE_URL": "https://vghcduobhuccmsvlbokv.supabase.co",
+      "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnaGNkdW9iaHVjY21zdmxib2t2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MTE2NjEsImV4cCI6MjA5MjI4NzY2MX0.QHkBJLeofFRmvpxWeq14m6flO-EjCj8B_ogCRDNMPDY",
+      "EXPO_PUBLIC_COMPANY_NAME": "ORIZON Immobilier",
+      "EXPO_PUBLIC_COMPANY_ADDRESS": "Cap-Haitien, Departement du Nord, Haiti"
+    }
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
