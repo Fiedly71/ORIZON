@@ -34,6 +34,7 @@ const GROUPS = [
       { key: 'MyVisits',     icon: 'calendar-outline',      label: 'Mes visites' },
       { key: 'Favorites',    icon: 'heart-outline',         label: 'Favoris' },
       { key: 'Alerts',       icon: 'notifications-outline', label: 'Recherches sauvegardees' },
+      { key: 'Reviews',      icon: 'star-outline',          label: 'Mes avis',      publisherOnly: true },
     ],
   },
   {
@@ -178,7 +179,13 @@ export default function ProfileScreen({ navigation }) {
                   <Pressable
                     key={s.key}
                     style={[styles.rowItem, i === items.length - 1 && { borderBottomWidth: 0 }]}
-                    onPress={() => navigation.navigate(s.key)}
+                    onPress={() => {
+                      if (s.key === 'Reviews') {
+                        navigation.navigate('Reviews', { userId: user.id, userName: user.fullName || user.agencyName });
+                      } else {
+                        navigation.navigate(s.key);
+                      }
+                    }}
                   >
                     <Ionicons name={s.icon} size={20} color={M.text} style={{ width: 24 }} />
                     <Text style={styles.rowLabel}>{s.label}</Text>

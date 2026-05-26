@@ -32,6 +32,7 @@ import BoostListingScreen from '../screens/BoostListingScreen';
 import CompareScreen from '../screens/CompareScreen';
 import AgencyManageScreen from '../screens/AgencyManageScreen';
 import KycScreen from '../screens/KycScreen';
+import ReviewsScreen from '../screens/ReviewsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SectionDetailScreen from '../screens/SectionDetailScreen';
 import MonCashManualScreen from '../screens/MonCashManualScreen';
@@ -114,6 +115,7 @@ export default function RootNavigator() {
             <Stack.Screen name="SellerStats" component={SellerStatsScreen} />
             <Stack.Screen name="Alerts" component={SavedSearchesScreen} />
             <Stack.Screen name="Kyc" component={KycScreen} />
+            <Stack.Screen name="Reviews" component={ReviewsScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="SectionDetail" component={SectionDetailScreen} />
             <Stack.Screen name="Help" component={HelpScreen} />

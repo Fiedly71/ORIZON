@@ -22,21 +22,23 @@ function fromRow(r) {
   };
 }
 
-export async function leaveReview({ propertyId, agentId, rating, title, content }) {
+export async function leaveReview({ propertyId, agentId, targetUserId, rating, title, comment, content }) {
   const userId = useAuthStore.getState().user?.id;
   if (!userId) return { ok: false, error: 'Non connecte' };
+  if (userId === (targetUserId || agentId)) return { ok: false, error: 'Impossible d\'evaluer soi-meme' };
 
   // Pre-moderation cote client (defense en profondeur).
-  const mod = moderateText(`${title || ''} ${content || ''}`);
+  const text = `${title || ''} ${content || comment || ''}`;
+  const mod = moderateText(text);
   const initialStatus = mod.ok ? 'pending' : 'flagged';
 
   const row = {
     property_id: propertyId || null,
-    agent_id: agentId || null,
+    agent_id: agentId || targetUserId || null,
     author_id: userId,
     rating: Number(rating),
     title: title || '',
-    content,
+    content: comment || content || '',
     status: initialStatus, // moderation manuelle (trigger SQL flag aussi)
   };
   if (!isSupabaseConfigured) {
@@ -69,4 +71,69 @@ export async function deleteReview(id) {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
   if (error) return { ok: false, error: error.message };
   return { ok: true };
+}
+
+export async function getUserReviews(userId) {
+  if (!userId) return { ok: false, error: 'UserId requis' };
+  if (!isSupabaseConfigured) {
+    const items = mockStore.items.filter((i) => i.agent_id === userId && i.status === 'approved');
+    return {
+      ok: true,
+      data: items.map((i) => ({
+        ...fromRow(i),
+        reviewer: { id: i.author_id, fullName: 'Utilisateur', avatarUrl: null },
+      })),
+      mock: true,
+    };
+  }
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(`
+      id,
+      rating,
+      content,
+      created_at,
+      author_id,
+      users!reviews_author_id_fkey(
+        id,
+        full_name,
+        avatar_url
+      )
+    `)
+    .eq('agent_id', userId)
+    .eq('status', 'approved')
+    .order('created_at', { ascending: false });
+
+  if (error) return { ok: false, error: error.message };
+  const reviews = (data || []).map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.content,
+    created_at: r.created_at,
+    reviewer: {
+      id: r.author_id,
+      fullName: r.users?.full_name || 'Anonyme',
+      avatarUrl: r.users?.avatar_url || null,
+    },
+  }));
+  return { ok: true, data: reviews };
+}
+
+export async function getUserAverageRating(userId) {
+  if (!userId) return { ok: false, error: 'UserId requis' };
+  if (!isSupabaseConfigured) {
+    const items = mockStore.items.filter((i) => i.agent_id === userId && i.status === 'approved');
+    const avg = items.length > 0 ? items.reduce((s, i) => s + i.rating, 0) / items.length : 0;
+    return { ok: true, data: { avg: Math.round(avg * 10) / 10, count: items.length }, mock: true };
+  }
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('rating')
+    .eq('agent_id', userId)
+    .eq('status', 'approved');
+
+  if (error) return { ok: false, error: error.message };
+  if (!data || data.length === 0) return { ok: true, data: { avg: 0, count: 0 } };
+  const avg = data.reduce((s, r) => s + r.rating, 0) / data.length;
+  return { ok: true, data: { avg: Math.round(avg * 10) / 10, count: data.length } };
 }

@@ -40,18 +40,20 @@ const HEAD_INJECTION = `
     ${bundleUrl ? `<link rel="preload" as="script" href="${bundleUrl}" />` : ''}
     <style id="orizon-responsive">
       :root { --orizon-frame-bg: #EEF2F7; --orizon-frame-shadow: 0 24px 60px rgba(15, 23, 42, 0.18); --orizon-primary: #1D4ED8; }
-      html, body { margin: 0; padding: 0; background: var(--orizon-frame-bg); height: 100vh; height: 100dvh; }
+      html, body { margin: 0; padding: 0; background: var(--orizon-frame-bg); height: 100vh; height: 100svh; }
       body { overflow: hidden; overscroll-behavior: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
       #root {
         display: flex; flex-direction: column; flex: 1;
         width: 100vw;
-        height: 100vh; height: 100dvh;
-        max-height: 100vh; max-height: 100dvh;
+        height: 100vh; height: 100svh;
+        max-height: 100vh; max-height: 100svh;
         background: #FFFFFF;
         overflow: hidden;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+        padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
         box-sizing: border-box;
       }
+      /* Force tab bar containers (React Navigation web) a ne PAS clipper les labels */
+      div[role="tablist"], div[role="tablist"] * { overflow: visible !important; }
 
       #orizon-splash {
         position: fixed; inset: 0; z-index: 9999;
@@ -71,7 +73,7 @@ const HEAD_INJECTION = `
       @keyframes orizon-spin { to { transform: rotate(360deg); } }
 
       @media (min-width: 900px) {
-        body { display: flex; align-items: center; justify-content: center; padding: 24px 0; box-sizing: border-box; overflow: auto; height: 100vh; height: 100dvh; }
+        body { display: flex; align-items: center; justify-content: center; padding: 24px 0; box-sizing: border-box; overflow: auto; height: 100vh; height: 100svh; }
         #root {
           width: min(480px, calc(100vw - 32px));
           height: min(900px, calc(100vh - 48px));

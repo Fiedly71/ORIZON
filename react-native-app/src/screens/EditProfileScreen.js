@@ -88,13 +88,16 @@ export default function EditProfileScreen({ navigation }) {
         folder: 'avatars', mime: asset.mime, compress: 0.6, generateThumb: false,
       });
       if (!up.ok) {
-        Alert.alert('Upload', up.error || 'Echec upload');
+        Alert.alert('Upload photo', `Echec: ${up.error || 'erreur inconnue'}.\n\nSi le bucket "property-images" n'existe pas sur Supabase, l'admin doit executer db/storage.sql.`);
         return;
       }
       update('avatarUrl', up.url || asset.uri);
-      try {
-        await updateProfile({ avatarUrl: up.url });
-      } catch {}
+      const sav = await updateProfile({ avatarUrl: up.url });
+      if (!sav?.ok) {
+        Alert.alert('Profil', sav?.error || 'Photo uploadee mais profil non sauvegarde.');
+      }
+    } catch (e) {
+      Alert.alert('Upload photo', `Erreur: ${e.message || String(e)}`);
     } finally {
       setUploading(false);
     }

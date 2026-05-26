@@ -18,11 +18,12 @@ export default function MainTabs() {
   // Web : pas de safe-area native, on garde une hauteur compacte mais suffisante pour labels.
   // Mobile natif : ajoute l'inset bottom (home indicator iOS / gesture bar Android).
   const isWeb = Platform.OS === 'web';
-  // Sur web mobile, on rajoute un padding bas genereux pour eviter que les labels
-  // soient coupes par la barre de navigation Chrome / la gesture bar Android.
-  const bottomPad = isWeb ? 22 : Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
+  // Sur web mobile, le label peut etre coupe par la gesture bar Android et le overflow
+  // implicite du conteneur. On utilise une hauteur tres genereuse + lineHeight ample
+  // + paddingBottom dynamique base sur l'inset safe-area injecte par CSS.
+  const bottomPad = isWeb ? 28 : Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
   const topPad = isWeb ? 10 : 8;
-  const tabHeight = isWeb ? 88 : 56 + bottomPad;
+  const tabHeight = isWeb ? 92 : 56 + bottomPad;
 
   return (
     <Tab.Navigator
@@ -37,17 +38,20 @@ export default function MainTabs() {
           height: tabHeight,
           paddingBottom: bottomPad,
           paddingTop: topPad,
+          overflow: 'visible',
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
-          lineHeight: 14,
+          lineHeight: 18,
           marginTop: 4,
           marginBottom: 0,
-          paddingBottom: 2,
+          paddingBottom: 0,
           includeFontPadding: false,
         },
-        tabBarItemStyle: isWeb ? { paddingTop: 6, paddingBottom: 0 } : undefined,
+        tabBarItemStyle: isWeb
+          ? { paddingTop: 6, paddingBottom: 4, overflow: 'visible' }
+          : undefined,
         tabBarIcon: ({ color, size, focused }) => {
           const icons = {
             Explore: focused ? 'search' : 'search-outline',
