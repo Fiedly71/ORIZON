@@ -156,6 +156,158 @@ const SPLASH_HTML = `
           });
         }
       })();
+    </script>
+    <style id="orizon-prompts">
+      .orizon-banner {
+        position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 10000;
+        background: #FFFFFF; color: #0F172A;
+        border-radius: 16px; padding: 16px 18px;
+        box-shadow: 0 12px 36px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(15, 23, 42, 0.06);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px; line-height: 1.5;
+        display: none; animation: orizon-slideup 0.35s ease-out;
+        max-width: 480px; margin: 0 auto;
+      }
+      .orizon-banner.visible { display: block; }
+      .orizon-banner-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; color: #0F172A; }
+      .orizon-banner-text { color: #475569; font-size: 13px; margin-bottom: 12px; }
+      .orizon-banner-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .orizon-btn {
+        flex: 1; min-width: 100px; padding: 10px 14px; border-radius: 10px;
+        font-weight: 600; font-size: 13px; cursor: pointer; border: none;
+        font-family: inherit; transition: opacity 0.15s;
+      }
+      .orizon-btn:active { opacity: 0.7; }
+      .orizon-btn-primary { background: #1D4ED8; color: #FFFFFF; }
+      .orizon-btn-secondary { background: #F1F5F9; color: #475569; }
+      .orizon-btn-link { background: transparent; color: #1D4ED8; padding: 6px 8px; min-width: auto; flex: 0; font-size: 12px; }
+      .orizon-ios-steps { margin: 8px 0 12px; padding-left: 18px; color: #475569; font-size: 13px; }
+      .orizon-ios-steps li { margin-bottom: 4px; }
+      .orizon-ios-icon { display: inline-block; width: 16px; height: 16px; vertical-align: -3px; margin: 0 2px; }
+      @keyframes orizon-slideup { from { transform: translateY(120%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+      @media (min-width: 900px) {
+        .orizon-banner { left: 24px; right: auto; bottom: 24px; max-width: 360px; margin: 0; }
+      }
+    </style>
+    <div id="orizon-cookie-banner" class="orizon-banner" role="dialog" aria-label="Consentement aux cookies">
+      <div class="orizon-banner-title">Cookies & confidentialite</div>
+      <div class="orizon-banner-text">
+        ORIZON utilise des cookies essentiels pour ton compte et des cookies de mesure d'audience anonyme pour ameliorer l'app.
+        Tu peux changer d'avis a tout moment dans Parametres.
+      </div>
+      <div class="orizon-banner-actions">
+        <button class="orizon-btn orizon-btn-secondary" id="orizon-cookie-reject" type="button">Refuser</button>
+        <button class="orizon-btn orizon-btn-primary" id="orizon-cookie-accept" type="button">Accepter</button>
+      </div>
+    </div>
+    <div id="orizon-install-banner" class="orizon-banner" role="dialog" aria-label="Installer ORIZON">
+      <div class="orizon-banner-title">Installer ORIZON</div>
+      <div class="orizon-banner-text" id="orizon-install-text">
+        Ajoute ORIZON a ton ecran d'accueil pour un acces rapide, comme une vraie app.
+      </div>
+      <div id="orizon-ios-instructions" style="display:none;">
+        <ol class="orizon-ios-steps">
+          <li>Touche l'icone <strong>Partager</strong> en bas de Safari (carre avec une fleche).</li>
+          <li>Fais defiler et touche <strong>« Sur l'ecran d'accueil »</strong>.</li>
+          <li>Touche <strong>Ajouter</strong> en haut a droite.</li>
+        </ol>
+      </div>
+      <div class="orizon-banner-actions">
+        <button class="orizon-btn orizon-btn-secondary" id="orizon-install-later" type="button">Plus tard</button>
+        <button class="orizon-btn orizon-btn-primary" id="orizon-install-go" type="button">Installer</button>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var COOKIE_KEY = 'orizon-cookie-consent';
+        var INSTALL_KEY = 'orizon-install-dismissed';
+        var ua = navigator.userAgent || '';
+        var isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+        var isAndroid = /Android/i.test(ua);
+        var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        var deferredPrompt = null;
+
+        // ===== Cookie banner =====
+        function showCookieBanner() {
+          var el = document.getElementById('orizon-cookie-banner');
+          if (!el) return;
+          el.classList.add('visible');
+        }
+        function hideCookieBanner(consent) {
+          var el = document.getElementById('orizon-cookie-banner');
+          if (el) el.classList.remove('visible');
+          try { localStorage.setItem(COOKIE_KEY, consent + '|' + Date.now()); } catch (_) {}
+          // After cookie choice, eventually show install prompt
+          setTimeout(maybeShowInstall, 20000);
+        }
+        try {
+          var saved = localStorage.getItem(COOKIE_KEY);
+          if (!saved) {
+            setTimeout(showCookieBanner, 1500);
+          } else {
+            setTimeout(maybeShowInstall, 25000);
+          }
+        } catch (_) {
+          setTimeout(showCookieBanner, 1500);
+        }
+        document.addEventListener('click', function (e) {
+          if (e.target && e.target.id === 'orizon-cookie-accept') hideCookieBanner('accepted');
+          else if (e.target && e.target.id === 'orizon-cookie-reject') hideCookieBanner('rejected');
+          else if (e.target && e.target.id === 'orizon-install-later') dismissInstall();
+          else if (e.target && e.target.id === 'orizon-install-go') triggerInstall();
+        });
+
+        // ===== Install prompt =====
+        window.addEventListener('beforeinstallprompt', function (e) {
+          e.preventDefault();
+          deferredPrompt = e;
+        });
+
+        function dismissInstall() {
+          var el = document.getElementById('orizon-install-banner');
+          if (el) el.classList.remove('visible');
+          try { localStorage.setItem(INSTALL_KEY, Date.now().toString()); } catch (_) {}
+        }
+        function triggerInstall() {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function () {
+              deferredPrompt = null;
+              dismissInstall();
+            });
+          } else if (isIOS) {
+            var steps = document.getElementById('orizon-ios-instructions');
+            var go = document.getElementById('orizon-install-go');
+            var txt = document.getElementById('orizon-install-text');
+            if (steps) steps.style.display = 'block';
+            if (go) go.style.display = 'none';
+            if (txt) txt.textContent = 'Suis ces 3 etapes dans Safari :';
+          } else {
+            dismissInstall();
+          }
+        }
+        function maybeShowInstall() {
+          if (isStandalone) return;
+          var cookieEl = document.getElementById('orizon-cookie-banner');
+          if (cookieEl && cookieEl.classList.contains('visible')) {
+            // Re-try after cookies handled
+            setTimeout(maybeShowInstall, 5000);
+            return;
+          }
+          try {
+            var dismissed = localStorage.getItem(INSTALL_KEY);
+            if (dismissed) {
+              // Don't show again for 7 days
+              if (Date.now() - parseInt(dismissed, 10) < 7 * 24 * 3600 * 1000) return;
+            }
+          } catch (_) {}
+          if (!isIOS && !isAndroid && !deferredPrompt) return; // desktop: only if browser allows
+          if (isIOS || deferredPrompt || isAndroid) {
+            var el = document.getElementById('orizon-install-banner');
+            if (el) el.classList.add('visible');
+          }
+        }
+      })();
     </script>`;
 
 html = html.replace(/<body>/i, '<body>' + SPLASH_HTML);
