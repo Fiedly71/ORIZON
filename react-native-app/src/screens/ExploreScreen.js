@@ -155,27 +155,33 @@ export default function ExploreScreen({ navigation }) {
 
   const renderHeader = () => (
     <View style={styles.headerWrap}>
-      {/* Search bar ronde */}
-      <Pressable style={styles.searchBar}>
-        <Ionicons name="search" size={20} color={C.text} />
-        <View style={{ flex: 1 }}>
-          <TextInput
-            placeholder="Ou ?  Quand ?  Combien ?"
-            placeholderTextColor={C.muted}
-            style={styles.searchInput}
-            value={search}
-            onChangeText={setSearch}
-            returnKeyType="search"
-          />
-        </View>
-        <Pressable
-          style={styles.filterBtn}
-          onPress={() => setFilterOpen(true)}
-          hitSlop={8}
-        >
-          <Ionicons name="options-outline" size={18} color={C.text} />
+      {/* Search bar ronde + logo */}
+      <View style={styles.searchRow}>
+        <Pressable style={styles.searchBar}>
+          <Ionicons name="search" size={20} color={C.text} />
+          <View style={{ flex: 1 }}>
+            <TextInput
+              placeholder="Ou ?  Quand ?  Combien ?"
+              placeholderTextColor={C.muted}
+              style={styles.searchInput}
+              value={search}
+              onChangeText={setSearch}
+              returnKeyType="search"
+            />
+          </View>
+          <Pressable
+            style={styles.filterBtn}
+            onPress={() => setFilterOpen(true)}
+            hitSlop={8}
+          >
+            <Ionicons name="options-outline" size={18} color={C.text} />
+          </Pressable>
         </Pressable>
-      </Pressable>
+        {/* Logo ORIZON */}
+        <View style={styles.logoBadge}>
+          <Ionicons name="home" size={16} color={C.primary} />
+        </View>
+      </View>
 
       {/* Filtres rapides A vendre / A louer */}
       <View style={styles.statusRow}>
@@ -345,8 +351,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: C.border,
   },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.md,
+  },
   searchBar: {
-    marginHorizontal: spacing.xxl,
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.lg,
@@ -361,6 +373,16 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
+  },
+  logoBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F0F4FF',
+    borderWidth: 1,
+    borderColor: '#E0E7FF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   searchInput: {
     fontSize: 15,

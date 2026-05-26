@@ -2,9 +2,11 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, Pressable, StyleSheet, ScrollView, Image, Alert, ActivityIndicator,
+  ActionSheetIOS, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { C } from '../theme/colors';
 import { useAuthStore } from '../store/useAuthStore';
 import { updateProfile, canPublish } from '../services/authService';
@@ -30,6 +32,44 @@ export default function EditProfileScreen({ navigation }) {
   const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const onPickAvatar = async () => {
+    const options = [
+      { text: 'Camera', onPress: async () => await onTakePhoto() },
+      { text: 'Galerie', onPress: async () => await onPickFromGallery() },
+      { text: 'Annuler', style: 'cancel' },
+    ];
+
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { options: options.map((o) => o.text), cancelButtonIndex: 2, userInterfaceStyle: 'light' },
+        (i) => {
+          if (i === 0) onTakePhoto();
+          else if (i === 1) onPickFromGallery();
+        }
+      );
+    } else {
+      Alert.alert('Photo', 'Choisir source', options);
+    }
+  };
+
+  const onTakePhoto = async () => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) {
+      Alert.alert('Camera', 'Permission refusee');
+      return;
+    }
+    const res = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.8,
+      allowsEditing: true,
+      aspect: [1, 1],
+    });
+    if (res.canceled) return;
+    const asset = res.assets?.[0];
+    if (!asset) return;
+    await uploadAndSetAvatar(asset);
+  };
+
+  const onPickFromGallery = async () => {
     const r = await pickImages({ multi: false });
     if (!r.ok) {
       if (!r.canceled) Alert.alert('Photo', r.error || 'Selection annulee');
@@ -37,13 +77,13 @@ export default function EditProfileScreen({ navigation }) {
     }
     const asset = r.assets?.[0];
     if (!asset) return;
+    await uploadAndSetAvatar(asset);
+  };
 
-    // 1) PREVIEW IMMEDIAT avec l'URI locale, des la selection.
+  const uploadAndSetAvatar = async (asset) => {
     update('avatarUrl', asset.uri);
-
     setUploading(true);
     try {
-      // 2) Upload vers Supabase en arriere-plan
       const up = await uploadImage(asset.uri, {
         folder: 'avatars', mime: asset.mime, compress: 0.6, generateThumb: false,
       });
@@ -51,10 +91,7 @@ export default function EditProfileScreen({ navigation }) {
         Alert.alert('Upload', up.error || 'Echec upload');
         return;
       }
-      // 3) Remplace par l'URL Supabase finale
       update('avatarUrl', up.url || asset.uri);
-
-      // 4) AUTO-SAVE de l'avatar dans le profil (sans attendre Enregistrer)
       try {
         await updateProfile({ avatarUrl: up.url });
       } catch {}

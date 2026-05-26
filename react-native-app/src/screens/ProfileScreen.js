@@ -40,7 +40,6 @@ const GROUPS = [
     title: 'Verification & Securite',
     items: [
       { key: 'Kyc',          icon: 'shield-checkmark-outline', label: "Verification d'identite (KYC)", publisherOnly: true },
-      { key: 'PhoneVerify',  icon: 'phone-portrait-outline',   label: 'Verifier mon telephone' },
       { key: 'BlockedUsers', icon: 'ban-outline',              label: 'Utilisateurs bloques' },
     ],
   },
@@ -68,26 +67,12 @@ const GROUPS = [
   },
 ];
 
-const LEVEL_LABEL = { basic: 'Verifie', pro: 'Verifie Pro', premium: 'Verifie Premium' };
+
 
 function KycBadge({ user }) {
-  if (!user) return null;
-  if (user.verified) {
-    const level = user.verificationLevel || 'basic';
-    const label = LEVEL_LABEL[level] || 'Verifie';
-    return (
-      <View style={[styles.badge, { backgroundColor: '#000', borderColor: '#000' }]}>
-        <Ionicons name="checkmark-circle" size={12} color="#fff" />
-        <Text style={[styles.badgeTxt, { color: '#fff' }]}>{label}</Text>
-      </View>
-    );
-  }
-  if (!canPublish(user.role)) return null;
+  if (!user || !user.verified) return null;
   return (
-    <View style={[styles.badge, { backgroundColor: '#fff', borderColor: M.borderStrong }]}>
-      <Ionicons name="time-outline" size={11} color={M.text} />
-      <Text style={[styles.badgeTxt, { color: M.text }]}>KYC en attente</Text>
-    </View>
+    <Ionicons name="checkmark-circle" size={16} color="#1D4ED8" />
   );
 }
 
@@ -158,13 +143,15 @@ export default function ProfileScreen({ navigation }) {
           </Pressable>
 
           <View style={{ flex: 1, gap: 4 }}>
-            <Text style={styles.name} numberOfLines={1}>
-              {user?.agencyName || user?.fullName || 'Utilisateur'}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={styles.name} numberOfLines={1}>
+                {user?.agencyName || user?.fullName || 'Utilisateur'}
+              </Text>
+              <KycBadge user={user} />
+            </View>
             <Text style={styles.email} numberOfLines={1}>{user?.email || ''}</Text>
             <View style={styles.row}>
               {user?.role && <Text style={styles.role}>{user.role}</Text>}
-              <KycBadge user={user} />
             </View>
           </View>
         </View>
