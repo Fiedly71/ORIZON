@@ -15,8 +15,10 @@ const Tab = createBottomTabNavigator();
 
 export default function MainTabs() {
   const insets = useSafeAreaInsets();
-  // Hauteur de base + bottom inset (gesture nav Android, home indicator iOS)
-  const bottomPad = Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
+  // Hauteur de base + bottom inset (gesture nav Android, home indicator iOS, web nav bar)
+  const defaultPad = Platform.OS === 'web' ? 16 : Platform.OS === 'android' ? 12 : 8;
+  const bottomPad = Math.max(insets.bottom, defaultPad);
+  const tabHeight = (Platform.OS === 'web' ? 64 : 56) + bottomPad;
 
   return (
     <Tab.Navigator
@@ -28,7 +30,7 @@ export default function MainTabs() {
           backgroundColor: '#fff',
           borderTopColor: '#E5E7EB',
           borderTopWidth: 1,
-          height: 56 + bottomPad,
+          height: tabHeight,
           paddingBottom: bottomPad,
           paddingTop: 8,
         },
@@ -36,7 +38,9 @@ export default function MainTabs() {
           fontSize: 11,
           fontWeight: '600',
           marginTop: 2,
+          marginBottom: Platform.OS === 'web' ? 4 : 0,
         },
+        tabBarItemStyle: Platform.OS === 'web' ? { paddingVertical: 4 } : undefined,
         tabBarIcon: ({ color, size, focused }) => {
           const icons = {
             Explore: focused ? 'search' : 'search-outline',
