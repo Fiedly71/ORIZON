@@ -20,6 +20,12 @@ const M = {
 
 const GROUPS = [
   {
+    title: 'Administration',
+    items: [
+      { key: 'Admin',    icon: 'grid-outline', label: 'Dashboard administratif', adminOnly: true },
+    ],
+  },
+  {
     title: 'Mon activite',
     items: [
       { key: 'MyListings',   icon: 'home-outline',          label: 'Mes annonces',  publisherOnly: true },
@@ -58,12 +64,6 @@ const GROUPS = [
     items: [
       { key: 'Terms',    icon: 'document-text-outline', label: "Conditions d'utilisation" },
       { key: 'Privacy',  icon: 'lock-closed-outline',   label: 'Politique de confidentialite' },
-    ],
-  },
-  {
-    title: 'Administration',
-    items: [
-      { key: 'Admin',    icon: 'shield-outline', label: 'Moderation', adminOnly: true },
     ],
   },
 ];

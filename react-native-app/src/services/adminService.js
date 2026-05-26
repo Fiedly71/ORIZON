@@ -141,6 +141,7 @@ export async function moderateProperty(id, action, reason = null) {
 
 // ============================================
 // PHOTOS - reject only (annonces deja live apres paiement)
+// On ne montre que les annonces approuvees ou en attente, pas les rejetees.
 // ============================================
 export async function listPhotosForReview({ limit = 100 } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: [] };
@@ -148,6 +149,7 @@ export async function listPhotosForReview({ limit = 100 } = {}) {
     .from('properties')
     .select('id, title, owner_id, image, images, created_at, moderation_status')
     .eq('payment_status', 'paid')
+    .neq('moderation_status', 'rejected')
     .order('created_at', { ascending: false })
     .limit(limit);
   if (error) return { ok: false, error: error.message };

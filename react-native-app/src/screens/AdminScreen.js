@@ -25,14 +25,17 @@ const M = {
   surface: '#FAFAFA',
   card: '#F5F5F5',
   border: '#E5E5E5',
+  borderStrong: '#D4D4D4',
   text: '#0A0A0A',
+  textSoft: '#525252',
   muted: '#737373',
   danger: '#DC2626',
   ok: '#16A34A',
+  accent: '#1D4ED8',
 };
 
 const TABS = [
-  { key: 'overview', label: 'Vue d\'ensemble', icon: 'grid-outline' },
+  { key: 'overview', label: "Vue d'ensemble", icon: 'grid-outline' },
   { key: 'users', label: 'Utilisateurs', icon: 'people-outline' },
   { key: 'pending', label: 'En attente', icon: 'time-outline' },
   { key: 'moncash', label: 'MonCash', icon: 'wallet-outline' },
@@ -119,39 +122,45 @@ export default function AdminScreen({ navigation }) {
     );
   }
 
+  const activeTab = TABS.find((t) => t.key === tab);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
+        <Pressable onPress={() => navigation.goBack()} hitSlop={10} style={styles.iconBtn}>
           <Ionicons name="chevron-back" size={22} color={M.text} />
         </Pressable>
-        <Text style={styles.title}>Tableau de bord</Text>
-        <Pressable onPress={() => loadTab(tab, true)} hitSlop={10}>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text style={styles.title}>Dashboard administratif</Text>
+          <Text style={styles.subtitle}>{activeTab?.label || ''}</Text>
+        </View>
+        <Pressable onPress={() => loadTab(tab, true)} hitSlop={10} style={styles.iconBtn}>
           <Ionicons name="refresh" size={20} color={M.text} />
         </Pressable>
       </View>
 
       {/* Onglets scrollables */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.tabs}
-        contentContainerStyle={{ paddingHorizontal: 12 }}
-      >
-        {TABS.map((t) => {
-          const active = t.key === tab;
-          return (
-            <Pressable
-              key={t.key}
-              onPress={() => setTab(t.key)}
-              style={[styles.tab, active && styles.tabActive]}
-            >
-              <Ionicons name={t.icon} size={14} color={active ? '#fff' : M.text} />
-              <Text style={[styles.tabTxt, active && styles.tabTxtActive]}>{t.label}</Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+      <View style={styles.tabsWrap}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabsRow}
+        >
+          {TABS.map((t) => {
+            const active = t.key === tab;
+            return (
+              <Pressable
+                key={t.key}
+                onPress={() => setTab(t.key)}
+                style={[styles.tab, active && styles.tabActive]}
+              >
+                <Ionicons name={t.icon} size={14} color={active ? '#fff' : M.textSoft} />
+                <Text style={[styles.tabTxt, active && styles.tabTxtActive]}>{t.label}</Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </View>
 
       {/* Contenu */}
       {tab === 'overview' ? (
@@ -183,13 +192,13 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
   }
   return (
     <ScrollView
-      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+      contentContainerStyle={{ padding: 16, paddingBottom: 48 }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={M.text} />}
     >
-      <Section title="Utilisateurs">
+      <Section title="Utilisateurs" icon="people">
         <View style={styles.gridRow}>
-          <StatCard label="Total" value={stats.users.total} />
-          <StatCard label="Aujourd'hui" value={`+${stats.users.newToday}`} highlight />
+          <StatCard label="Total" value={stats.users.total} icon="people-outline" />
+          <StatCard label="Nouveaux aujourd'hui" value={`+${stats.users.newToday}`} highlight icon="trending-up-outline" />
         </View>
         <View style={styles.gridRow}>
           <StatCard label="Acheteurs / Locataires" value={stats.users.buyers} small />
@@ -201,10 +210,10 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
         </View>
       </Section>
 
-      <Section title="Annonces">
+      <Section title="Annonces" icon="home">
         <View style={styles.gridRow}>
-          <StatCard label="Live" value={stats.properties.active} highlight />
-          <StatCard label="En attente" value={stats.properties.pending} />
+          <StatCard label="En ligne" value={stats.properties.active} highlight icon="checkmark-circle-outline" />
+          <StatCard label="En attente" value={stats.properties.pending} icon="hourglass-outline" />
         </View>
         <View style={styles.gridRow}>
           <StatCard label="Rejetees" value={stats.properties.rejected} small />
@@ -212,14 +221,14 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
         </View>
         <View style={styles.gridRow}>
           <StatCard label="Total" value={stats.properties.total} small />
-          <StatCard label="Aujourd'hui" value={`+${stats.properties.newToday}`} small />
+          <StatCard label="Nouvelles aujourd'hui" value={`+${stats.properties.newToday}`} small />
         </View>
       </Section>
 
-      <Section title="Revenus">
+      <Section title="Revenus" icon="cash">
         <View style={styles.gridRow}>
-          <StatCard label="Total" value={fmt(stats.revenue.total)} highlight />
-          <StatCard label="Ce mois" value={fmt(stats.revenue.thisMonth)} />
+          <StatCard label="Total cumule" value={fmt(stats.revenue.total)} highlight icon="wallet-outline" />
+          <StatCard label="Ce mois" value={fmt(stats.revenue.thisMonth)} icon="calendar-outline" />
         </View>
         <View style={styles.gridRow}>
           <StatCard label="Aujourd'hui" value={fmt(stats.revenue.today)} small />
@@ -227,10 +236,10 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
         </View>
       </Section>
 
-      <Section title="KYC Agences">
+      <Section title="KYC Agences" icon="shield-checkmark">
         <View style={styles.gridRow}>
-          <StatCard label="En attente" value={stats.kyc.pending} highlight />
-          <StatCard label="Approuves" value={stats.kyc.approved} />
+          <StatCard label="En attente" value={stats.kyc.pending} highlight icon="hourglass-outline" />
+          <StatCard label="Approuves" value={stats.kyc.approved} icon="checkmark-done-outline" />
         </View>
         <View style={styles.gridRow}>
           <StatCard label="Rejetes" value={stats.kyc.rejected} small danger />
@@ -238,41 +247,54 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
         </View>
       </Section>
 
-      <Section title="Signalements">
+      <Section title="Signalements" icon="alert-circle">
         <View style={styles.gridRow}>
-          <StatCard label="Ouverts" value={stats.reports.open} danger />
-          <StatCard label="Resolus" value={stats.reports.resolved} small />
+          <StatCard label="Ouverts" value={stats.reports.open} danger icon="warning-outline" />
+          <StatCard label="Resolus" value={stats.reports.resolved} small icon="checkmark-outline" />
         </View>
       </Section>
     </ScrollView>
   );
 }
 
-function Section({ title, children }) {
+function Section({ title, icon, children }) {
   return (
-    <View style={{ marginBottom: 18 }}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+    <View style={{ marginBottom: 22 }}>
+      <View style={styles.sectionHeader}>
+        {icon && <Ionicons name={icon} size={14} color={M.muted} style={{ marginRight: 6 }} />}
+        <Text style={styles.sectionTitle}>{title}</Text>
+      </View>
       {children}
     </View>
   );
 }
 
-function StatCard({ label, value, highlight, danger, small }) {
+function StatCard({ label, value, highlight, danger, small, icon }) {
   return (
     <View style={[
       styles.statCard,
       highlight && styles.statCardHi,
       small && styles.statCardSmall,
+      danger && !highlight && styles.statCardDanger,
     ]}>
+      {icon && (
+        <Ionicons
+          name={icon}
+          size={small ? 14 : 16}
+          color={highlight ? '#FFFFFF' : (danger ? M.danger : M.muted)}
+          style={{ marginBottom: 6 }}
+        />
+      )}
       <Text style={[
         styles.statVal,
+        small && { fontSize: 18 },
         highlight && { color: '#fff' },
-        danger && { color: M.danger },
-      ]}>{value}</Text>
+        danger && !highlight && { color: M.danger },
+      ]} numberOfLines={1}>{value}</Text>
       <Text style={[
         styles.statLbl,
-        highlight && { color: '#E5E5E5' },
-      ]}>{label}</Text>
+        highlight && { color: '#D4D4D4' },
+      ]} numberOfLines={2}>{label}</Text>
     </View>
   );
 }
@@ -572,31 +594,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16, paddingVertical: 12,
     borderBottomWidth: 1, borderBottomColor: M.border,
   },
-  title: { fontSize: 18, fontWeight: '700', color: M.text },
-  tabs: { maxHeight: 44, backgroundColor: M.bg, borderBottomWidth: 1, borderBottomColor: M.border },
+  title: { fontSize: 17, fontWeight: '800', color: M.text, letterSpacing: -0.3 },
+  subtitle: { fontSize: 11, color: M.muted, marginTop: 2, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  iconBtn: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: M.surface, borderWidth: 1, borderColor: M.border },
+  tabsWrap: { backgroundColor: M.bg, borderBottomWidth: 1, borderBottomColor: M.border },
+  tabsRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 6 },
   tab: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 12, paddingVertical: 8, marginRight: 8, marginVertical: 6,
-    borderRadius: 20, borderWidth: 1, borderColor: M.border, backgroundColor: M.bg,
+    paddingHorizontal: 14, paddingVertical: 8,
+    borderRadius: 999, borderWidth: 1, borderColor: M.border, backgroundColor: M.bg,
   },
   tabActive: { backgroundColor: M.text, borderColor: M.text },
-  tabTxt: { fontSize: 12, fontWeight: '600', color: M.text },
-  tabTxtActive: { color: '#fff' },
+  tabTxt: { fontSize: 12.5, fontWeight: '600', color: M.textSoft },
+  tabTxtActive: { color: '#fff', fontWeight: '700' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   deniedTxt: { fontSize: 16, fontWeight: '600', color: M.text, marginTop: 12 },
   deniedSub: { fontSize: 13, color: M.muted, marginTop: 4 },
   empty: { color: M.muted, marginTop: 8, fontSize: 13 },
 
-  sectionTitle: { fontSize: 13, fontWeight: '700', color: M.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, marginLeft: 2 },
+  sectionTitle: { fontSize: 12, fontWeight: '800', color: M.textSoft, textTransform: 'uppercase', letterSpacing: 0.8 },
   gridRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
   statCard: {
-    flex: 1, backgroundColor: M.surface, borderWidth: 1, borderColor: M.border,
-    borderRadius: 12, padding: 14,
+    flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: M.border,
+    borderRadius: 14, padding: 16,
   },
   statCardHi: { backgroundColor: M.text, borderColor: M.text },
-  statCardSmall: { padding: 12 },
-  statVal: { fontSize: 22, fontWeight: '800', color: M.text },
-  statLbl: { fontSize: 11, color: M.muted, marginTop: 2, fontWeight: '600' },
+  statCardSmall: { padding: 14 },
+  statCardDanger: { borderColor: '#FCA5A5', backgroundColor: '#FEF2F2' },
+  statVal: { fontSize: 24, fontWeight: '800', color: M.text, letterSpacing: -0.5 },
+  statLbl: { fontSize: 11, color: M.muted, marginTop: 4, fontWeight: '600', lineHeight: 14 },
 
   row: {
     flexDirection: 'row', alignItems: 'center', gap: 10,

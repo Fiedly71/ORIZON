@@ -1,7 +1,7 @@
-// SettingsScreen - parametres app : langue, devise, theme, notifications, donnees.
+// SettingsScreen - parametres app : langue, devise, notifications, donnees.
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, Pressable, Switch, Alert, Linking,
+  View, Text, StyleSheet, ScrollView, Pressable, Switch, Alert, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,16 +19,12 @@ const CURRENCIES = [
   { id: 'USD', label: 'Dollar US ($)' },
   { id: 'HTG', label: 'Gourde HT (HTG)' },
 ];
-const THEMES = [
-  { id: 'light', label: 'Clair', icon: 'sunny-outline' },
-  { id: 'dark', label: 'Sombre', icon: 'moon-outline' },
-  { id: 'system', label: 'Systeme', icon: 'phone-portrait-outline' },
-];
 
 export default function SettingsScreen({ navigation }) {
   const toast = useToast();
   const ui = useUI();
   const [busy, setBusy] = useState(false);
+  const isWeb = Platform.OS === 'web';
 
   const clearCache = async () => {
     Alert.alert('Vider le cache', 'Supprime les donnees locales (favoris locaux, recherches, prefs).', [
@@ -73,33 +69,17 @@ export default function SettingsScreen({ navigation }) {
           ))}
         </Section>
 
-        <Section title="THEME">
-          {THEMES.map((t) => (
-            <Row key={t.id} icon={t.icon} label={t.label} active={ui.theme === t.id}
-              onPress={() => { ui.setTheme(t.id); toast.show('Theme mis a jour'); }} />
-          ))}
-          <Text style={styles.help}>Le theme sombre s'applique apres redemarrage de l'app.</Text>
-        </Section>
-
-        <Section title="NOTIFICATIONS">
-          <Toggle label="Notifications push" value={ui.notifPush} onChange={ui.setNotifPush} />
-          <Toggle label="Emails ORIZON" value={ui.notifEmail} onChange={ui.setNotifEmail} />
-        </Section>
+        {!isWeb && (
+          <Section title="NOTIFICATIONS">
+            <Toggle label="Notifications push" value={ui.notifPush} onChange={ui.setNotifPush} />
+            <Toggle label="Emails ORIZON" value={ui.notifEmail} onChange={ui.setNotifEmail} />
+          </Section>
+        )}
 
         <Section title="DONNEES">
           <Pressable style={styles.actionRow} onPress={clearCache} disabled={busy}>
             <Ionicons name="trash-outline" size={18} color={C.text} />
             <Text style={styles.actionTxt}>Vider le cache local</Text>
-          </Pressable>
-          <Pressable style={styles.actionRow} onPress={() => navigation.navigate('BlockedUsers')}>
-            <Ionicons name="ban-outline" size={18} color={C.text} />
-            <Text style={styles.actionTxt}>Utilisateurs bloques</Text>
-            <Ionicons name="chevron-forward" size={18} color={C.muted} />
-          </Pressable>
-          <Pressable style={styles.actionRow} onPress={() => Linking.openURL('https://orizon.app/donnees')}>
-            <Ionicons name="download-outline" size={18} color={C.text} />
-            <Text style={styles.actionTxt}>Exporter mes donnees</Text>
-            <Ionicons name="open-outline" size={16} color={C.muted} />
           </Pressable>
         </Section>
 
