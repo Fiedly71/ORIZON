@@ -33,8 +33,11 @@ async function compressImage(uri, { width = MAX_WIDTH, quality = QUALITY } = {})
 }
 
 export async function pickImages({ multi = true, max = 10 } = {}) {
-  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (!perm.granted) return { ok: false, error: 'Permission refusee' };
+  // Sur web, pas de permission a demander (le navigateur ouvre son selecteur de fichier).
+  if (Platform.OS !== 'web') {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return { ok: false, error: 'Permission refusee' };
+  }
   const res = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsMultipleSelection: multi,

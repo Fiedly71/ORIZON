@@ -280,11 +280,11 @@ export default function ExploreScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      {renderHeader()}
       {!isFiltering && sectionsToShow.length > 0 ? (
         <FlatList
           data={sectionsToShow}
           keyExtractor={(x) => x.section.id}
-          ListHeaderComponent={renderHeader}
           renderItem={({ item }) => (
             <HorizontalSection
               section={item.section}
@@ -307,7 +307,6 @@ export default function ExploreScreen({ navigation }) {
         <FlatList
           data={filtered}
           keyExtractor={(it) => String(it.id)}
-          ListHeaderComponent={renderHeader}
           stickyHeaderIndices={[]}
           renderItem={({ item }) => (
             <View style={styles.cardWrap}>

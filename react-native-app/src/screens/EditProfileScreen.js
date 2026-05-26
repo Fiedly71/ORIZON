@@ -32,22 +32,27 @@ export default function EditProfileScreen({ navigation }) {
   const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const onPickAvatar = async () => {
-    const options = [
-      { text: 'Camera', onPress: async () => await onTakePhoto() },
-      { text: 'Galerie', onPress: async () => await onPickFromGallery() },
-      { text: 'Annuler', style: 'cancel' },
-    ];
+    // Sur web, Alert.alert avec boutons n'existe pas -> on ouvre directement la galerie
+    // (le navigateur mobile propose camera ou fichier via son selecteur natif).
+    if (Platform.OS === 'web') {
+      await onPickFromGallery();
+      return;
+    }
 
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
-        { options: options.map((o) => o.text), cancelButtonIndex: 2, userInterfaceStyle: 'light' },
+        { options: ['Camera', 'Galerie', 'Annuler'], cancelButtonIndex: 2, userInterfaceStyle: 'light' },
         (i) => {
           if (i === 0) onTakePhoto();
           else if (i === 1) onPickFromGallery();
         }
       );
     } else {
-      Alert.alert('Photo', 'Choisir source', options);
+      Alert.alert('Photo', 'Choisir source', [
+        { text: 'Camera', onPress: onTakePhoto },
+        { text: 'Galerie', onPress: onPickFromGallery },
+        { text: 'Annuler', style: 'cancel' },
+      ]);
     }
   };
 
