@@ -20,9 +20,9 @@ export default function MainTabs() {
   const isWeb = Platform.OS === 'web';
   // Sur web mobile, on rajoute un padding bas genereux pour eviter que les labels
   // soient coupes par la barre de navigation Chrome / la gesture bar Android.
-  const bottomPad = isWeb ? 18 : Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
-  const topPad = isWeb ? 8 : 8;
-  const tabHeight = isWeb ? 72 : 56 + bottomPad;
+  const bottomPad = isWeb ? 22 : Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
+  const topPad = isWeb ? 10 : 8;
+  const tabHeight = isWeb ? 88 : 56 + bottomPad;
 
   return (
     <Tab.Navigator
@@ -41,11 +41,13 @@ export default function MainTabs() {
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
-          marginTop: 2,
+          lineHeight: 14,
+          marginTop: 4,
           marginBottom: 0,
+          paddingBottom: 2,
           includeFontPadding: false,
         },
-        tabBarItemStyle: isWeb ? { paddingVertical: 0 } : undefined,
+        tabBarItemStyle: isWeb ? { paddingTop: 6, paddingBottom: 0 } : undefined,
         tabBarIcon: ({ color, size, focused }) => {
           const icons = {
             Explore: focused ? 'search' : 'search-outline',

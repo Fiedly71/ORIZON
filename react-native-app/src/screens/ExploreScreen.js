@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Image,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -155,20 +156,33 @@ export default function ExploreScreen({ navigation }) {
 
   const renderHeader = () => (
     <View style={styles.headerWrap}>
-      {/* Search bar ronde + logo */}
+      {/* Logo ORIZON + Search bar ronde */}
       <View style={styles.searchRow}>
-        <Pressable style={styles.searchBar}>
+        <View style={styles.logoBadge}>
+          <Image
+            source={require('../../assets/logo2.png')}
+            style={styles.logoImg}
+            resizeMode="contain"
+          />
+        </View>
+        <View style={styles.searchBar}>
           <Ionicons name="search" size={20} color={C.text} />
-          <View style={{ flex: 1 }}>
-            <TextInput
-              placeholder="Ou ?  Quand ?  Combien ?"
-              placeholderTextColor={C.muted}
-              style={styles.searchInput}
-              value={search}
-              onChangeText={setSearch}
-              returnKeyType="search"
-            />
-          </View>
+          <TextInput
+            placeholder="Ou ?  Quand ?  Combien ?"
+            placeholderTextColor={C.muted}
+            style={styles.searchInput}
+            value={search}
+            onChangeText={setSearch}
+            returnKeyType="search"
+            autoCorrect={false}
+            autoCapitalize="none"
+            clearButtonMode="while-editing"
+          />
+          {search.length > 0 && (
+            <Pressable onPress={() => setSearch('')} hitSlop={10} style={styles.clearBtn}>
+              <Ionicons name="close-circle" size={18} color={C.muted} />
+            </Pressable>
+          )}
           <Pressable
             style={styles.filterBtn}
             onPress={() => setFilterOpen(true)}
@@ -176,10 +190,6 @@ export default function ExploreScreen({ navigation }) {
           >
             <Ionicons name="options-outline" size={18} color={C.text} />
           </Pressable>
-        </Pressable>
-        {/* Logo ORIZON */}
-        <View style={styles.logoBadge}>
-          <Ionicons name="home" size={16} color={C.primary} />
         </View>
       </View>
 
@@ -378,17 +388,28 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#F0F4FF',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E0E7FF',
+    borderColor: C.border,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  logoImg: {
+    width: 36,
+    height: 36,
   },
   searchInput: {
+    flex: 1,
     fontSize: 15,
     color: C.text,
     fontWeight: '600',
     paddingVertical: 0,
+    outlineWidth: 0,
+    outlineStyle: 'none',
+  },
+  clearBtn: {
+    padding: 2,
   },
   filterBtn: {
     width: 32,

@@ -5,12 +5,14 @@
 //   pickImages({ multi=true, max=10 }) -> [{ uri, mime, name }]
 //   uploadImage(uri, { folder, mime }) -> { ok, url } (mock data:uri si pas de Supabase)
 //   uploadImages(uris, { folder }) -> { ok, urls }
+import { Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { supabase, isSupabaseConfigured } from './supabase';
 
 const BUCKET = 'property-images';
+const IS_WEB = Platform.OS === 'web';
 const MAX_WIDTH = 1600;
 const THUMB_WIDTH = 400;
 const QUALITY = 0.7;
@@ -71,8 +73,23 @@ function base64ToBytes(b64) {
   return bytes;
 }
 
+// Helper: charge le contenu d'une URI en payload uploadable par supabase.
+// - Sur web: fetch(uri).blob() (gere blob:, data:, http(s):)
+// - Sur natif: readAsBase64 + decode en Uint8Array
+async function uriToUploadable(uri, mime) {
+  if (IS_WEB) {
+    const res = await fetch(uri);
+    const blob = await res.blob();
+    return { payload: blob, contentType: blob.type || mime };
+  }
+  const b64 = await readAsBase64(uri);
+  const bytes = base64ToBytes(b64);
+  return { payload: bytes, contentType: mime };
+}
+
 export async function uploadImage(uri, { folder = 'misc', mime = 'image/jpeg', compress = true, generateThumb = false } = {}) {
   // Compression cote client avant upload pour reduire la bande passante.
+  // Sur web, ImageManipulator marche aussi mais on tolere son echec.
   let finalUri = uri;
   let finalMime = mime;
   if (compress) {
@@ -86,12 +103,11 @@ export async function uploadImage(uri, { folder = 'misc', mime = 'image/jpeg', c
     return { ok: true, url: finalUri, thumbUrl: finalUri, mock: true };
   }
   try {
-    const b64 = await readAsBase64(finalUri);
-    const bytes = base64ToBytes(b64);
+    const up = await uriToUploadable(finalUri, finalMime);
     const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const path = `${folder}/${stamp}.${extFromMime(finalMime)}`;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, bytes, {
-      contentType: finalMime,
+    const path = `${folder}/${stamp}.${extFromMime(up.contentType)}`;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, up.payload, {
+      contentType: up.contentType,
       upsert: false,
     });
     if (error) return { ok: false, error: error.message };
@@ -100,11 +116,10 @@ export async function uploadImage(uri, { folder = 'misc', mime = 'image/jpeg', c
     let thumbUrl = pub.publicUrl;
     if (generateThumb) {
       const thumb = await compressImage(uri, { width: THUMB_WIDTH, quality: THUMB_QUALITY });
-      const tb64 = await readAsBase64(thumb.uri);
-      const tbytes = base64ToBytes(tb64);
+      const tup = await uriToUploadable(thumb.uri, 'image/jpeg');
       const tpath = `${folder}/${stamp}-thumb.jpg`;
-      const { error: terr } = await supabase.storage.from(BUCKET).upload(tpath, tbytes, {
-        contentType: 'image/jpeg', upsert: false,
+      const { error: terr } = await supabase.storage.from(BUCKET).upload(tpath, tup.payload, {
+        contentType: tup.contentType, upsert: false,
       });
       if (!terr) {
         const { data: tpub } = supabase.storage.from(BUCKET).getPublicUrl(tpath);
