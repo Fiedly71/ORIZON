@@ -8,6 +8,8 @@ const config = getDefaultConfig(__dirname);
 const WEB_STUBS = {
   '@stripe/stripe-react-native': path.resolve(__dirname, 'src/web-stubs/stripe.js'),
   'react-native-maps': path.resolve(__dirname, 'src/web-stubs/maps.js'),
+  'expo-tracking-transparency': path.resolve(__dirname, 'src/web-stubs/tracking-transparency.js'),
+  'expo-notifications': path.resolve(__dirname, 'src/web-stubs/notifications.js'),
 };
 
 const originalResolveRequest = config.resolver.resolveRequest;
