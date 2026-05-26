@@ -15,10 +15,12 @@ const Tab = createBottomTabNavigator();
 
 export default function MainTabs() {
   const insets = useSafeAreaInsets();
-  // Hauteur de base + bottom inset (gesture nav Android, home indicator iOS, web nav bar)
-  const defaultPad = Platform.OS === 'web' ? 16 : Platform.OS === 'android' ? 12 : 8;
-  const bottomPad = Math.max(insets.bottom, defaultPad);
-  const tabHeight = (Platform.OS === 'web' ? 64 : 56) + bottomPad;
+  // Web : pas de safe-area native, on garde une hauteur compacte mais suffisante pour labels.
+  // Mobile natif : ajoute l'inset bottom (home indicator iOS / gesture bar Android).
+  const isWeb = Platform.OS === 'web';
+  const bottomPad = isWeb ? 6 : Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
+  const topPad = isWeb ? 6 : 8;
+  const tabHeight = isWeb ? 60 : 56 + bottomPad;
 
   return (
     <Tab.Navigator
@@ -32,15 +34,16 @@ export default function MainTabs() {
           borderTopWidth: 1,
           height: tabHeight,
           paddingBottom: bottomPad,
-          paddingTop: 8,
+          paddingTop: topPad,
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
           marginTop: 2,
-          marginBottom: Platform.OS === 'web' ? 4 : 0,
+          marginBottom: 0,
+          includeFontPadding: false,
         },
-        tabBarItemStyle: Platform.OS === 'web' ? { paddingVertical: 4 } : undefined,
+        tabBarItemStyle: isWeb ? { paddingVertical: 0 } : undefined,
         tabBarIcon: ({ color, size, focused }) => {
           const icons = {
             Explore: focused ? 'search' : 'search-outline',
