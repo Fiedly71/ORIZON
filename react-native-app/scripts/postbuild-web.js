@@ -18,6 +18,14 @@ if (!fs.existsSync(indexPath)) {
 }
 
 let html = fs.readFileSync(indexPath, 'utf8');
+
+// Override viewport meta to add viewport-fit=cover so env(safe-area-inset-*) returns
+// real values on devices with notches / gesture bars (iOS, recent Android).
+html = html.replace(
+  /<meta\s+name="viewport"[^>]*>/i,
+  '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, shrink-to-fit=no" />'
+);
+
 const scriptMatch = html.match(/<script\s+src="(\/_expo\/static\/js\/web\/[^"]+\.js)"[^>]*><\/script>/);
 const bundleUrl = scriptMatch ? scriptMatch[1] : null;
 
@@ -41,6 +49,8 @@ const HEAD_INJECTION = `
         max-height: 100vh; max-height: 100dvh;
         background: #FFFFFF;
         overflow: hidden;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        box-sizing: border-box;
       }
 
       #orizon-splash {

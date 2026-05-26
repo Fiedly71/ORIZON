@@ -18,9 +18,11 @@ export default function MainTabs() {
   // Web : pas de safe-area native, on garde une hauteur compacte mais suffisante pour labels.
   // Mobile natif : ajoute l'inset bottom (home indicator iOS / gesture bar Android).
   const isWeb = Platform.OS === 'web';
-  const bottomPad = isWeb ? 6 : Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
-  const topPad = isWeb ? 6 : 8;
-  const tabHeight = isWeb ? 60 : 56 + bottomPad;
+  // Sur web mobile, on rajoute un padding bas genereux pour eviter que les labels
+  // soient coupes par la barre de navigation Chrome / la gesture bar Android.
+  const bottomPad = isWeb ? 18 : Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
+  const topPad = isWeb ? 8 : 8;
+  const tabHeight = isWeb ? 72 : 56 + bottomPad;
 
   return (
     <Tab.Navigator
