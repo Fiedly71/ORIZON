@@ -84,25 +84,37 @@ export async function getDashboardStats() {
 // ============================================
 export async function listUsers({ role = null, limit = 100 } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: [] };
-  // Essai 1 : avec email + banned (apres migration db/admin_user_columns.sql)
+  // Essai 1 : avec email + banned + publish_free (apres migrations)
   let q = supabase
     .from('profiles')
-    .select('id, full_name, email, phone, role, verified, can_publish, banned, created_at')
+    .select('id, full_name, email, phone, role, verified, can_publish, banned, publish_free, created_at')
     .order('created_at', { ascending: false })
     .limit(limit);
   if (role) q = q.eq('role', role);
   let { data, error } = await q;
   if (error) {
-    // Fallback : colonnes email/banned pas encore deployees
+    // Fallback 2 : sans publish_free
     let q2 = supabase
       .from('profiles')
-      .select('id, full_name, phone, role, verified, can_publish, created_at')
+      .select('id, full_name, email, phone, role, verified, can_publish, banned, created_at')
       .order('created_at', { ascending: false })
       .limit(limit);
     if (role) q2 = q2.eq('role', role);
     const r2 = await q2;
-    if (r2.error) return { ok: false, error: r2.error.message };
-    data = (r2.data || []).map((u) => ({ ...u, email: '', banned: false }));
+    if (r2.error) {
+      // Fallback 3 : colonnes email/banned/publish_free pas encore deployees
+      let q3 = supabase
+        .from('profiles')
+        .select('id, full_name, phone, role, verified, can_publish, created_at')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (role) q3 = q3.eq('role', role);
+      const r3 = await q3;
+      if (r3.error) return { ok: false, error: r3.error.message };
+      data = (r3.data || []).map((u) => ({ ...u, email: '', banned: false, publish_free: false }));
+    } else {
+      data = (r2.data || []).map((u) => ({ ...u, publish_free: false }));
+    }
   }
   return { ok: true, data: data || [] };
 }
@@ -111,6 +123,16 @@ export async function setUserBanned(userId, banned) {
   if (!isSupabaseConfigured) return { ok: true };
   const { error } = await supabase.from('profiles').update({ banned }).eq('id', userId);
   if (error) return { ok: false, error: 'Migration manquante : execute db/admin_user_columns.sql' };
+  return { ok: true };
+}
+
+// Active/desactive le droit de publier sans payer (exemption MonCash)
+export async function setUserPublishFree(userId, free) {
+  if (!isSupabaseConfigured) return { ok: true };
+  const patch = { publish_free: !!free };
+  if (free) { patch.verified = true; patch.can_publish = true; }
+  const { error } = await supabase.from('profiles').update(patch).eq('id', userId);
+  if (error) return { ok: false, error: 'Migration manquante : execute db/free_publishers.sql' };
   return { ok: true };
 }
 

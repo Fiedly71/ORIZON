@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   isAdmin,
   getDashboardStats,
-  listUsers, setUserBanned,
+  listUsers, setUserBanned, setUserPublishFree,
   listProperties, moderateProperty,
   listPhotosForReview,
   listPayments, refundPayment,
@@ -349,6 +349,26 @@ function UserRow({ item, reload }) {
       },
     ]);
   };
+  const onFree = () => {
+    const next = !item.publish_free;
+    Alert.alert(
+      next ? 'Publication gratuite' : 'Retirer publication gratuite',
+      next
+        ? `Autoriser ${item.full_name || item.email} a publier sans payer ?`
+        : `Retirer l'exemption de paiement pour ${item.full_name || item.email} ?`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'OK',
+          onPress: async () => {
+            const r = await setUserPublishFree(item.id, next);
+            if (!r.ok) Alert.alert('Erreur', r.error || '');
+            reload();
+          },
+        },
+      ]
+    );
+  };
   return (
     <View style={styles.row}>
       <View style={{ flex: 1 }}>
@@ -357,12 +377,18 @@ function UserRow({ item, reload }) {
         <View style={styles.tagsRow}>
           <Tag>{item.role || 'Utilisateur'}</Tag>
           {item.verified ? <Tag dark>Verifie</Tag> : null}
+          {item.publish_free ? <Tag dark>Gratuit</Tag> : null}
           {item.banned ? <Tag danger>Banni</Tag> : null}
         </View>
       </View>
-      <Pressable onPress={onBan} style={[styles.btn, item.banned ? styles.btnOk : styles.btnDanger]}>
-        <Text style={styles.btnTxt}>{item.banned ? 'Debannir' : 'Bannir'}</Text>
-      </Pressable>
+      <View style={{ gap: 6 }}>
+        <Pressable onPress={onFree} style={[styles.btn, item.publish_free ? styles.btnDanger : styles.btnOk]}>
+          <Text style={styles.btnTxt}>{item.publish_free ? 'Retirer gratuit' : 'Publier gratis'}</Text>
+        </Pressable>
+        <Pressable onPress={onBan} style={[styles.btn, item.banned ? styles.btnOk : styles.btnDanger]}>
+          <Text style={styles.btnTxt}>{item.banned ? 'Debannir' : 'Bannir'}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
