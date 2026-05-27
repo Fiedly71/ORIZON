@@ -79,10 +79,10 @@ BEGIN
   -- Cherche les saved_searches qui matchent (filtres simples: type, prix max, location LIKE)
   SELECT ARRAY_AGG(DISTINCT user_id) INTO v_user_ids
   FROM public.saved_searches
-  WHERE (filters->>'type' IS NULL OR filters->>'type' = NEW.type OR filters->>'type' = 'Tous')
-    AND (filters->>'maxPrice' IS NULL OR (filters->>'maxPrice')::numeric >= NEW.price)
-    AND (filters->>'minPrice' IS NULL OR (filters->>'minPrice')::numeric <= NEW.price)
-    AND (filters->>'location' IS NULL OR NEW.location ILIKE '%' || (filters->>'location') || '%');
+  WHERE (criteria->>'type' IS NULL OR criteria->>'type' = NEW.type OR criteria->>'type' = 'Tous')
+    AND (criteria->>'maxPrice' IS NULL OR (criteria->>'maxPrice')::numeric >= NEW.price)
+    AND (criteria->>'minPrice' IS NULL OR (criteria->>'minPrice')::numeric <= NEW.price)
+    AND (criteria->>'location' IS NULL OR NEW.location ILIKE '%' || (criteria->>'location') || '%');
 
   IF v_user_ids IS NULL OR ARRAY_LENGTH(v_user_ids, 1) = 0 THEN RETURN NEW; END IF;
 
