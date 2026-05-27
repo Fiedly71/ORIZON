@@ -1,6 +1,7 @@
 // Nouveau point d'entree de l'app.
 // Providers globaux: GestureHandler, SafeArea, BottomSheetModal, i18n auto.
 import 'react-native-gesture-handler';
+import './utils/patchAlertWeb'; // patch Alert.alert sur web (no-op natif)
 import React, { useEffect } from 'react';
 import { StatusBar as RNStatusBar, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
