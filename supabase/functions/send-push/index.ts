@@ -1,4 +1,7 @@
-// Supabase Edge Function: send-push
+// @ts-nocheck
+// deno-lint-ignore-file
+// Supabase Edge Function: send-push (Deno runtime - le LSP TypeScript de VS Code
+// configure pour Node ne resout pas les imports https:// ni le global Deno.)
 // Envoie une notification Expo Push a un ou plusieurs users (via leurs tokens dans push_tokens).
 // Invoque depuis :
 //  - un trigger DB (on_message_inserted)

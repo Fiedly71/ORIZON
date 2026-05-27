@@ -362,18 +362,31 @@ self.addEventListener('fetch', (event) => {
 `;
 fs.writeFileSync(path.join(distDir, 'sw.js'), SW_JS, 'utf8');
 
+// Copie les assets PWA (public/) vers dist/ pour qu'ils soient servis a la racine.
+const publicDir = path.resolve(__dirname, '..', 'public');
+if (fs.existsSync(publicDir)) {
+  for (const f of fs.readdirSync(publicDir)) {
+    try { fs.copyFileSync(path.join(publicDir, f), path.join(distDir, f)); } catch {}
+  }
+}
+
 const MANIFEST = {
   name: 'ORIZON - Immobilier Haiti',
   short_name: 'ORIZON',
-  description: 'Trouvez, visitez et achetez des biens immobiliers en Haiti.',
+  description: 'Achete, loue, vends ton bien immobilier en Haiti. Annonces verifiees, paiement MonCash.',
   start_url: '/',
+  scope: '/',
   display: 'standalone',
+  orientation: 'portrait',
   background_color: '#1D4ED8',
   theme_color: '#1D4ED8',
   lang: 'fr',
+  categories: ['business', 'lifestyle', 'shopping'],
   icons: [
-    { src: '/assets/assets/icon.png', sizes: '512x512', type: 'image/png' },
-    { src: '/assets/assets/adaptive-icon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+    { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+    { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+    { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+    { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
   ],
 };
 fs.writeFileSync(path.join(distDir, 'manifest.webmanifest'), JSON.stringify(MANIFEST, null, 2), 'utf8');

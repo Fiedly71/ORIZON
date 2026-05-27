@@ -17,9 +17,12 @@ import { initErrorTracking } from './services/errorService';
 import { requestTrackingPermissionAsync } from 'expo-tracking-transparency';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import { ToastProvider } from './components/Toast';
+import InstallPromptModal from './components/InstallPromptModal';
+import { registerPWA } from './utils/registerPWA';
 
 export default function App() {
   useEffect(() => {
+    registerPWA();
     (async () => {
       await initErrorTracking();
       await useUI.getState().hydrate?.();
@@ -47,6 +50,7 @@ export default function App() {
           <ToastProvider>
             <AppErrorBoundary>
               <RootNavigator />
+              <InstallPromptModal />
             </AppErrorBoundary>
           </ToastProvider>
         </BottomSheetModalProvider>
