@@ -18,6 +18,7 @@ import { requestTrackingPermissionAsync } from 'expo-tracking-transparency';
 import AppErrorBoundary from './components/AppErrorBoundary';
 import { ToastProvider } from './components/Toast';
 import InstallPromptModal from './components/InstallPromptModal';
+import UpdateBanner from './components/UpdateBanner';
 import { registerPWA } from './utils/registerPWA';
 
 export default function App() {
@@ -51,6 +52,7 @@ export default function App() {
             <AppErrorBoundary>
               <RootNavigator />
               <InstallPromptModal />
+              <UpdateBanner />
             </AppErrorBoundary>
           </ToastProvider>
         </BottomSheetModalProvider>

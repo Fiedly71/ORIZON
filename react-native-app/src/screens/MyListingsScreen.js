@@ -87,6 +87,13 @@ export default function MyListingsScreen({ navigation }) {
                     <View style={[styles.badge, { backgroundColor: badge.bg }]}>
                       <Text style={[styles.badgeTxt, { color: badge.color }]}>{badge.label}</Text>
                     </View>
+                    <Pressable
+                      style={styles.editBtn}
+                      onPress={(e) => { e.stopPropagation?.(); navigation.navigate('SellWizard', { editId: item.id }); }}
+                    >
+                      <Ionicons name="create-outline" size={12} color={C.primary} />
+                      <Text style={styles.editTxt}>Modifier</Text>
+                    </Pressable>
                     {item.payment_status === 'paid' && item.moderation_status === 'approved' && (
                       <Pressable
                         style={styles.boostBtn}
@@ -145,6 +152,8 @@ const styles = StyleSheet.create({
   price: { fontSize: 15, fontWeight: '800', color: C.primary, marginTop: 6 },
   boostBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: '#FEF3C7' },
   boostTxt: { color: '#92400E', fontWeight: '700', fontSize: 11 },
+  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: '#EEF2FF' },
+  editTxt: { color: C.primary, fontWeight: '700', fontSize: 11 },
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
   badgeTxt: { fontSize: 10.5, fontWeight: '700', letterSpacing: 0.3 },
 });

@@ -316,20 +316,28 @@ html = html.replace(/<body>/i, '<body>' + SPLASH_HTML);
 
 fs.writeFileSync(indexPath, html, 'utf8');
 
-const SW_JS = `// ORIZON service worker - optimized for slow networks
-const CACHE = 'orizon-v1';
+// BUILD_ID change a chaque deploiement -> nouveau cache + ancien invalide.
+const BUILD_ID = process.env.VERCEL_GIT_COMMIT_SHA || process.env.VERCEL_DEPLOYMENT_ID || String(Date.now());
+const SW_JS = `// ORIZON service worker - versionne par BUILD_ID = ${BUILD_ID}
+const BUILD_ID = '${BUILD_ID}';
+const CACHE = 'orizon-' + BUILD_ID;
 const PRECACHE = ['/', '/index.html'${bundleUrl ? `, '${bundleUrl}'` : ''}];
 
 self.addEventListener('install', (event) => {
+  // NE PAS skipWaiting automatiquement: on attend que l'utilisateur clique
+  // "Recharger" via le banner UpdateBanner (postMessage SKIP_WAITING).
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE).catch(() => {})));
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -338,7 +346,20 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.startsWith('/_expo/static/') || url.pathname.startsWith('/assets/')) {
+  // Bundles JS et chunks: network-first (en cas d'ancien hash en cache, on prefere le reseau).
+  if (url.pathname.startsWith('/_expo/static/js/') || /\\.js$/.test(url.pathname)) {
+    event.respondWith(
+      fetch(req).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        return res;
+      }).catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Assets statiques (images, fonts, css): cache-first.
+  if (url.pathname.startsWith('/_expo/static/') || url.pathname.startsWith('/assets/') || /\\.(png|jpg|jpeg|webp|svg|ico|woff2?|ttf|css)$/i.test(url.pathname)) {
     event.respondWith(
       caches.match(req).then((hit) => hit || fetch(req).then((res) => {
         const copy = res.clone();
@@ -349,6 +370,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Navigation HTML: TOUJOURS network-first (sinon vieille version visible).
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
     event.respondWith(
       fetch(req).then((res) => {
@@ -361,6 +383,7 @@ self.addEventListener('fetch', (event) => {
 });
 `;
 fs.writeFileSync(path.join(distDir, 'sw.js'), SW_JS, 'utf8');
+console.log('[postbuild-web] SW versionne: BUILD_ID =', BUILD_ID);
 
 // Copie les assets PWA (public/) vers dist/ pour qu'ils soient servis a la racine.
 const publicDir = path.resolve(__dirname, '..', 'public');

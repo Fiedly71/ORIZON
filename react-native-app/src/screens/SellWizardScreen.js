@@ -1,6 +1,7 @@
 // Wizard "Vendre" en 3 etapes: Infos -> Medias -> Tarifs.
 // Utilise propertiesService (CRUD) + storageService (upload).
-import React, { useState } from 'react';
+// Mode edition: navigation.navigate('SellWizard', { editId: '<uuid>' })
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Image, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,14 +11,17 @@ import { pickImages, uploadImages } from '../services/storageService';
 import { useProperty } from '../store/useProperty';
 import { useAuthStore } from '../store/useAuthStore';
 import { canPublish } from '../services/authService';
+import { getProperty as getPropertyById, updateProperty as svcUpdate } from '../services/propertiesService';
 
 const STATUSES = ['A vendre', 'A louer'];
 const PUBLICATION_FEE_USD = 20;
 const PUBLICATION_FEE_HTG = 2500;
 
-export default function SellWizardScreen({ navigation }) {
+export default function SellWizardScreen({ navigation, route }) {
+  const editId = route?.params?.editId || null;
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(!!editId);
   const addProperty = useProperty((s) => s.addProperty);
   const user = useAuthStore((s) => s.user);
 
@@ -115,10 +119,37 @@ export default function SellWizardScreen({ navigation }) {
     bathrooms: '',
     area: '',
     amenities: [],
-    images: [],          // [{ uri, mime, name }]
+    images: [],          // [{ uri, mime, name }]  + existing urls as { uri, existing: true }
     price: '',
     status: 'A vendre',
   });
+
+  // Mode edition: precharge la propriete.
+  useEffect(() => {
+    if (!editId) return;
+    (async () => {
+      const r = await getPropertyById(editId);
+      if (r.ok && r.data) {
+        const p = r.data;
+        setData({
+          title: p.title || '',
+          location: p.location || '',
+          type: p.type || 'Maison',
+          description: p.description || '',
+          bedrooms: String(p.bedrooms || ''),
+          bathrooms: String(p.bathrooms || ''),
+          area: String(p.area || ''),
+          amenities: Array.isArray(p.amenities) ? p.amenities : [],
+          images: (p.images || (p.image ? [p.image] : [])).map((url) => ({ uri: url, existing: true })),
+          price: String(p.price || ''),
+          status: p.status || 'A vendre',
+        });
+      } else if (!r.ok) {
+        Alert.alert('Edition', r.error || 'Impossible de charger cette annonce.');
+      }
+      setLoadingEdit(false);
+    })();
+  }, [editId]);
 
   const update = (k, v) => setData((d) => ({ ...d, [k]: v }));
   const toggleAmenity = (a) =>
@@ -153,8 +184,20 @@ export default function SellWizardScreen({ navigation }) {
   const submit = async () => {
     setBusy(true);
     try {
-      const up = await uploadImages(data.images, { folder: 'properties', generateThumb: true });
-      if (!up.ok) { Alert.alert('Upload', up.error || ''); return; }
+      // Separe: les images existantes (deja sur Storage) gardent leur URL,
+      // les nouvelles ({ uri, mime, name } locales) sont uploadees.
+      const existingUrls = data.images.filter((i) => i.existing).map((i) => i.uri);
+      const toUpload = data.images.filter((i) => !i.existing);
+      let newUrls = [];
+      let newThumbs = [];
+      if (toUpload.length) {
+        const up = await uploadImages(toUpload, { folder: 'properties', generateThumb: true });
+        if (!up.ok) { Alert.alert('Upload', up.error || ''); return; }
+        newUrls = up.urls || [];
+        newThumbs = up.thumbs || [];
+      }
+      const allUrls = [...existingUrls, ...newUrls];
+      const allThumbs = [...existingUrls, ...newThumbs];
 
       // Geocodage auto de l'adresse (silencieux si echec)
       let geo = { lat: null, lng: null };
@@ -175,20 +218,33 @@ export default function SellWizardScreen({ navigation }) {
         area: Number(data.area) || 0,
         description: data.description,
         amenities: data.amenities,
-        images: up.urls,
-        thumbs: up.thumbs,
-        image: up.thumbs?.[0] || up.urls[0] || '',
+        images: allUrls,
+        thumbs: allThumbs,
+        image: allThumbs[0] || allUrls[0] || '',
+        lat: geo.lat,
+        lng: geo.lng,
+      };
+
+      // ===== MODE EDITION =====
+      if (editId) {
+        const r = await svcUpdate(editId, payload);
+        if (!r.ok) { Alert.alert('Modification', r.error || ''); return; }
+        Alert.alert('Annonce mise a jour', 'Tes modifications ont ete enregistrees.');
+        navigation.goBack();
+        return;
+      }
+
+      // ===== MODE CREATION =====
+      const createPayload = {
+        ...payload,
         ownerName: user?.fullName || '',
         ownerType: user?.role || '',
         ownerId: user?.id || null,
-        lat: geo.lat,
-        lng: geo.lng,
         // Important: la propriete est creee en mode 'unpaid'.
-        // Elle ne sera visible publiquement qu'apres confirmation du paiement
-        // (RPC confirm_payment cote DB).
+        // Le trigger DB force 'paid' si publish_free=true sur le profil.
         paymentStatus: 'unpaid',
       };
-      const r = await addProperty(payload);
+      const r = await addProperty(createPayload);
       if (!r.ok) { Alert.alert('Publication', r.error || ''); return; }
 
       // On enchaine sur l'ecran de paiement avec l'id de la propriete creee.
@@ -207,9 +263,13 @@ export default function SellWizardScreen({ navigation }) {
         <Pressable onPress={() => (step === 0 ? navigation.goBack() : setStep((s) => s - 1))} hitSlop={8}>
           <Ionicons name="chevron-back" size={22} color={C.text} />
         </Pressable>
-        <Text style={styles.title}>Publier une annonce</Text>
+        <Text style={styles.title}>{editId ? 'Modifier l\'annonce' : 'Publier une annonce'}</Text>
         <View style={{ width: 22 }} />
       </View>
+      {loadingEdit ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator color={C.primary} /></View>
+      ) : (
+      <>
 
       <View style={styles.steps}>
         {['Infos', 'Photos', 'Tarif'].map((label, i) => (
@@ -280,6 +340,7 @@ export default function SellWizardScreen({ navigation }) {
             </View>
             <Field label="PRIX (USD)" value={data.price} onChangeText={(v) => update('price', v)} keyboardType="number-pad" placeholder="ex: 95000" />
 
+            {!editId && (
             <View style={styles.feeBox}>
               <Ionicons name="card-outline" size={20} color={C.primary} />
               <View style={{ flex: 1 }}>
@@ -291,15 +352,18 @@ export default function SellWizardScreen({ navigation }) {
                 </Text>
               </View>
             </View>
+            )}
           </View>
         )}
       </ScrollView>
 
       <View style={styles.footer}>
         <Pressable style={[styles.cta, busy && { opacity: 0.6 }]} onPress={next} disabled={busy}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>{step < 2 ? 'Continuer' : `Payer ${PUBLICATION_FEE_USD}$ et publier`}</Text>}
+          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>{step < 2 ? 'Continuer' : (editId ? 'Enregistrer les modifications' : `Payer ${PUBLICATION_FEE_USD}$ et publier`)}</Text>}
         </Pressable>
       </View>
+      </>
+      )}
     </SafeAreaView>
   );
 }

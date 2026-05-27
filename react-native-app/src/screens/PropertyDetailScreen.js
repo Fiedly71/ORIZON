@@ -25,6 +25,7 @@ import VisitBookingSheet from '../components/VisitBookingSheet';
 import ImageViewer from '../components/ImageViewer';
 import MortgageMini from '../components/MortgageMini';
 import PriceHistoryChart from '../components/PriceHistoryChart';
+import ReportSheet from '../components/ReportSheet';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { openConversation } from '../services/messagingService';
 import { isSuperhost } from '../utils/superhost';
@@ -54,6 +55,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
   const [activeImg, setActiveImg] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const superhost = isSuperhost(item);
 
   const favIds = useFavorites((s) => s.ids);
@@ -148,6 +150,9 @@ export default function PropertyDetailScreen({ navigation, route }) {
             <View style={styles.topRight}>
               <Pressable style={styles.iconBtn} onPress={onShare}>
                 <Ionicons name="share-outline" size={20} color={C.text} />
+              </Pressable>
+              <Pressable style={styles.iconBtn} onPress={() => setReportOpen(true)}>
+                <Ionicons name="flag-outline" size={18} color={C.text} />
               </Pressable>
               <Pressable
                 style={styles.iconBtn}
@@ -321,6 +326,13 @@ export default function PropertyDetailScreen({ navigation, route }) {
         images={photos}
         initialIndex={activeImg}
         onClose={() => setViewerOpen(false)}
+      />
+      <ReportSheet
+        visible={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetType="property"
+        targetId={item.id}
+        targetLabel={item.title}
       />
     </View>
   );
