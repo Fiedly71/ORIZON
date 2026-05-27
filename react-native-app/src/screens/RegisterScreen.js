@@ -20,6 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { C } from '../theme/colors';
+import { appAlert } from '../utils/appAlert';
 import { signUp } from '../services/authService';
 import { useAuthStore } from '../store/useAuthStore';
 import { pickImages, uploadImage } from '../services/storageService';
@@ -89,7 +90,7 @@ export default function RegisterScreen({ navigation }) {
   const onSubmit = async () => {
     const errors = validate();
     if (errors.length > 0) {
-      Alert.alert('Inscription incomplète', '• ' + errors.join('\n• '));
+      appAlert('Inscription incomplète', '• ' + errors.join('\n• '));
       return;
     }
     setBusy(true);
@@ -102,7 +103,7 @@ export default function RegisterScreen({ navigation }) {
         role,
       });
       if (!res.ok) {
-        Alert.alert('Inscription', res.error || 'Échec de la création du compte.');
+        appAlert('Inscription', res.error || 'Échec de la création du compte.');
         return;
       }
 
@@ -119,7 +120,7 @@ export default function RegisterScreen({ navigation }) {
           docBackUri: form.docBack?.uri,
         });
         if (!kycRes.ok) {
-          Alert.alert(
+          appAlert(
             'Compte créé',
             "Ton compte est créé mais l'envoi des documents a échoué. Tu peux les renvoyer depuis ton profil.\n\n" +
               (kycRes.error || '')
@@ -129,14 +130,14 @@ export default function RegisterScreen({ navigation }) {
       }
 
       if (res.needsEmailConfirm) {
-        Alert.alert(
+        appAlert(
           'Vérifie ton email',
           isPublisher
             ? 'Compte créé ! Vérifie ton email. Ton dossier KYC sera examiné sous 24-48h avant que tu puisses publier.'
             : 'Compte créé ! Vérifie ton email pour activer ton compte.'
         );
       } else if (isPublisher) {
-        Alert.alert(
+        appAlert(
           'Bienvenue sur ORIZON',
           'Ton compte est actif. Ton dossier KYC sera examiné sous 24-48h avant que tu puisses publier des annonces.'
         );
