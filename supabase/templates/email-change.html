@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirme ton nouvel email - ORIZON</title>
+  </head>
+  <body style="margin:0;padding:0;background:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F172A;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:40px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#FFFFFF;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(15,23,42,0.06);">
+            <tr>
+              <td style="background:linear-gradient(135deg,#1D4ED8 0%,#1E3A8A 100%);padding:32px;text-align:center;">
+                <div style="display:inline-block;background:#F5B301;color:#1E3A8A;font-weight:800;letter-spacing:3px;font-size:11px;padding:6px 14px;border-radius:999px;margin-bottom:14px;">ORIZON</div>
+                <h1 style="margin:0;color:#FFFFFF;font-size:22px;font-weight:800;">Confirme ton nouvel email</h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:32px;">
+                <p style="margin:0 0 14px;font-size:15px;line-height:1.55;">Bonjour,</p>
+                <p style="margin:0 0 14px;font-size:15px;line-height:1.55;">
+                  Tu as demande a changer ton email vers <strong>{{ .NewEmail }}</strong>. Clique pour confirmer.
+                </p>
+                <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto;">
+                  <tr>
+                    <td align="center" style="background:#F5B301;border-radius:14px;">
+                      <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 32px;color:#1E3A8A;font-size:15px;font-weight:800;text-decoration:none;">Confirmer le changement</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0;font-size:12px;color:#64748B;">Si tu n'es pas a l'origine de ce changement, ignore ce message.</p>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:16px 0 0;font-size:11px;color:#94A3B8;">(c) ORIZON 2025</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
