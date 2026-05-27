@@ -15,19 +15,19 @@ const SLIDES = [
     id: '1',
     title: 'Trouve ton chez-toi',
     sub: "Parcoure des centaines d'annonces verifiees a travers Haiti, du Cap a Jacmel.",
-    img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80',
+    img: require('../../assets/a.webp'),
   },
   {
     id: '2',
     title: 'Visite et negocie en confiance',
     sub: 'Reserve une visite en deux clics. Suivi rappel, check-in et avis verifies.',
-    img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80',
+    img: require('../../assets/b.webp'),
   },
   {
     id: '3',
     title: 'Vends sans intermediaire',
     sub: 'Publie ton bien en 3 etapes, recois des demandes serieuses de toute Haiti.',
-    img: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80',
+    img: require('../../assets/c.webp'),
   },
 ];
 
@@ -37,7 +37,8 @@ export default function OnboardingScreen({ navigation }) {
 
   const finish = async () => {
     try { await AsyncStorage.setItem(ONBOARDING_KEY, '1'); } catch {}
-    navigation.replace('Auth');
+    try { navigation.replace('Login'); }
+    catch { try { navigation.navigate('Login'); } catch {} }
   };
 
   const next = () => {
@@ -72,7 +73,7 @@ export default function OnboardingScreen({ navigation }) {
         onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
-            <Image source={{ uri: item.img }} style={styles.img} resizeMode="cover" />
+            <Image source={item.img} style={styles.img} resizeMode="cover" />
             <View style={styles.body}>
               <Text style={styles.title}>{item.title}</Text>
               <Text style={styles.sub}>{item.sub}</Text>
