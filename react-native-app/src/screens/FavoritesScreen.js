@@ -1,10 +1,12 @@
 // FavoritesScreen - liste des biens favoris de l'utilisateur connecte.
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Pressable, Image } from 'react-native';
+// Fetche les properties par ids depuis Supabase (independant du cache local).
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, FlatList, StyleSheet, Pressable, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { C } from '../theme/colors';
 import { useFavorites } from '../store/useFavorites';
+import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { useProperty } from '../store/useProperty';
 import EmptyState from '../components/EmptyState';
 
@@ -12,20 +14,48 @@ export default function FavoritesScreen({ navigation }) {
   const ids = useFavorites((s) => s.ids);
   const load = useFavorites((s) => s.load);
   const toggle = useFavorites((s) => s.toggle);
-  const properties = useProperty((s) => s.properties);
-  const loadProps = useProperty((s) => s.loadProperties);
+  const cacheProps = useProperty((s) => s.properties);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  const fetchItems = useCallback(async (currentIds) => {
+    if (!currentIds || currentIds.length === 0) { setItems([]); return; }
+    // Fallback cache local immediatement pour l'UX
+    const fromCache = cacheProps.filter((p) => currentIds.includes(p.id));
+    if (fromCache.length > 0) setItems(fromCache);
+    if (!isSupabaseConfigured) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('properties')
+      .select('id,title,location,price,image,images,status,bedrooms,bathrooms,area')
+      .in('id', currentIds);
+    setLoading(false);
+    if (!error && data) {
+      const mapped = data.map((r) => ({
+        ...r,
+        image: r.image || (Array.isArray(r.images) ? r.images[0] : ''),
+      }));
+      setItems(mapped);
+    }
+  }, [cacheProps]);
+
   useEffect(() => {
-    load();
-    loadProps?.();
+    (async () => {
+      const r = await load();
+      const currentIds = r?.ids || ids;
+      fetchItems(currentIds);
+    })();
   }, []);
 
-  const items = properties.filter((p) => ids.includes(p.id));
+  useEffect(() => {
+    fetchItems(ids);
+  }, [ids, fetchItems]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await load();
+    const r = await load();
+    await fetchItems(r?.ids || ids);
     setRefreshing(false);
   };
 

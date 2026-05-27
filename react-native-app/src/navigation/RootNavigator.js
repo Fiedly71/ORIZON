@@ -20,7 +20,6 @@ import FavoritesScreen from '../screens/FavoritesScreen';
 import SellerStatsScreen from '../screens/SellerStatsScreen';
 import HelpScreen from '../screens/HelpScreen';
 import AboutScreen from '../screens/AboutScreen';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
 import LegalScreen from '../screens/LegalScreen';
 import BlockedUsersScreen from '../screens/BlockedUsersScreen';
 import ConversationScreen from '../screens/ConversationScreen';

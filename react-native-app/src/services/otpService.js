@@ -18,6 +18,7 @@ export async function sendPhoneOtp(rawPhone) {
     return { ok: false, error: 'Numero invalide' };
   }
   if (!isSupabaseConfigured) {
+    if (!__DEV__) return { ok: false, error: 'Service indisponible (configuration manquante).' };
     return { ok: true, mock: true, phone, devCode: '123456' };
   }
   const { error } = await supabase.auth.signInWithOtp({ phone });
@@ -28,6 +29,7 @@ export async function sendPhoneOtp(rawPhone) {
 export async function verifyPhoneOtp(rawPhone, code) {
   const phone = normalizeHTPhone(rawPhone);
   if (!isSupabaseConfigured) {
+    if (!__DEV__) return { ok: false, error: 'Service indisponible (configuration manquante).' };
     if (code === '123456') return { ok: true, mock: true };
     return { ok: false, error: 'Code incorrect (mock: 123456)' };
   }

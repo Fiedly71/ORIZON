@@ -28,27 +28,36 @@ export default function BoostListingScreen({ route, navigation }) {
     const p = BOOST_PLANS.find((x) => x.id === plan);
     setBusy(true);
     try {
-      // Trace de paiement (en prod: webhook Stripe/MonCash declenche apply_premium_boost)
+      // MonCash : on redirige vers l'ecran manuel de soumission (admin valide).
+      if (method === 'moncash') {
+        navigation.replace('MonCashManual', {
+          propertyId,
+          amount: Math.round(p.price * 130),
+          purpose: 'boost',
+          meta: { days: p.days, planId: p.id },
+        });
+        return;
+      }
+      // Stripe : creer un payment pending, le boost s'active via webhook serveur (apply_premium_boost).
       if (isSupabaseConfigured) {
         const uid = useAuthStore.getState().user?.id;
-        await supabase.from('payments').insert({
+        const { error } = await supabase.from('payments').insert({
           user_id: uid,
           property_id: propertyId,
           amount: p.price,
           currency: 'USD',
-          provider: method,
+          provider: 'stripe',
           status: 'pending',
           kind: 'boost',
-          meta: { days: p.days },
+          meta: { days: p.days, planId: p.id },
         });
+        if (error) { Alert.alert('Erreur', error.message); return; }
       }
-      // Pour la demo : on active le boost cote client.
-      // En prod, supprimer ce bloc et activer via webhook serveur.
-      const r = await applyBoost(propertyId, p.days);
-      if (r.ok) {
-        toast.show(`Boost ${p.label} active !`, { type: 'success' });
-        navigation.goBack();
-      } else Alert.alert('Erreur', r.error);
+      Alert.alert(
+        'Paiement en cours',
+        `Le boost ${p.label} sera active automatiquement apres confirmation du paiement Stripe (quelques secondes).`,
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
     } catch (e) {
       Alert.alert('Erreur', e.message);
     } finally { setBusy(false); }

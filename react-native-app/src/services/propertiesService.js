@@ -81,23 +81,33 @@ function toRow(p) {
 
 // --- API publique ---
 // Pagination par defaut: page=0, pageSize=20.
+// Filtre public : seules les annonces approuvees PAR la moderation ET payees
+// sont visibles. Les annonces creees mais non payees restent invisibles.
 export async function listProperties({ page = 0, pageSize = 20 } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: propertiesSeed, mock: true };
   const from = page * pageSize;
   const to = from + pageSize - 1;
-  // Filtre public : seuls les biens approuves par la moderation sont visibles
-  // (le RLS DB l'autorise mais on filtre cote client pour limiter le payload).
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
     .eq('moderation_status', 'approved')
+    .eq('payment_status', 'paid')
     .order('posted_at', { ascending: false })
     .range(from, to);
   if (error) {
-    // Si la colonne moderation_status n'existe pas encore (DB pas migree),
-    // on retombe sur la requete d'origine.
-    const r2 = await supabase.from(TABLE).select('*').order('posted_at', { ascending: false }).range(from, to);
-    if (r2.error) return { ok: false, error: r2.error.message, data: [] };
+    // Fallback si colonnes pas encore migrees : on filtre uniquement sur payment.
+    const r2 = await supabase
+      .from(TABLE)
+      .select('*')
+      .eq('payment_status', 'paid')
+      .order('posted_at', { ascending: false })
+      .range(from, to);
+    if (r2.error) {
+      // Dernier recours : tout retourner (DB tres ancienne).
+      const r3 = await supabase.from(TABLE).select('*').order('posted_at', { ascending: false }).range(from, to);
+      if (r3.error) return { ok: false, error: r3.error.message, data: [] };
+      return { ok: true, data: (r3.data || []).map(fromRow), hasMore: (r3.data || []).length === pageSize };
+    }
     return { ok: true, data: (r2.data || []).map(fromRow), hasMore: (r2.data || []).length === pageSize };
   }
   return { ok: true, data: (data || []).map(fromRow), hasMore: (data || []).length === pageSize };

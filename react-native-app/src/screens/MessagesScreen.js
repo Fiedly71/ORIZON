@@ -1,7 +1,7 @@
 // MessagesScreen - Liste des conversations utilisateur. Realtime via Supabase.
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, FlatList, Pressable, RefreshControl, ActivityIndicator,
+  View, Text, StyleSheet, FlatList, Pressable, RefreshControl, ActivityIndicator, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -48,26 +48,32 @@ export default function MessagesScreen({ navigation }) {
   const renderItem = ({ item }) => {
     const role = item.buyerId === myId ? 'buyer' : 'owner';
     const unread = role === 'buyer' ? item.unreadBuyer : item.unreadOwner;
-    const otherInitial = (role === 'buyer' ? 'P' : 'A');
+    const displayName = item.otherName || (role === 'buyer' ? 'Proprietaire' : 'Acheteur');
+    const initial = displayName.slice(0, 1).toUpperCase();
     return (
       <Pressable
         style={styles.row}
         onPress={() => navigation.navigate('Conversation', {
           conversationId: item.id,
-          title: role === 'buyer' ? 'Proprietaire' : 'Acheteur',
+          title: displayName,
           role,
         })}
       >
-        <View style={styles.avatar}>
-          <Text style={styles.avatarTxt}>{otherInitial}</Text>
-        </View>
+        {item.otherAvatar ? (
+          <Image source={{ uri: item.otherAvatar }} style={styles.avatarImg} />
+        ) : (
+          <View style={styles.avatar}>
+            <Text style={styles.avatarTxt}>{initial}</Text>
+          </View>
+        )}
         <View style={{ flex: 1 }}>
           <View style={styles.rowTop}>
-            <Text style={styles.rowName} numberOfLines={1}>
-              {role === 'buyer' ? 'Proprietaire' : 'Acheteur'}
-            </Text>
+            <Text style={styles.rowName} numberOfLines={1}>{displayName}</Text>
             <Text style={styles.rowTime}>{timeAgo(item.lastMessageAt)}</Text>
           </View>
+          {item.propertyTitle ? (
+            <Text style={styles.rowProp} numberOfLines={1}>{item.propertyTitle}</Text>
+          ) : null}
           <Text style={[styles.rowMsg, unread > 0 && styles.rowMsgUnread]} numberOfLines={1}>
             {item.lastMessage || 'Demarre la conversation...'}
           </Text>
@@ -129,10 +135,14 @@ const styles = StyleSheet.create({
     width: 50, height: 50, borderRadius: 25, backgroundColor: C.primarySoft,
     alignItems: 'center', justifyContent: 'center',
   },
+  avatarImg: {
+    width: 50, height: 50, borderRadius: 25, backgroundColor: C.primarySoft,
+  },
   avatarTxt: { color: C.primary, fontWeight: '800', fontSize: 18 },
   rowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   rowName: { fontSize: 15, fontWeight: '700', color: C.text, flex: 1 },
   rowTime: { fontSize: 12, color: C.muted, marginLeft: spacing.md },
+  rowProp: { fontSize: 11, color: C.primary, marginTop: 1, fontWeight: '600' },
   rowMsg: { fontSize: 13.5, color: C.muted, marginTop: 2 },
   rowMsgUnread: { color: C.text, fontWeight: '600' },
   unreadDot: {

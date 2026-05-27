@@ -29,6 +29,7 @@ import { SECTIONS, getSectionItems } from '../services/sectionsService';
 import HorizontalSection from '../components/HorizontalSection';
 import { useFavorites } from '../store/useFavorites';
 import { isSuperhost } from '../utils/superhost';
+import { supabase, isSupabaseConfigured } from '../services/supabase';
 
 const CATEGORIES = [
   { key: 'all',        label: 'Tout',        icon: 'apps-outline' },
@@ -84,6 +85,16 @@ export default function ExploreScreen({ navigation }) {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  // Realtime : refresh la liste quand une annonce est cree, modifiee ou supprimee.
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    const ch = supabase
+      .channel('properties-feed')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'properties' }, () => load())
+      .subscribe();
+    return () => { try { supabase.removeChannel(ch); } catch {} };
+  }, [load]);
 
   const filtered = useMemo(() => {
     let out = items;

@@ -1,6 +1,6 @@
-// Ecran Carte ORIZON: affiche les annonces sur une carte.
-// Utilise react-native-maps. En l'absence de coordonnees lat/lng dans une annonce,
-// on tombe sur des coordonnees pseudo-aleatoires autour de Cap-Haitien.
+// Ecran Carte ORIZON: affiche les annonces georefencees sur une carte.
+// Sur web : Leaflet/OpenStreetMap (gratuit). Sur mobile : react-native-maps.
+// Les annonces sans coordonnees reelles sont comptees mais non affichees.
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -9,15 +9,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { C } from '../theme/colors';
 import { useProperty } from '../store/useProperty';
 import { getCurrentPosition, HAITI_DEFAULT } from '../services/locationService';
-
-function fakeCoordsFor(id) {
-  // Hash deterministe simple -> petit offset autour de PaP (pour la demo).
-  let h = 0;
-  for (let i = 0; i < String(id).length; i++) h = (h * 31 + String(id).charCodeAt(i)) | 0;
-  const dx = ((h & 0xff) / 0xff - 0.5) * 0.6;
-  const dy = (((h >> 8) & 0xff) / 0xff - 0.5) * 0.6;
-  return { lat: HAITI_DEFAULT.lat + dy, lng: HAITI_DEFAULT.lng + dx };
-}
 
 export default function MapScreen({ navigation }) {
   const properties = useProperty((s) => s.properties);
@@ -36,13 +27,10 @@ export default function MapScreen({ navigation }) {
   );
 
   const markers = useMemo(
-    () =>
-      properties.map((p) => {
-        const c = p.lat && p.lng ? { lat: p.lat, lng: p.lng } : fakeCoordsFor(p.id);
-        return { ...p, _coords: c };
-      }),
+    () => properties.filter((p) => p.lat != null && p.lng != null),
     [properties]
   );
+  const withoutGeo = properties.length - markers.length;
 
   const locateMe = async () => {
     setLoading(true);
@@ -74,7 +62,7 @@ export default function MapScreen({ navigation }) {
         {markers.map((m) => (
           <Marker
             key={m.id}
-            coordinate={{ latitude: m._coords.lat, longitude: m._coords.lng }}
+            coordinate={{ latitude: m.lat, longitude: m.lng }}
             onPress={() => setSelected(m)}
             tracksViewChanges={false}
           >
@@ -92,6 +80,13 @@ export default function MapScreen({ navigation }) {
           </Marker>
         ))}
       </MapView>
+
+      {withoutGeo > 0 && (
+        <View style={styles.noGeoBanner}>
+          <Ionicons name="information-circle-outline" size={14} color={C.muted} />
+          <Text style={styles.noGeoTxt}>{withoutGeo} annonce{withoutGeo > 1 ? 's' : ''} sans localisation precise</Text>
+        </View>
+      )}
 
       {selected && (
         <View style={styles.card}>
@@ -146,4 +141,13 @@ const styles = StyleSheet.create({
   },
   priceMarkerTxt: { color: C.text, fontWeight: '700', fontSize: 12 },
   priceMarkerTxtActive: { color: '#fff' },
+  noGeoBanner: {
+    position: 'absolute', top: 70, left: 16, right: 16,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#fff', borderRadius: 999,
+    paddingHorizontal: 12, paddingVertical: 6,
+    borderWidth: 1, borderColor: C.border,
+    alignSelf: 'center',
+  },
+  noGeoTxt: { fontSize: 11, color: C.muted, fontWeight: '600' },
 });

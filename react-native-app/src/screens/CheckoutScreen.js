@@ -138,13 +138,14 @@ export default function CheckoutScreen({ navigation, route }) {
           </View>
         )}
 
-        <View style={styles.sandboxBox}>
-          <Ionicons name="construct-outline" size={16} color="#92400E" />
-          <Text style={styles.sandboxTxt}>
-            Mode SANDBOX : aucun paiement réel n'est effectué. Le clic sur le bouton
-            simule une confirmation immédiate (pour tests).
-          </Text>
-        </View>
+        {__DEV__ && (
+          <View style={styles.sandboxBox}>
+            <Ionicons name="construct-outline" size={16} color="#92400E" />
+            <Text style={styles.sandboxTxt}>
+              Mode SANDBOX (dev) : aucun paiement réel n'est effectué.
+            </Text>
+          </View>
+        )}
       </ScrollView>
 
       <View style={styles.footer}>

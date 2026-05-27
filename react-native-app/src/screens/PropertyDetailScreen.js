@@ -9,8 +9,10 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Platform,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   View,
@@ -64,15 +66,38 @@ export default function PropertyDetailScreen({ navigation, route }) {
 
   const isRent = item.status === 'A louer' || item.status === 'A lwe' || item.status === 'rent';
 
-  const onShare = () => {
-    Alert.alert('Partage', 'Lien copie : orizon.ht/p/' + item.id);
+  const onShare = async () => {
+    const url = `https://orizon-pi.vercel.app/property/${item.id}`;
+    const title = item.title || 'Annonce ORIZON';
+    const message = `${title}\n${item.location || ''}\n${url}`;
+    try {
+      if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title, text: message, url });
+        return;
+      }
+      if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        Alert.alert('Lien copié', url);
+        return;
+      }
+      await Share.share({ title, message, url });
+    } catch (_) {
+      Alert.alert('Lien', url);
+    }
   };
 
   const onVisit = () => setBookingOpen(true);
 
   const onContact = async () => {
     if (!item.ownerId) {
-      Alert.alert('Indisponible', 'Aucun proprietaire associe a cette annonce.');
+      Alert.alert(
+        'Contact indisponible',
+        "Le vendeur n'a pas encore lié son compte à cette annonce. Pour toute question, contacte ORIZON via le support.",
+        [
+          { text: 'Contacter le support', onPress: () => navigation.navigate('Support') },
+          { text: 'Annuler', style: 'cancel' },
+        ]
+      );
       return;
     }
     const r = await openConversation({ propertyId: item.id, ownerId: item.ownerId });

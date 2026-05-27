@@ -89,7 +89,40 @@ export async function listConversations() {
     .or(`buyer_id.eq.${uid},owner_id.eq.${uid}`)
     .order('last_message_at', { ascending: false, nullsFirst: false });
   if (error) return { ok: false, error: error.message };
-  return { ok: true, data: (data || []).map(fromConv) };
+
+  // Enrichir avec les profils des autres participants + titre de l'annonce
+  const conversations = (data || []).map(fromConv);
+  if (conversations.length === 0) return { ok: true, data: [] };
+
+  const otherIds = Array.from(new Set(conversations.map((c) =>
+    c.buyerId === uid ? c.ownerId : c.buyerId
+  ).filter(Boolean)));
+  const propIds = Array.from(new Set(conversations.map((c) => c.propertyId).filter(Boolean)));
+
+  const [profilesRes, propsRes] = await Promise.all([
+    otherIds.length > 0
+      ? supabase.from('profiles').select('id,full_name,agency_name,avatar_url').in('id', otherIds)
+      : Promise.resolve({ data: [] }),
+    propIds.length > 0
+      ? supabase.from('properties').select('id,title,image,images').in('id', propIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+  const profilesById = Object.fromEntries((profilesRes.data || []).map((p) => [p.id, p]));
+  const propsById = Object.fromEntries((propsRes.data || []).map((p) => [p.id, p]));
+
+  const enriched = conversations.map((c) => {
+    const otherId = c.buyerId === uid ? c.ownerId : c.buyerId;
+    const prof = profilesById[otherId] || {};
+    const prop = propsById[c.propertyId] || {};
+    return {
+      ...c,
+      otherName: prof.agency_name || prof.full_name || (c.buyerId === uid ? 'Proprietaire' : 'Acheteur'),
+      otherAvatar: prof.avatar_url || '',
+      propertyTitle: prop.title || '',
+      propertyImage: prop.image || (Array.isArray(prop.images) ? prop.images[0] : ''),
+    };
+  });
+  return { ok: true, data: enriched };
 }
 
 export async function listMessages(conversationId) {
