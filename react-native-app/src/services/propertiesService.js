@@ -128,9 +128,35 @@ export async function createProperty(p) {
     const item = { ...p, id: 'mock-' + Date.now(), postedAt: new Date().toISOString().slice(0, 10) };
     return { ok: true, data: item, mock: true };
   }
-  const { data, error } = await supabase.from(TABLE).insert(toRow(p)).select('*').single();
-  if (error) return { ok: false, error: error.message, data: null };
-  return { ok: true, data: fromRow(data) };
+  const row = toRow(p);
+  // Retry jusqu'a 3x sur erreurs reseau transitoires (failed to fetch, timeout, 5xx).
+  let lastErr = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const { data, error } = await supabase.from(TABLE).insert(row).select('*').single();
+      if (!error) return { ok: true, data: fromRow(data) };
+      lastErr = error;
+      const msg = String(error.message || '').toLowerCase();
+      // Erreurs metiers : pas la peine de retry, on traduit
+      if (msg.includes('annonce similaire') || msg.includes('p0002')) {
+        return { ok: false, error: "Une annonce avec exactement le meme titre, lieu et prix existe deja sur la plateforme. Change un detail (titre plus precis, prix legerement different) puis reessaie.", code: 'DUPLICATE' };
+      }
+      if (msg.includes('row-level security') || msg.includes('rls') || msg.includes('permission denied')) {
+        return { ok: false, error: "Ton compte n'a pas l'autorisation de publier. Reconnecte-toi puis reessaie, ou contacte le support.", code: 'RLS' };
+      }
+      // Erreurs reseau : on retry
+      if (!msg.includes('failed to fetch') && !msg.includes('network') && !msg.includes('timeout')) break;
+    } catch (e) {
+      lastErr = e;
+    }
+    // Backoff exponentiel: 600ms, 1200ms
+    await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+  }
+  const finalMsg = String(lastErr?.message || lastErr || 'Erreur inconnue').toLowerCase();
+  if (finalMsg.includes('failed to fetch') || finalMsg.includes('network')) {
+    return { ok: false, error: "Connexion instable. Verifie ta connexion Internet et reessaie. Tes infos sont sauvegardees, tu peux republier sans tout retaper.", code: 'NETWORK' };
+  }
+  return { ok: false, error: lastErr?.message || 'Erreur inconnue', data: null };
 }
 
 export async function updateProperty(id, patch) {

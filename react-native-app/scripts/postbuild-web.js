@@ -58,19 +58,46 @@ const HEAD_INJECTION = `
       #orizon-splash {
         position: fixed; inset: 0; z-index: 9999;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        background: linear-gradient(160deg, #1D4ED8 0%, #1E40AF 60%, #1E3A8A 100%);
+        background: linear-gradient(160deg, #1D4ED8 0%, #1E40AF 55%, #172554 100%);
         color: #FFFFFF; transition: opacity 0.45s ease-out;
+        padding: 0 32px; box-sizing: border-box;
+      }
+      #orizon-splash::before {
+        content: ''; position: absolute; inset: 0;
+        background:
+          radial-gradient(circle at 18% 22%, rgba(255,255,255,0.10) 0%, transparent 38%),
+          radial-gradient(circle at 82% 78%, rgba(255,255,255,0.08) 0%, transparent 40%);
+        pointer-events: none;
       }
       #orizon-splash.hidden { opacity: 0; pointer-events: none; }
-      .orizon-splash-logo { font-weight: 800; font-size: 44px; letter-spacing: 4px; text-shadow: 0 4px 20px rgba(0,0,0,0.25); }
-      .orizon-splash-tagline { margin-top: 12px; font-size: 14px; opacity: 0.85; letter-spacing: 0.5px; }
+      .orizon-splash-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; max-width: 360px; text-align: center; }
+      .orizon-splash-logo-wrap {
+        width: 124px; height: 124px; border-radius: 32px;
+        background: #FFFFFF;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.10);
+        animation: orizon-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      }
+      .orizon-splash-logo-img { width: 88px; height: 88px; object-fit: contain; }
+      .orizon-splash-brand { margin-top: 24px; font-weight: 800; font-size: 32px; letter-spacing: 6px; text-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+      .orizon-splash-brand-underline { width: 48px; height: 3px; background: #FFFFFF; border-radius: 2px; margin-top: 10px; opacity: 0.9; }
+      .orizon-splash-quote {
+        margin-top: 32px; font-size: 15px; line-height: 1.55; color: rgba(255,255,255,0.92);
+        font-style: italic; min-height: 70px;
+        transition: opacity 0.5s ease;
+      }
+      .orizon-splash-quote.fade-out { opacity: 0; }
       .orizon-splash-spinner {
-        margin-top: 32px; width: 36px; height: 36px;
-        border: 3px solid rgba(255,255,255,0.3); border-top-color: #FFFFFF;
+        margin-top: 28px; width: 30px; height: 30px;
+        border: 3px solid rgba(255,255,255,0.25); border-top-color: #FFFFFF;
         border-radius: 50%; animation: orizon-spin 0.9s linear infinite;
       }
-      .orizon-splash-progress { margin-top: 24px; font-size: 12px; opacity: 0.75; letter-spacing: 0.5px; min-height: 16px; text-align: center; padding: 0 24px; }
+      .orizon-splash-progress {
+        margin-top: 18px; font-size: 12px; color: rgba(255,255,255,0.7);
+        letter-spacing: 1.5px; text-transform: uppercase; min-height: 16px;
+      }
       @keyframes orizon-spin { to { transform: rotate(360deg); } }
+      @keyframes orizon-pop { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
 
       @media (min-width: 900px) {
         body { display: flex; align-items: center; justify-content: center; padding: 24px 0; box-sizing: border-box; overflow: auto; height: 100vh; height: 100svh; }
@@ -107,10 +134,18 @@ if (expoResetRegex.test(html)) {
 
 const SPLASH_HTML = `
     <div id="orizon-splash" role="status" aria-label="Chargement de ORIZON">
-      <div class="orizon-splash-logo">ORIZON</div>
-      <div class="orizon-splash-tagline">Immobilier en Haiti</div>
-      <div class="orizon-splash-spinner" aria-hidden="true"></div>
-      <div class="orizon-splash-progress" id="orizon-splash-progress">Chargement...</div>
+      <div class="orizon-splash-inner">
+        <div class="orizon-splash-logo-wrap">
+          <img src="/logo3.png" alt="ORIZON" class="orizon-splash-logo-img" />
+        </div>
+        <div class="orizon-splash-brand">ORIZON</div>
+        <div class="orizon-splash-brand-underline" aria-hidden="true"></div>
+        <div class="orizon-splash-quote" id="orizon-splash-quote">
+          "Une maison n'est pas un lieu, c'est un sentiment."
+        </div>
+        <div class="orizon-splash-spinner" aria-hidden="true"></div>
+        <div class="orizon-splash-progress" id="orizon-splash-progress">Chargement...</div>
+      </div>
     </div>
     <script>
       (function () {
@@ -137,20 +172,42 @@ const SPLASH_HTML = `
           document.addEventListener('DOMContentLoaded', watchRoot);
         } else { watchRoot(); }
 
-        var progress = document.getElementById('orizon-splash-progress');
-        var msgs = [
-          { at: 3000, text: 'Connexion lente detectee, patiente...' },
-          { at: 8000, text: 'Chargement de l\\'application...' },
-          { at: 15000, text: 'Presque pret...' },
+        // Pensees immobilieres rotatives
+        var quotes = [
+          '"Une maison n\\'est pas un lieu, c\\'est un sentiment."',
+          '"L\\'immobilier ne s\\'achete pas, il se transmet."',
+          '"Trouve un toit, construis une vie."',
+          '"Investis dans la terre, on n\\'en fabrique plus."',
+          '"Ton chez-toi, c\\'est ton refuge."',
+          '"L\\'immobilier, c\\'est la base de toute richesse durable."',
+          '"Chaque cle ouvre un nouveau chapitre."',
+          '"Acheter un bien, c\\'est plus qu\\'un investissement, c\\'est un heritage."'
         ];
-        msgs.forEach(function (m) {
+        var quoteEl = document.getElementById('orizon-splash-quote');
+        var qIdx = Math.floor(Math.random() * quotes.length);
+        if (quoteEl) quoteEl.innerHTML = quotes[qIdx];
+        var qTimer = setInterval(function () {
+          var splash = document.getElementById('orizon-splash');
+          if (!splash || splash.classList.contains('hidden')) { clearInterval(qTimer); return; }
+          if (!quoteEl) return;
+          quoteEl.classList.add('fade-out');
           setTimeout(function () {
-            var splash = document.getElementById('orizon-splash');
-            if (progress && splash && !splash.classList.contains('hidden')) {
-              progress.textContent = m.text;
-            }
-          }, m.at);
-        });
+            qIdx = (qIdx + 1) % quotes.length;
+            quoteEl.innerHTML = quotes[qIdx];
+            quoteEl.classList.remove('fade-out');
+          }, 500);
+        }, 3500);
+
+        // Le texte de progression reste "Chargement..." court et stable.
+        var progress = document.getElementById('orizon-splash-progress');
+        setTimeout(function () {
+          var splash = document.getElementById('orizon-splash');
+          if (progress && splash && !splash.classList.contains('hidden')) progress.textContent = 'Chargement...';
+        }, 6000);
+        setTimeout(function () {
+          var splash = document.getElementById('orizon-splash');
+          if (progress && splash && !splash.classList.contains('hidden')) progress.textContent = 'Presque pret';
+        }, 15000);
 
         if ('serviceWorker' in navigator) {
           window.addEventListener('load', function () {
