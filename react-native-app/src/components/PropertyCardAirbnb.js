@@ -29,7 +29,7 @@ export default function PropertyCardAirbnb({
 
   const photos = (item.images && item.images.length > 0)
     ? item.images
-    : (item.image ? [item.image] : ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800']);
+    : (item.image ? [item.image] : ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&q=60&auto=format']);
 
   const onScroll = (e) => {
     const idx = Math.round(e.nativeEvent.contentOffset.x / CARD_W);

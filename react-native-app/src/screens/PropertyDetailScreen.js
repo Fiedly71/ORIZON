@@ -64,7 +64,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
 
   const photos = (item.images && item.images.length > 0)
     ? item.images
-    : (item.image ? [item.image] : ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800']);
+    : (item.image ? [item.image] : ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=70&auto=format']);
 
   const isRent = item.status === 'A louer' || item.status === 'A lwe' || item.status === 'rent';
 

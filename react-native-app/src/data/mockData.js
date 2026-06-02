@@ -52,9 +52,9 @@ export const threadsSeed = [];
 // Aucun rendez-vous predefini.
 export const appointmentsSeed = [];
 
-// Slides d'onboarding (illustrations neutres - a remplacer par tes visuels).
+// Slides d'onboarding - images locales (assets/a.webp, b.webp, c.webp) chargees par OnboardingScreen.
 export const onboardingSlides = [
-  { id: 's1', titleKey: 'onboarding1Title', textKey: 'onboarding1Text', image: 'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80' },
-  { id: 's2', titleKey: 'onboarding2Title', textKey: 'onboarding2Text', image: 'https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=1200&q=80' },
-  { id: 's3', titleKey: 'onboarding3Title', textKey: 'onboarding3Text', image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80' },
+  { id: 's1', titleKey: 'onboarding1Title', textKey: 'onboarding1Text' },
+  { id: 's2', titleKey: 'onboarding2Title', textKey: 'onboarding2Text' },
+  { id: 's3', titleKey: 'onboarding3Title', textKey: 'onboarding3Text' },
 ];
