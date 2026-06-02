@@ -30,7 +30,7 @@ const scriptMatch = html.match(/<script\s+src="(\/_expo\/static\/js\/web\/[^"]+\
 const bundleUrl = scriptMatch ? scriptMatch[1] : null;
 
 const HEAD_INJECTION = `
-    <meta name="theme-color" content="#1D4ED8" />
+    <meta name="theme-color" content="#004c3f" />
     <meta name="description" content="ORIZON - Trouvez, visitez et achetez des biens immobiliers en Haiti." />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -39,7 +39,7 @@ const HEAD_INJECTION = `
     <link rel="manifest" href="/manifest.webmanifest" />
     ${bundleUrl ? `<link rel="preload" as="script" href="${bundleUrl}" />` : ''}
     <style id="orizon-responsive">
-      :root { --orizon-frame-bg: #EEF2F7; --orizon-frame-shadow: 0 24px 60px rgba(15, 23, 42, 0.18); --orizon-primary: #1D4ED8; }
+      :root { --orizon-frame-bg: #EEF2F7; --orizon-frame-shadow: 0 24px 60px rgba(15, 23, 42, 0.18); --orizon-primary: #004c3f; }
       html, body { margin: 0; padding: 0; background: var(--orizon-frame-bg); height: 100vh; height: 100svh; }
       body { overflow: hidden; overscroll-behavior: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
       #root {
@@ -58,7 +58,7 @@ const HEAD_INJECTION = `
       #orizon-splash {
         position: fixed; inset: 0; z-index: 9999;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        background: linear-gradient(160deg, #1D4ED8 0%, #1E40AF 55%, #172554 100%);
+        background: linear-gradient(160deg, #006d56 0%, #004c3f 55%, #00261f 100%);
         color: #FFFFFF; transition: opacity 0.45s ease-out;
         padding: 0 32px; box-sizing: border-box;
       }
@@ -237,9 +237,9 @@ const SPLASH_HTML = `
         font-family: inherit; transition: opacity 0.15s;
       }
       .orizon-btn:active { opacity: 0.7; }
-      .orizon-btn-primary { background: #1D4ED8; color: #FFFFFF; }
+      .orizon-btn-primary { background: #004c3f; color: #FFFFFF; }
       .orizon-btn-secondary { background: #F1F5F9; color: #475569; }
-      .orizon-btn-link { background: transparent; color: #1D4ED8; padding: 6px 8px; min-width: auto; flex: 0; font-size: 12px; }
+      .orizon-btn-link { background: transparent; color: #004c3f; padding: 6px 8px; min-width: auto; flex: 0; font-size: 12px; }
       .orizon-ios-steps { margin: 8px 0 12px; padding-left: 18px; color: #475569; font-size: 13px; }
       .orizon-ios-steps li { margin-bottom: 4px; }
       .orizon-ios-icon { display: inline-block; width: 16px; height: 16px; vertical-align: -3px; margin: 0 2px; }
@@ -458,8 +458,8 @@ const MANIFEST = {
   scope: '/',
   display: 'standalone',
   orientation: 'portrait',
-  background_color: '#1D4ED8',
-  theme_color: '#1D4ED8',
+  background_color: '#004c3f',
+  theme_color: '#004c3f',
   lang: 'fr',
   categories: ['business', 'lifestyle', 'shopping'],
   icons: [

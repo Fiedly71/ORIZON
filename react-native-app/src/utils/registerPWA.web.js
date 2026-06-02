@@ -18,7 +18,7 @@ export function registerPWA() {
     }
     if (!document.querySelector('meta[name="theme-color"]')) {
       const m = document.createElement('meta');
-      m.name = 'theme-color'; m.content = '#1D4ED8';
+      m.name = 'theme-color'; m.content = '#004c3f';
       head.appendChild(m);
     }
     if (!document.querySelector('meta[name="apple-mobile-web-app-capable"]')) {

@@ -10,7 +10,7 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#1D4ED8"
+        "backgroundColor": "#004c3f"
       },
       "edgeToEdgeEnabled": false,
       "statusBar": {
@@ -44,10 +44,10 @@
     },
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "primaryColor": "#1D4ED8",
+    "primaryColor": "#004c3f",
     "splash": {
       "image": "./assets/splash.png",
-      "backgroundColor": "#1D4ED8",
+      "backgroundColor": "#004c3f",
       "resizeMode": "contain"
     },
     "assetBundlePatterns": [

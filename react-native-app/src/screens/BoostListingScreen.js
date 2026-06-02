@@ -77,7 +77,7 @@ export default function BoostListingScreen({ route, navigation }) {
 
       <ScrollView contentContainerStyle={styles.body}>
         <View style={styles.heroCard}>
-          <Ionicons name="rocket" size={40} color="#F5B301" />
+          <Ionicons name="rocket" size={40} color="#feac00" />
           <Text style={styles.heroTitle}>Mets ton annonce en haut</Text>
           <Text style={styles.heroSub} numberOfLines={2}>{propertyTitle || 'Ton annonce'}</Text>
           {status?.isPremium && (

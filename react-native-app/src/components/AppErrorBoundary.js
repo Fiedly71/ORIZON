@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
   sub: { fontSize: 13, color: '#64748B' },
   box: { maxHeight: 160, backgroundColor: '#F8FAFB', borderRadius: 10, padding: 12, marginVertical: 12 },
   msg: { fontSize: 12, color: '#475569', fontFamily: 'System' },
-  btn: { backgroundColor: '#1D4ED8', padding: 14, borderRadius: 12, alignItems: 'center' },
+  btn: { backgroundColor: '#004c3f', padding: 14, borderRadius: 12, alignItems: 'center' },
   btnTxt: { color: '#fff', fontWeight: '700' },
 });

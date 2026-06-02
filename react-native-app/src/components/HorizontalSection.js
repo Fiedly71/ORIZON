@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   heart: { position: 'absolute', top: 8, right: 8, width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
   distBadge: { position: 'absolute', bottom: 8, left: 8, backgroundColor: 'rgba(0,0,0,0.7)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
   distTxt: { color: '#fff', fontSize: 10, fontWeight: '700' },
-  premBadge: { position: 'absolute', top: 8, left: 8, flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#F5B301', paddingHorizontal: 6, paddingVertical: 3, borderRadius: 8 },
+  premBadge: { position: 'absolute', top: 8, left: 8, flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: '#feac00', paddingHorizontal: 6, paddingVertical: 3, borderRadius: 8 },
   premTxt: { color: '#fff', fontSize: 9, fontWeight: '800', letterSpacing: 0.3 },
   name: { fontSize: 13, fontWeight: '700', color: C.text, marginTop: 6 },
   loc: { fontSize: 11, color: C.muted, marginTop: 2 },

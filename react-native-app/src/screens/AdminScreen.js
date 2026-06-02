@@ -31,7 +31,7 @@ const M = {
   muted: '#737373',
   danger: '#DC2626',
   ok: '#16A34A',
-  accent: '#1D4ED8',
+  accent: '#004c3f',
 };
 
 const TABS = [
