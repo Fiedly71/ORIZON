@@ -1,9 +1,9 @@
-// FavoritesScreen - liste des biens favoris de l'utilisateur connecte.
+﻿// FavoritesScreen - liste des biens favoris de l'utilisateur connecte.
 // Fetche les properties par ids depuis Supabase (independant du cache local).
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, Pressable, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { useFavorites } from '../store/useFavorites';
 import { supabase, isSupabaseConfigured } from '../services/supabase';

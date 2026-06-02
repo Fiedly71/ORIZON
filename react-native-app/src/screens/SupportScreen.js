@@ -1,10 +1,10 @@
-// SupportScreen - Formulaire support + WhatsApp Business deep link.
+﻿// SupportScreen - Formulaire support + WhatsApp Business deep link.
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, TextInput, Pressable, ScrollView, Alert, Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { useAuthStore } from '../store/useAuthStore';

@@ -1,8 +1,8 @@
-// Modal "Signaler" - reutilisable pour annonce ou utilisateur.
+﻿// Modal "Signaler" - reutilisable pour annonce ou utilisateur.
 // Insere une ligne dans `public.reports`.
 import React, { useState } from 'react';
 import { Modal, View, Text, Pressable, TextInput, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { reportTarget, REPORT_REASONS } from '../services/reportsService';
 import { useAuthStore } from '../store/useAuthStore';

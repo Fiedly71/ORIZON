@@ -1,10 +1,10 @@
-// MessagesScreen - Liste des conversations utilisateur. Realtime via Supabase.
+﻿// MessagesScreen - Liste des conversations utilisateur. Realtime via Supabase.
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, RefreshControl, ActivityIndicator, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { listConversations } from '../services/messagingService';
 import { useAuthStore } from '../store/useAuthStore';

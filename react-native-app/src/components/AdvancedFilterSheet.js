@@ -1,10 +1,10 @@
-// AdvancedFilterSheet - Modal filtres avances : prix, chambres, sdb, surface, type bien.
+﻿// AdvancedFilterSheet - Modal filtres avances : prix, chambres, sdb, surface, type bien.
 import React, { useState } from 'react';
 import {
   Modal, View, Text, Pressable, StyleSheet, ScrollView, TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 
 const TYPES = ['Villa','Appartement','Maison','Penthouse','Studio','Terrain','Commercial'];
@@ -56,7 +56,7 @@ export default function AdvancedFilterSheet({ visible, onClose, value, onApply }
               placeholder="Min" placeholderTextColor={C.muted}
               keyboardType="numeric" style={styles.input}
             />
-            <Text style={styles.dash}>—</Text>
+            <Text style={styles.dash}>â€”</Text>
             <TextInput
               value={f.maxPrice} onChangeText={(v) => setF({...f, maxPrice: v})}
               placeholder="Max" placeholderTextColor={C.muted}
@@ -70,14 +70,14 @@ export default function AdvancedFilterSheet({ visible, onClose, value, onApply }
           <Text style={styles.h2}>Salles de bain min</Text>
           <Stepper value={f.minBaths} onChange={(v) => setF({...f, minBaths: v})} />
 
-          <Text style={styles.h2}>Surface (m²)</Text>
+          <Text style={styles.h2}>Surface (mÂ²)</Text>
           <View style={styles.row}>
             <TextInput
               value={f.minArea} onChangeText={(v) => setF({...f, minArea: v})}
               placeholder="Min" placeholderTextColor={C.muted}
               keyboardType="numeric" style={styles.input}
             />
-            <Text style={styles.dash}>—</Text>
+            <Text style={styles.dash}>â€”</Text>
             <TextInput
               value={f.maxArea} onChangeText={(v) => setF({...f, maxArea: v})}
               placeholder="Max" placeholderTextColor={C.muted}
@@ -108,7 +108,7 @@ export default function AdvancedFilterSheet({ visible, onClose, value, onApply }
             />
             <View style={{ flex: 1 }}>
               <Text style={styles.toggleTitle}>Hotes Superhost uniquement</Text>
-              <Text style={styles.toggleSub}>Note ≥ 4.7 et profil verifie</Text>
+              <Text style={styles.toggleSub}>Note â‰¥ 4.7 et profil verifie</Text>
             </View>
           </Pressable>
         </ScrollView>

@@ -1,10 +1,10 @@
-// BoostListingScreen - choix du plan + paiement (Stripe/MonCash) + activation premium.
+﻿// BoostListingScreen - choix du plan + paiement (Stripe/MonCash) + activation premium.
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, Pressable, ScrollView, Alert, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { BOOST_PLANS, applyBoost, getBoostStatus } from '../services/boostService';
 import { useToast } from '../components/Toast';

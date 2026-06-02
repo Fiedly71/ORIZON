@@ -1,11 +1,11 @@
-// Pop-up d'installation PWA.
+﻿// Pop-up d'installation PWA.
 // - Android/Chrome/Edge: bouton "Installer" (utilise beforeinstallprompt natif).
 // - iOS Safari: explication des etapes manuelles (Partager -> Sur l'ecran d'accueil).
 // - Apparait a la 1ere visite, puis toutes les 5 visites tant que l'utilisateur n'a pas installe.
 // - Detection "deja installe": display-mode standalone OU navigator.standalone (iOS).
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, Modal, StyleSheet, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 
 const VISITS_KEY = 'orizon.pwa.visits';

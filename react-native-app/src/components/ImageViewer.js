@@ -1,10 +1,10 @@
-// ImageViewer - Visionneuse plein ecran avec swipe + close.
+﻿// ImageViewer - Visionneuse plein ecran avec swipe + close.
 import React, { useState } from 'react';
 import {
   Modal, View, Image, Pressable, FlatList, Dimensions, Text, StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const { width: W, height: H } = Dimensions.get('window');
 

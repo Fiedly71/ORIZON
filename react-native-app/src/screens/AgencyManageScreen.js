@@ -1,11 +1,11 @@
-// AgencyManageScreen - Creer / gerer une agence + inviter des agents.
+﻿// AgencyManageScreen - Creer / gerer une agence + inviter des agents.
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, TextInput, Alert,
   ActivityIndicator, Modal, ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import {
   getMyAgencies, createAgency, listAgents, inviteAgent, removeAgent,
@@ -129,7 +129,7 @@ export default function AgencyManageScreen({ navigation }) {
                 <View key={m.user_id} style={styles.agentCard}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.agentName}>{m.profiles?.full_name || m.invited_email || 'Agent'}</Text>
-                    <Text style={styles.agentRole}>{m.role} · {m.status}</Text>
+                    <Text style={styles.agentRole}>{m.role} Â· {m.status}</Text>
                   </View>
                   {m.role !== 'owner' && (
                     <Pressable onPress={() => onRemove(m)} hitSlop={6}>

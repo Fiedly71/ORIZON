@@ -1,11 +1,11 @@
-// ConversationScreen - Thread view avec realtime.
+﻿// ConversationScreen - Thread view avec realtime.
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TextInput, Pressable,
   KeyboardAvoidingView, Platform, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import {
   listMessages, sendMessage, subscribeMessages, markRead,

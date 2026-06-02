@@ -1,8 +1,8 @@
-// Ecran legal (CGU + Confidentialite) - render dynamique selon route.params.kind.
+﻿// Ecran legal (CGU + Confidentialite) - render dynamique selon route.params.kind.
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 
 const TERMS_TEXT = `

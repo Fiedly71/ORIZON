@@ -1,8 +1,8 @@
-// CalendarPicker - calendrier mensuel simple (sans lib externe).
+﻿// CalendarPicker - calendrier mensuel simple (sans lib externe).
 // Selectionne 1 ou 2 dates (range). Locale FR.
 import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 
 const MONTHS_FR = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];

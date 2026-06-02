@@ -1,9 +1,9 @@
-// Section "Mes annonces" - liste les biens dont owner_id = utilisateur courant.
+﻿// Section "Mes annonces" - liste les biens dont owner_id = utilisateur courant.
 // Fetch direct Supabase pour inclure les annonces non payees / en attente / rejetees.
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, Pressable, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { useAuthStore } from '../store/useAuthStore';
 import { supabase, isSupabaseConfigured } from '../services/supabase';

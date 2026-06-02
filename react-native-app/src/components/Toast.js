@@ -1,7 +1,7 @@
-// Toast - Mini systeme de toast in-app sans dependance externe.
+﻿// Toast - Mini systeme de toast in-app sans dependance externe.
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Animated, Pressable } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 
 const ToastCtx = createContext({ show: () => {} });

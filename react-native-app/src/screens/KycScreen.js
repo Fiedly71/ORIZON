@@ -1,11 +1,11 @@
-// KycScreen - Verification d'identite (badge "Verifie").
+﻿// KycScreen - Verification d'identite (badge "Verifie").
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Pressable, Image, TextInput, Alert, ActivityIndicator,
   ActionSheetIOS, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import { C, radii, spacing } from '../theme/colors';
 import { submitKyc, getMyKycStatus, KYC_STATUS, DOC_TYPES } from '../services/kycService';

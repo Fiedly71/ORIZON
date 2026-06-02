@@ -1,10 +1,10 @@
-// Wizard "Vendre" en 3 etapes: Infos -> Medias -> Tarifs.
+﻿// Wizard "Vendre" en 3 etapes: Infos -> Medias -> Tarifs.
 // Utilise propertiesService (CRUD) + storageService (upload).
 // Mode edition: navigation.navigate('SellWizard', { editId: '<uuid>' })
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Image, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { propertyTypes, propertyAmenities } from '../data/mockData';
 import { pickImages, uploadImages } from '../services/storageService';
@@ -38,20 +38,20 @@ export default function SellWizardScreen({ navigation, route }) {
         </View>
         <View style={styles.guardWrap}>
           <Ionicons name="lock-closed-outline" size={48} color={C.muted} />
-          <Text style={styles.guardTitle}>Publication réservée aux Propriétaires & Agences</Text>
+          <Text style={styles.guardTitle}>Publication rÃ©servÃ©e aux PropriÃ©taires & Agences</Text>
           <Text style={styles.guardTxt}>
             Ton compte actuel ({user?.role || 'inconnu'}) ne permet pas de publier d'annonces.
-            Pour vendre ou louer un bien sur ORIZON, crée un compte Propriétaire ou Agence
-            (vérification KYC requise).
+            Pour vendre ou louer un bien sur ORIZON, crÃ©e un compte PropriÃ©taire ou Agence
+            (vÃ©rification KYC requise).
           </Text>
           <View style={styles.guardPriceBox}>
             <Ionicons name="information-circle-outline" size={18} color={C.primary} />
             <Text style={styles.guardPriceTxt}>
-              Coût de publication : <Text style={{ fontWeight: '800' }}>{PUBLICATION_FEE_USD} USD ({PUBLICATION_FEE_HTG} HTG)</Text> par annonce.
+              CoÃ»t de publication : <Text style={{ fontWeight: '800' }}>{PUBLICATION_FEE_USD} USD ({PUBLICATION_FEE_HTG} HTG)</Text> par annonce.
             </Text>
           </View>
           <Pressable style={styles.guardCta} onPress={() => navigation.goBack()}>
-            <Text style={styles.guardCtaTxt}>Retour à l'accueil</Text>
+            <Text style={styles.guardCtaTxt}>Retour Ã  l'accueil</Text>
           </Pressable>
         </View>
       </SafeAreaView>
@@ -71,10 +71,10 @@ export default function SellWizardScreen({ navigation, route }) {
         </View>
         <View style={styles.guardWrap}>
           <Ionicons name="mail-unread-outline" size={48} color="#D97706" />
-          <Text style={styles.guardTitle}>Vérifie ton email d'abord</Text>
+          <Text style={styles.guardTitle}>VÃ©rifie ton email d'abord</Text>
           <Text style={styles.guardTxt}>
             Pour publier une annonce, tu dois confirmer ton adresse email.
-            Vérifie ta boîte de réception (et les spams) pour trouver le lien de confirmation.
+            VÃ©rifie ta boÃ®te de rÃ©ception (et les spams) pour trouver le lien de confirmation.
           </Text>
           <Pressable style={styles.guardCta} onPress={() => navigation.navigate('Profile')}>
             <Text style={styles.guardCtaTxt}>Aller au profil</Text>
@@ -97,10 +97,10 @@ export default function SellWizardScreen({ navigation, route }) {
         </View>
         <View style={styles.guardWrap}>
           <Ionicons name="time-outline" size={48} color="#D97706" />
-          <Text style={styles.guardTitle}>Vérification en cours</Text>
+          <Text style={styles.guardTitle}>VÃ©rification en cours</Text>
           <Text style={styles.guardTxt}>
-            Ton dossier KYC est en cours d'examen par notre équipe.
-            Tu pourras publier dès qu'il sera validé (24-48h en moyenne).
+            Ton dossier KYC est en cours d'examen par notre Ã©quipe.
+            Tu pourras publier dÃ¨s qu'il sera validÃ© (24-48h en moyenne).
           </Text>
           <Pressable style={styles.guardCta} onPress={() => navigation.goBack()}>
             <Text style={styles.guardCtaTxt}>D'accord</Text>
@@ -346,9 +346,9 @@ export default function SellWizardScreen({ navigation, route }) {
               <View style={{ flex: 1 }}>
                 <Text style={styles.feeTitle}>Frais de publication</Text>
                 <Text style={styles.feeTxt}>
-                  La publication de cette annonce coûte{' '}
+                  La publication de cette annonce coÃ»te{' '}
                   <Text style={{ fontWeight: '800' }}>{PUBLICATION_FEE_USD} USD ({PUBLICATION_FEE_HTG} HTG)</Text>.
-                  Le paiement sera demandé à l'étape suivante.
+                  Le paiement sera demandÃ© Ã  l'Ã©tape suivante.
                 </Text>
               </View>
             </View>

@@ -1,4 +1,4 @@
-// PropertyCardAirbnb - card style Airbnb avec photo plein largeur swipeable,
+﻿// PropertyCardAirbnb - card style Airbnb avec photo plein largeur swipeable,
 // coeur favori en overlay, prix gras, infos minimales sous l'image.
 import React, { useState, useRef } from 'react';
 import {
@@ -10,7 +10,7 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { isSuperhost } from '../utils/superhost';
 
@@ -95,7 +95,7 @@ export default function PropertyCardAirbnb({
           )}
           {item.featured && !isSuperhost(item) && (
             <View style={[styles.badge, { backgroundColor: C.accent }]}>
-              <Text style={styles.badgeTxt}>★ Coup de coeur</Text>
+              <Text style={styles.badgeTxt}>â˜… Coup de coeur</Text>
             </View>
           )}
           {item.verified && (
@@ -123,9 +123,9 @@ export default function PropertyCardAirbnb({
 
         <Text style={styles.specs} numberOfLines={1}>
           {item.type}
-          {item.bedrooms > 0 ? ` · ${item.bedrooms} ch` : ''}
-          {item.bathrooms > 0 ? ` · ${item.bathrooms} sdb` : ''}
-          {item.area > 0 ? ` · ${item.area} m²` : ''}
+          {item.bedrooms > 0 ? ` Â· ${item.bedrooms} ch` : ''}
+          {item.bathrooms > 0 ? ` Â· ${item.bathrooms} sdb` : ''}
+          {item.area > 0 ? ` Â· ${item.area} mÂ²` : ''}
         </Text>
 
         <Text style={styles.price}>

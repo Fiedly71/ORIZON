@@ -1,10 +1,10 @@
-// ReviewsScreen - Voir et laisser des avis sur un vendeur
+﻿// ReviewsScreen - Voir et laisser des avis sur un vendeur
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Pressable, Image, TextInput, Alert, ActivityIndicator, FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { getUserReviews, getUserAverageRating, leaveReview } from '../services/reviewsService';
 import { useToast } from '../components/Toast';

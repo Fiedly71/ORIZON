@@ -1,4 +1,4 @@
-// Ecran d'inscription ORIZON.
+﻿// Ecran d'inscription ORIZON.
 // Etape 1: choix du type de compte (Acheteur/Locataire OU Proprietaire/Agence).
 // Etape 2: formulaire adapte au role.
 //   - Acheteur/Locataire: nom, email, tel, password, T&C.
@@ -18,7 +18,7 @@ import {
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { appAlert } from '../utils/appAlert';
 import { signUp } from '../services/authService';
@@ -31,7 +31,7 @@ const ROLE_OWNER = 'Proprietaire';
 const ROLE_AGENCY = 'Agence';
 
 const DOC_LABELS = {
-  cin: "Carte d'identité (CIN)",
+  cin: "Carte d'identitÃ© (CIN)",
   passport: 'Passeport',
   driver_license: 'Permis de conduire',
 };
@@ -73,14 +73,14 @@ export default function RegisterScreen({ navigation }) {
     if (!form.fullName.trim()) errors.push('Nom complet requis');
     if (role === ROLE_AGENCY && !form.agencyName.trim()) errors.push("Nom de l'agence requis");
     if (!form.email.includes('@')) errors.push('Email invalide');
-    if (!form.phone.trim()) errors.push('Téléphone requis');
-    if (form.password.length < 6) errors.push('Mot de passe trop court (6+ caractères)');
+    if (!form.phone.trim()) errors.push('TÃ©lÃ©phone requis');
+    if (form.password.length < 6) errors.push('Mot de passe trop court (6+ caractÃ¨res)');
     if (form.password !== form.confirmPassword) errors.push('Les mots de passe ne correspondent pas');
     if (!form.acceptTerms) errors.push("Tu dois accepter les conditions d'utilisation");
     if (isPublisher) {
       if (!form.address.trim()) errors.push('Adresse requise');
       if (!form.profilePhoto) errors.push('Photo de profil requise');
-      if (!form.docNumber.trim()) errors.push('Numéro du document requis');
+      if (!form.docNumber.trim()) errors.push('NumÃ©ro du document requis');
       if (!form.docFront) errors.push('Photo recto du document requise');
       if (form.docType !== 'passport' && !form.docBack) errors.push('Photo verso du document requise');
     }
@@ -90,7 +90,7 @@ export default function RegisterScreen({ navigation }) {
   const onSubmit = async () => {
     const errors = validate();
     if (errors.length > 0) {
-      appAlert('Inscription incomplète', '• ' + errors.join('\n• '));
+      appAlert('Inscription incomplÃ¨te', 'â€¢ ' + errors.join('\nâ€¢ '));
       return;
     }
     setBusy(true);
@@ -103,7 +103,7 @@ export default function RegisterScreen({ navigation }) {
         role,
       });
       if (!res.ok) {
-        appAlert('Inscription', res.error || 'Échec de la création du compte.');
+        appAlert('Inscription', res.error || 'Ã‰chec de la crÃ©ation du compte.');
         return;
       }
 
@@ -121,8 +121,8 @@ export default function RegisterScreen({ navigation }) {
         });
         if (!kycRes.ok) {
           appAlert(
-            'Compte créé',
-            "Ton compte est créé mais l'envoi des documents a échoué. Tu peux les renvoyer depuis ton profil.\n\n" +
+            'Compte crÃ©Ã©',
+            "Ton compte est crÃ©Ã© mais l'envoi des documents a Ã©chouÃ©. Tu peux les renvoyer depuis ton profil.\n\n" +
               (kycRes.error || '')
           );
           return;
@@ -131,15 +131,15 @@ export default function RegisterScreen({ navigation }) {
 
       if (res.needsEmailConfirm) {
         appAlert(
-          'Vérifie ton email',
+          'VÃ©rifie ton email',
           isPublisher
-            ? 'Compte créé ! Vérifie ton email. Ton dossier KYC sera examiné sous 24-48h avant que tu puisses publier.'
-            : 'Compte créé ! Vérifie ton email pour activer ton compte.'
+            ? 'Compte crÃ©Ã© ! VÃ©rifie ton email. Ton dossier KYC sera examinÃ© sous 24-48h avant que tu puisses publier.'
+            : 'Compte crÃ©Ã© ! VÃ©rifie ton email pour activer ton compte.'
         );
       } else if (isPublisher) {
         appAlert(
           'Bienvenue sur ORIZON',
-          'Ton compte est actif. Ton dossier KYC sera examiné sous 24-48h avant que tu puisses publier des annonces.'
+          'Ton compte est actif. Ton dossier KYC sera examinÃ© sous 24-48h avant que tu puisses publier des annonces.'
         );
       }
     } finally {
@@ -158,7 +158,7 @@ export default function RegisterScreen({ navigation }) {
               resizeMode="contain"
               accessibilityLabel="ORIZON"
             />
-            <Text style={styles.h1}>Crée ton compte</Text>
+            <Text style={styles.h1}>CrÃ©e ton compte</Text>
             <Text style={styles.sub}>Choisis le type de compte qui te correspond.</Text>
           </View>
 
@@ -168,10 +168,10 @@ export default function RegisterScreen({ navigation }) {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.roleCardTitle}>Acheteur / Locataire</Text>
-              <Text style={styles.roleCardSub}>Je cherche une maison, un appartement ou un terrain à acheter ou louer.</Text>
-              <Text style={styles.roleBullet}>• Inscription rapide (2 minutes)</Text>
-              <Text style={styles.roleBullet}>• Aucun document requis</Text>
-              <Text style={styles.roleBullet}>• Gratuit</Text>
+              <Text style={styles.roleCardSub}>Je cherche une maison, un appartement ou un terrain Ã  acheter ou louer.</Text>
+              <Text style={styles.roleBullet}>â€¢ Inscription rapide (2 minutes)</Text>
+              <Text style={styles.roleBullet}>â€¢ Aucun document requis</Text>
+              <Text style={styles.roleBullet}>â€¢ Gratuit</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={C.muted} />
           </Pressable>
@@ -181,11 +181,11 @@ export default function RegisterScreen({ navigation }) {
               <Ionicons name="home-outline" size={28} color="#D97706" />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.roleCardTitle}>Propriétaire</Text>
-              <Text style={styles.roleCardSub}>Je veux publier ma propre maison, terrain ou appartement à vendre ou à louer.</Text>
-              <Text style={styles.roleBullet}>• Photo de profil obligatoire</Text>
-              <Text style={styles.roleBullet}>• Pièce d'identité obligatoire (vérification KYC)</Text>
-              <Text style={styles.roleBullet}>• 20 USD (2 500 HTG) par publication</Text>
+              <Text style={styles.roleCardTitle}>PropriÃ©taire</Text>
+              <Text style={styles.roleCardSub}>Je veux publier ma propre maison, terrain ou appartement Ã  vendre ou Ã  louer.</Text>
+              <Text style={styles.roleBullet}>â€¢ Photo de profil obligatoire</Text>
+              <Text style={styles.roleBullet}>â€¢ PiÃ¨ce d'identitÃ© obligatoire (vÃ©rification KYC)</Text>
+              <Text style={styles.roleBullet}>â€¢ 20 USD (2 500 HTG) par publication</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={C.muted} />
           </Pressable>
@@ -195,17 +195,17 @@ export default function RegisterScreen({ navigation }) {
               <Ionicons name="business-outline" size={28} color="#2563EB" />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.roleCardTitle}>Agence immobilière</Text>
-              <Text style={styles.roleCardSub}>Je représente une agence et publie plusieurs biens pour mes clients.</Text>
-              <Text style={styles.roleBullet}>• Vérification KYC complète</Text>
-              <Text style={styles.roleBullet}>• Licence d'agence requise</Text>
-              <Text style={styles.roleBullet}>• 20 USD (2 500 HTG) par publication</Text>
+              <Text style={styles.roleCardTitle}>Agence immobiliÃ¨re</Text>
+              <Text style={styles.roleCardSub}>Je reprÃ©sente une agence et publie plusieurs biens pour mes clients.</Text>
+              <Text style={styles.roleBullet}>â€¢ VÃ©rification KYC complÃ¨te</Text>
+              <Text style={styles.roleBullet}>â€¢ Licence d'agence requise</Text>
+              <Text style={styles.roleBullet}>â€¢ 20 USD (2 500 HTG) par publication</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={C.muted} />
           </Pressable>
 
           <Pressable onPress={() => navigation.navigate('Login')} style={styles.linkRow}>
-            <Text style={styles.linkTxt}>Déjà inscrit ? <Text style={{ color: C.primary, fontWeight: '700' }}>Se connecter</Text></Text>
+            <Text style={styles.linkTxt}>DÃ©jÃ  inscrit ? <Text style={{ color: C.primary, fontWeight: '700' }}>Se connecter</Text></Text>
           </Pressable>
         </ScrollView>
       </SafeAreaView>
@@ -231,7 +231,7 @@ export default function RegisterScreen({ navigation }) {
           <Text style={styles.sub}>
             {isPublisher
               ? 'Remplis tes informations. Tous les champs sont obligatoires.'
-              : 'Remplis tes informations pour commencer à explorer.'}
+              : 'Remplis tes informations pour commencer Ã  explorer.'}
           </Text>
         </View>
 
@@ -243,13 +243,13 @@ export default function RegisterScreen({ navigation }) {
             </>
           )}
 
-          <Text style={styles.label}>{role === ROLE_AGENCY ? 'RESPONSABLE LÉGAL *' : 'NOM COMPLET *'}</Text>
-          <TextInput value={form.fullName} onChangeText={(v) => update('fullName', v)} placeholder="Prénom Nom" placeholderTextColor={C.muted} style={styles.field} />
+          <Text style={styles.label}>{role === ROLE_AGENCY ? 'RESPONSABLE LÃ‰GAL *' : 'NOM COMPLET *'}</Text>
+          <TextInput value={form.fullName} onChangeText={(v) => update('fullName', v)} placeholder="PrÃ©nom Nom" placeholderTextColor={C.muted} style={styles.field} />
 
           <Text style={styles.label}>EMAIL *</Text>
           <TextInput value={form.email} onChangeText={(v) => update('email', v)} keyboardType="email-address" autoCapitalize="none" placeholder="toi@orizon.ht" placeholderTextColor={C.muted} style={styles.field} />
 
-          <Text style={styles.label}>TÉLÉPHONE *</Text>
+          <Text style={styles.label}>TÃ‰LÃ‰PHONE *</Text>
           <TextInput value={form.phone} onChangeText={(v) => update('phone', v)} keyboardType="phone-pad" placeholder="+509 ..." placeholderTextColor={C.muted} style={styles.field} />
 
           {isPublisher && (
@@ -260,7 +260,7 @@ export default function RegisterScreen({ navigation }) {
           )}
 
           <Text style={styles.label}>MOT DE PASSE *</Text>
-          <TextInput value={form.password} onChangeText={(v) => update('password', v)} secureTextEntry placeholder="6+ caractères" placeholderTextColor={C.muted} style={styles.field} />
+          <TextInput value={form.password} onChangeText={(v) => update('password', v)} secureTextEntry placeholder="6+ caractÃ¨res" placeholderTextColor={C.muted} style={styles.field} />
 
           <Text style={styles.label}>CONFIRME LE MOT DE PASSE *</Text>
           <TextInput value={form.confirmPassword} onChangeText={(v) => update('confirmPassword', v)} secureTextEntry placeholder="Retape ton mot de passe" placeholderTextColor={C.muted} style={styles.field} />
@@ -269,7 +269,7 @@ export default function RegisterScreen({ navigation }) {
             <>
               <View style={styles.divider} />
               <Text style={styles.sectionLabel}>Photo de profil *</Text>
-              <Text style={styles.helpTxt}>Une photo claire de ton visage. Sert à vérifier ton identité.</Text>
+              <Text style={styles.helpTxt}>Une photo claire de ton visage. Sert Ã  vÃ©rifier ton identitÃ©.</Text>
               <Pressable style={styles.uploadBox} onPress={() => pickOne('profilePhoto')}>
                 {form.profilePhoto ? (
                   <Image source={{ uri: form.profilePhoto.uri }} style={styles.uploadPreview} />
@@ -282,8 +282,8 @@ export default function RegisterScreen({ navigation }) {
               </Pressable>
 
               <View style={styles.divider} />
-              <Text style={styles.sectionLabel}>Pièce d'identité *</Text>
-              <Text style={styles.helpTxt}>Tes documents sont stockés en sécurité et examinés manuellement sous 24-48h.</Text>
+              <Text style={styles.sectionLabel}>PiÃ¨ce d'identitÃ© *</Text>
+              <Text style={styles.helpTxt}>Tes documents sont stockÃ©s en sÃ©curitÃ© et examinÃ©s manuellement sous 24-48h.</Text>
 
               <Text style={styles.label}>TYPE DE DOCUMENT *</Text>
               <View style={styles.roleRow}>
@@ -297,7 +297,7 @@ export default function RegisterScreen({ navigation }) {
                 })}
               </View>
 
-              <Text style={styles.label}>NUMÉRO DU DOCUMENT *</Text>
+              <Text style={styles.label}>NUMÃ‰RO DU DOCUMENT *</Text>
               <TextInput value={form.docNumber} onChangeText={(v) => update('docNumber', v)} placeholder="Ex: 003-456-789-0" placeholderTextColor={C.muted} style={styles.field} autoCapitalize="characters" />
 
               <Text style={styles.label}>PHOTO RECTO *</Text>
@@ -331,7 +331,7 @@ export default function RegisterScreen({ navigation }) {
               <View style={styles.priceBox}>
                 <Ionicons name="information-circle-outline" size={18} color={C.primary} />
                 <Text style={styles.priceTxt}>
-                  Publier une annonce coûte <Text style={{ fontWeight: '800' }}>20 USD (2 500 HTG)</Text>. Tu pourras publier après validation de ton compte (24-48h).
+                  Publier une annonce coÃ»te <Text style={{ fontWeight: '800' }}>20 USD (2 500 HTG)</Text>. Tu pourras publier aprÃ¨s validation de ton compte (24-48h).
                 </Text>
               </View>
             </>
@@ -346,7 +346,7 @@ export default function RegisterScreen({ navigation }) {
               J'accepte les{' '}
               <Text style={styles.tcLink} onPress={() => navigation.navigate('Terms')}>conditions d'utilisation</Text>
               {' '}et la{' '}
-              <Text style={styles.tcLink} onPress={() => navigation.navigate('Privacy')}>politique de confidentialité</Text>
+              <Text style={styles.tcLink} onPress={() => navigation.navigate('Privacy')}>politique de confidentialitÃ©</Text>
               {' '}d'ORIZON.
             </Text>
           </Pressable>
@@ -355,12 +355,12 @@ export default function RegisterScreen({ navigation }) {
             {busy || loading ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.ctaTxt}>Créer mon compte</Text>
+              <Text style={styles.ctaTxt}>CrÃ©er mon compte</Text>
             )}
           </Pressable>
 
           <Pressable onPress={() => navigation.navigate('Login')} style={styles.linkRow}>
-            <Text style={styles.linkTxt}>Déjà inscrit ? <Text style={{ color: C.primary, fontWeight: '700' }}>Se connecter</Text></Text>
+            <Text style={styles.linkTxt}>DÃ©jÃ  inscrit ? <Text style={{ color: C.primary, fontWeight: '700' }}>Se connecter</Text></Text>
           </Pressable>
         </View>
       </ScrollView>

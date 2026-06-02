@@ -1,10 +1,10 @@
-// PhoneVerifyScreen - Saisie tel + reception OTP SMS.
+﻿// PhoneVerifyScreen - Saisie tel + reception OTP SMS.
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { sendPhoneOtp, verifyPhoneOtp } from '../services/otpService';
 
@@ -64,7 +64,7 @@ export default function PhoneVerifyScreen({ navigation }) {
             <Text style={styles.h2}>Numero de telephone</Text>
             <Text style={styles.help}>Format : +509 XXXX XXXX (Haiti)</Text>
             <View style={styles.inputRow}>
-              <Text style={styles.prefix}>🇭🇹</Text>
+              <Text style={styles.prefix}>ðŸ‡­ðŸ‡¹</Text>
               <TextInput
                 value={phone} onChangeText={setPhone}
                 placeholder="+509 12 34 56 78"

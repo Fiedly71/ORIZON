@@ -1,4 +1,4 @@
-// MonCashManualScreen - Soumission paiement MonCash manuel.
+﻿// MonCashManualScreen - Soumission paiement MonCash manuel.
 // Le client paye sur MonCash, recoit une ref par SMS, puis soumet ici.
 // Un admin valide ensuite la transaction dans son dashboard.
 import React, { useState } from 'react';
@@ -7,7 +7,7 @@ import {
   ActivityIndicator, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Clipboard from 'expo-clipboard';
 import {
   submitMonCashManual,

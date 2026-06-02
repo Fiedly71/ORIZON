@@ -1,4 +1,4 @@
-// PropertyDetailScreen - Detail bien Airbnb-style :
+﻿// PropertyDetailScreen - Detail bien Airbnb-style :
 //  - Galerie photos plein largeur
 //  - Header info (titre, location, rating)
 //  - Section "Hote" + Description + Equipements
@@ -18,7 +18,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { useFavorites } from '../store/useFavorites';
 import VisitBookingSheet from '../components/VisitBookingSheet';
@@ -79,7 +79,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
       }
       if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(url);
-        Alert.alert('Lien copié', url);
+        Alert.alert('Lien copiÃ©', url);
         return;
       }
       await Share.share({ title, message, url });
@@ -94,7 +94,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
     if (!item.ownerId) {
       Alert.alert(
         'Contact indisponible',
-        "Le vendeur n'a pas encore lié son compte à cette annonce. Pour toute question, contacte ORIZON via le support.",
+        "Le vendeur n'a pas encore liÃ© son compte Ã  cette annonce. Pour toute question, contacte ORIZON via le support.",
         [
           { text: 'Contacter le support', onPress: () => navigation.navigate('Support') },
           { text: 'Annuler', style: 'cancel' },
@@ -187,10 +187,10 @@ export default function PropertyDetailScreen({ navigation, route }) {
             <View style={styles.metaRow}>
               <Ionicons name="star" size={14} color={C.text} />
               <Text style={styles.rating}>{Number(item.rating).toFixed(1)}</Text>
-              <Text style={styles.reviewsCount}>· {item.reviews || 0} avis</Text>
+              <Text style={styles.reviewsCount}>Â· {item.reviews || 0} avis</Text>
               {item.verified && (
                 <>
-                  <Text style={styles.dot}> · </Text>
+                  <Text style={styles.dot}> Â· </Text>
                   <Ionicons name="shield-checkmark" size={13} color={C.primary} />
                   <Text style={[styles.rating, { color: C.primary, marginLeft: 4 }]}>Verifie</Text>
                 </>
@@ -202,10 +202,10 @@ export default function PropertyDetailScreen({ navigation, route }) {
 
           {/* Specs */}
           <View style={styles.specsGrid}>
-            <SpecCell icon="home-outline" label={item.type || '—'} />
+            <SpecCell icon="home-outline" label={item.type || 'â€”'} />
             {item.bedrooms > 0 && <SpecCell icon="bed-outline" label={`${item.bedrooms} ch.`} />}
             {item.bathrooms > 0 && <SpecCell icon="water-outline" label={`${item.bathrooms} sdb`} />}
-            {item.area > 0 && <SpecCell icon="resize-outline" label={`${item.area} m²`} />}
+            {item.area > 0 && <SpecCell icon="resize-outline" label={`${item.area} mÂ²`} />}
             {item.floors > 0 && <SpecCell icon="layers-outline" label={`${item.floors} etages`} />}
             {item.yearBuilt && <SpecCell icon="calendar-outline" label={`${item.yearBuilt}`} />}
           </View>

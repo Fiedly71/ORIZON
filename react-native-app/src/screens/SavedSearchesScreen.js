@@ -1,11 +1,11 @@
-// SavedSearchesScreen - Liste des recherches enregistrees + alerte d'activite.
+﻿// SavedSearchesScreen - Liste des recherches enregistrees + alerte d'activite.
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, RefreshControl,
   ActivityIndicator, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import {
   listSavedSearches, deleteSavedSearch, countMatches,
@@ -116,10 +116,10 @@ function summarize(c = {}) {
   if (c.q) parts.push(`"${c.q}"`);
   if (c.type) parts.push(c.type);
   if (c.status) parts.push(c.status);
-  if (c.minPrice || c.maxPrice) parts.push(`$${c.minPrice || 0} - $${c.maxPrice || '∞'}`);
+  if (c.minPrice || c.maxPrice) parts.push(`$${c.minPrice || 0} - $${c.maxPrice || 'âˆž'}`);
   if (c.beds) parts.push(`${c.beds}+ ch`);
   if (c.city) parts.push(c.city);
-  return parts.join(' · ') || 'Tous les biens';
+  return parts.join(' Â· ') || 'Tous les biens';
 }
 
 const styles = StyleSheet.create({

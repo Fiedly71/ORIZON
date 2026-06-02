@@ -1,8 +1,8 @@
-// Ecran de connexion ORIZON
+﻿// Ecran de connexion ORIZON
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { C } from '../theme/colors';
 import { signInWithPassword } from '../services/authService';

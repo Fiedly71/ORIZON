@@ -1,11 +1,11 @@
-// Ecran Carte ORIZON: affiche les annonces georefencees sur une carte.
+﻿// Ecran Carte ORIZON: affiche les annonces georefencees sur une carte.
 // Sur web : Leaflet/OpenStreetMap (gratuit). Sur mobile : react-native-maps.
 // Les annonces sans coordonnees reelles sont comptees mais non affichees.
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { useProperty } from '../store/useProperty';
 import { getCurrentPosition, HAITI_DEFAULT } from '../services/locationService';

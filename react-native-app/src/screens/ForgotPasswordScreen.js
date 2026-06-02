@@ -1,10 +1,10 @@
-// ForgotPasswordScreen - demande l'envoi du lien de reinitialisation par email.
+﻿// ForgotPasswordScreen - demande l'envoi du lien de reinitialisation par email.
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { requestPasswordReset } from '../services/authService';
 

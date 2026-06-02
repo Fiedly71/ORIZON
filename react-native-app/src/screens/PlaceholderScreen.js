@@ -1,8 +1,8 @@
-// Ecran placeholder (sera enrichi par patches dedies).
+﻿// Ecran placeholder (sera enrichi par patches dedies).
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { Header } from './MyListingsScreen';
 

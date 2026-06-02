@@ -1,8 +1,8 @@
-// Ecran de gestion des utilisateurs bloques.
+﻿// Ecran de gestion des utilisateurs bloques.
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { listBlocked, unblockUser } from '../services/blocksService';
 
@@ -56,7 +56,7 @@ export default function BlockedUsersScreen({ navigation }) {
             <View style={styles.row}>
               <View style={styles.avatar}><Ionicons name="person" size={18} color="#fff" /></View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.name} numberOfLines={1}>{String(id).slice(0, 12)}…</Text>
+                <Text style={styles.name} numberOfLines={1}>{String(id).slice(0, 12)}â€¦</Text>
                 {item.reason ? <Text style={styles.reason} numberOfLines={1}>{item.reason}</Text> : null}
               </View>
               <Pressable style={styles.btn} onPress={() => onUnblock(id)}>
