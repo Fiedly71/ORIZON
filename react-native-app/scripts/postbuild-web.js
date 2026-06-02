@@ -31,6 +31,7 @@ const bundleUrl = scriptMatch ? scriptMatch[1] : null;
 
 const HEAD_INJECTION = `
     <meta name="theme-color" content="#004c3f" />
+    <link rel="preload" as="image" href="/logo3.webp" type="image/webp" fetchpriority="high" />
     <meta name="description" content="ORIZON - Trouvez, visitez et achetez des biens immobiliers en Haiti." />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -136,7 +137,10 @@ const SPLASH_HTML = `
     <div id="orizon-splash" role="status" aria-label="Chargement de ORIZON">
       <div class="orizon-splash-inner">
         <div class="orizon-splash-logo-wrap">
-          <img src="/logo3.png" alt="ORIZON" class="orizon-splash-logo-img" />
+          <picture>
+            <source srcset="/logo3.webp" type="image/webp" />
+            <img src="/logo3-fallback.png" alt="ORIZON" class="orizon-splash-logo-img" width="88" height="88" decoding="async" fetchpriority="high" />
+          </picture>
         </div>
         <div class="orizon-splash-brand">ORIZON</div>
         <div class="orizon-splash-brand-underline" aria-hidden="true"></div>
