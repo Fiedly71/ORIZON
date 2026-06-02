@@ -918,16 +918,6 @@
   dependencies:
     nanoid "^3.3.1"
 
-"@img/colour@^1.0.0":
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/@img/colour/-/colour-1.1.0.tgz"
-  integrity sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==
-
-"@img/sharp-win32-x64@0.34.5":
-  version "0.34.5"
-  resolved "https://registry.npmjs.org/@img/sharp-win32-x64/-/sharp-win32-x64-0.34.5.tgz"
-  integrity sha512-+29YMsqY2/9eFEiW93eqWnuLcWcufowXewwSNIT6UwZdUUCrM3oFjMWH/Z6/TMmb4hlFenmfAVbpWeup2jryCw==
-
 "@isaacs/fs-minipass@^4.0.0":
   version "4.0.1"
   dependencies:
@@ -2386,7 +2376,7 @@ depd@~2.0.0, depd@2.0.0:
 destroy@1.2.0:
   version "1.2.0"
 
-detect-libc@^2.0.3, detect-libc@^2.1.2:
+detect-libc@^2.0.3:
   version "2.1.2"
 
 detect-newline@^3.0.0:
@@ -2843,6 +2833,14 @@ flow-enums-runtime@^0.0.6:
 fontfaceobserver@^2.1.0:
   version "2.3.0"
 
+fontverter@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/fontverter/-/fontverter-2.0.0.tgz"
+  integrity sha512-DFVX5hvXuhi1Jven1tbpebYTCT9XYnvx6/Z+HFUPb7ZRMCW+pj2clU9VMhoTPgWKPhAs7JJDSk3CW1jNUvKCZQ==
+  dependencies:
+    wawoff2 "^2.0.0"
+    woff2sfnt-sfnt2woff "^1.0.0"
+
 form-data@^4.0.0:
   version "4.0.5"
   resolved "https://registry.npmjs.org/form-data/-/form-data-4.0.5.tgz"
@@ -2953,6 +2951,11 @@ gopd@^1.2.0:
 
 graceful-fs@^4.2.4, graceful-fs@^4.2.9:
   version "4.2.11"
+
+harfbuzzjs@^0.10.3:
+  version "0.10.3"
+  resolved "https://registry.npmjs.org/harfbuzzjs/-/harfbuzzjs-0.10.3.tgz"
+  integrity sha512-GJnLUrgLMadlMYrBGEXwYEimObbysy3prWT4HyPpFQERvgTU/OZ+ReUlEPOum6w4RBtFXzXiCCmECOr4sz3qwQ==
 
 has-flag@^3.0.0:
   version "3.0.0"
@@ -3755,7 +3758,7 @@ lodash.debounce@^4.0.8:
 lodash.throttle@^4.1.1:
   version "4.1.1"
 
-lodash@^4.17.19:
+lodash@^4.17.19, lodash@^4.17.21:
   version "4.18.1"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.18.1.tgz"
   integrity sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==
@@ -4585,6 +4588,11 @@ p-locate@^4.1.0:
 p-try@^2.0.0:
   version "2.2.0"
 
+pako@^1.0.7:
+  version "1.0.11"
+  resolved "https://registry.npmjs.org/pako/-/pako-1.0.11.tgz"
+  integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
+
 parse-json@^5.2.0:
   version "5.2.0"
   resolved "https://registry.npmjs.org/parse-json/-/parse-json-5.2.0.tgz"
@@ -5067,40 +5075,6 @@ setprototypeof@~1.2.0:
 sf-symbols-typescript@^2.1.0:
   version "2.2.0"
 
-sharp@*:
-  version "0.34.5"
-  resolved "https://registry.npmjs.org/sharp/-/sharp-0.34.5.tgz"
-  integrity sha512-Ou9I5Ft9WNcCbXrU9cMgPBcCK8LiwLqcbywW3t4oDV37n1pzpuNLsYiAV8eODnjbtQlSDwZ2cUEeQz4E54Hltg==
-  dependencies:
-    "@img/colour" "^1.0.0"
-    detect-libc "^2.1.2"
-    semver "^7.7.3"
-  optionalDependencies:
-    "@img/sharp-darwin-arm64" "0.34.5"
-    "@img/sharp-darwin-x64" "0.34.5"
-    "@img/sharp-libvips-darwin-arm64" "1.2.4"
-    "@img/sharp-libvips-darwin-x64" "1.2.4"
-    "@img/sharp-libvips-linux-arm" "1.2.4"
-    "@img/sharp-libvips-linux-arm64" "1.2.4"
-    "@img/sharp-libvips-linux-ppc64" "1.2.4"
-    "@img/sharp-libvips-linux-riscv64" "1.2.4"
-    "@img/sharp-libvips-linux-s390x" "1.2.4"
-    "@img/sharp-libvips-linux-x64" "1.2.4"
-    "@img/sharp-libvips-linuxmusl-arm64" "1.2.4"
-    "@img/sharp-libvips-linuxmusl-x64" "1.2.4"
-    "@img/sharp-linux-arm" "0.34.5"
-    "@img/sharp-linux-arm64" "0.34.5"
-    "@img/sharp-linux-ppc64" "0.34.5"
-    "@img/sharp-linux-riscv64" "0.34.5"
-    "@img/sharp-linux-s390x" "0.34.5"
-    "@img/sharp-linux-x64" "0.34.5"
-    "@img/sharp-linuxmusl-arm64" "0.34.5"
-    "@img/sharp-linuxmusl-x64" "0.34.5"
-    "@img/sharp-wasm32" "0.34.5"
-    "@img/sharp-win32-arm64" "0.34.5"
-    "@img/sharp-win32-ia32" "0.34.5"
-    "@img/sharp-win32-x64" "0.34.5"
-
 shebang-command@^2.0.0:
   version "2.0.0"
   dependencies:
@@ -5299,6 +5273,16 @@ structured-headers@^0.4.1:
 
 styleq@^0.1.3:
   version "0.1.3"
+
+subset-font@*:
+  version "2.5.0"
+  resolved "https://registry.npmjs.org/subset-font/-/subset-font-2.5.0.tgz"
+  integrity sha512-Vsa8ngQ/ohhUj0an7on49y9jLZ2rK5U+T1FzPM4/ZQY0xUy5mLis6BfFtPGzecTjFgYXQlvY7FlsJF4t3R/6Ug==
+  dependencies:
+    fontverter "^2.0.0"
+    harfbuzzjs "^0.10.3"
+    lodash "^4.17.21"
+    p-limit "^3.1.0"
 
 sucrase@~3.35.1:
   version "3.35.1"
@@ -5531,6 +5515,13 @@ walker@^1.0.7, walker@^1.0.8:
 warn-once@^0.1.0, warn-once@^0.1.1, warn-once@0.1.1:
   version "0.1.1"
 
+wawoff2@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/wawoff2/-/wawoff2-2.0.1.tgz"
+  integrity sha512-r0CEmvpH63r4T15ebFqeOjGqU4+EgTx4I510NtK35EMciSdcTxCw3Byy3JnBonz7iyIFZ0AbVo0bbFpEVuhCYA==
+  dependencies:
+    argparse "^2.0.1"
+
 wcwidth@^1.0.1:
   version "1.0.1"
   dependencies:
@@ -5587,6 +5578,13 @@ which@^2.0.1:
   version "2.0.2"
   dependencies:
     isexe "^2.0.0"
+
+woff2sfnt-sfnt2woff@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/woff2sfnt-sfnt2woff/-/woff2sfnt-sfnt2woff-1.0.0.tgz"
+  integrity sha512-edK4COc1c1EpRfMqCZO1xJOvdUtM5dbVb9iz97rScvnTevqEB3GllnLWCmMVp1MfQBdF1DFg/11I0rSyAdS4qQ==
+  dependencies:
+    pako "^1.0.7"
 
 wonka@^6.3.2:
   version "6.3.6"

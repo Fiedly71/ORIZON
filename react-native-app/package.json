@@ -53,6 +53,7 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "jest-expo": "~54.0.0",
-    "react-refresh": "^0.18.0"
+    "react-refresh": "^0.18.0",
+    "subset-font": "^2.4.0"
   }
 }

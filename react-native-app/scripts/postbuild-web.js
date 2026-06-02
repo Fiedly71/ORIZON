@@ -482,3 +482,10 @@ if (fs.existsSync(faviconSrc) && !fs.existsSync(faviconDest)) {
 }
 
 console.log('[postbuild-web] OK - splash + SW + manifest + responsive CSS injected. Bundle:', bundleUrl);
+
+// Subset Ionicons font (380 KB -> ~25 KB) - critical for slow networks.
+try {
+  require('child_process').execSync('node ' + path.join(__dirname, 'subset-ionicons.js'), { stdio: 'inherit' });
+} catch (e) {
+  console.warn('[postbuild-web] subset-ionicons skipped:', e.message);
+}
