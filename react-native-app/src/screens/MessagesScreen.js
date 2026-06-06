@@ -68,7 +68,12 @@ export default function MessagesScreen({ navigation }) {
         )}
         <View style={{ flex: 1 }}>
           <View style={styles.rowTop}>
-            <Text style={styles.rowName} numberOfLines={1}>{displayName}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 }}>
+              <Text style={styles.rowName} numberOfLines={1}>{displayName}</Text>
+              {item.otherVerified ? (
+                <Ionicons name="checkmark-circle" size={14} color="#1D4ED8" />
+              ) : null}
+            </View>
             <Text style={styles.rowTime}>{timeAgo(item.lastMessageAt)}</Text>
           </View>
           {item.propertyTitle ? (

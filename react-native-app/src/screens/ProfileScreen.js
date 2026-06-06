@@ -162,7 +162,7 @@ export default function ProfileScreen({ navigation }) {
             <Ionicons name="create-outline" size={15} color={M.text} />
             <Text style={styles.quickTxt}>Modifier</Text>
           </Pressable>
-          <Pressable style={styles.quickBtn} onPress={() => navigation.navigate('ResetPassword', { fromProfile: true })}>
+          <Pressable style={styles.quickBtn} onPress={() => navigation.navigate('ForgotPassword', { fromProfile: true, prefillEmail: user?.email })}>
             <Ionicons name="key-outline" size={15} color={M.text} />
             <Text style={styles.quickTxt}>Mot de passe</Text>
           </Pressable>

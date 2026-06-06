@@ -129,6 +129,7 @@ export default function SellWizardScreen({ navigation, route }) {
     images: [],          // [{ uri, mime, name }]  + existing urls as { uri, existing: true }
     price: '',
     status: 'A vendre',
+    visitSlots: [],      // [{ date, start, end }]
   });
   const draftLoadedRef = useRef(false);
 
@@ -154,6 +155,7 @@ export default function SellWizardScreen({ navigation, route }) {
           images: (p.images || (p.image ? [p.image] : [])).map((url) => ({ uri: url, existing: true })),
           price: String(p.price || ''),
           status: p.status || 'A vendre',
+          visitSlots: Array.isArray(p.visitSlots) ? p.visitSlots : [],
         });
       } else if (!r.ok) {
         Alert.alert('Edition', r.error || 'Impossible de charger cette annonce.');
@@ -224,13 +226,19 @@ export default function SellWizardScreen({ navigation, route }) {
     if (step === 2) {
       if (!data.price) return 'Prix requis.';
     }
+    if (step === 3) {
+      // Visites: facultatif. Si renseigne, valide format.
+      for (const s of (data.visitSlots || [])) {
+        if (!s.date || !s.start || !s.end) return 'Chaque creneau doit avoir une date et des horaires.';
+      }
+    }
     return null;
   };
 
   const next = () => {
     const err = validateStep();
     if (err) { Alert.alert('ORIZON', err); return; }
-    if (step < 2) setStep((s) => s + 1);
+    if (step < 3) setStep((s) => s + 1);
     else submit();
   };
 
@@ -301,6 +309,7 @@ export default function SellWizardScreen({ navigation, route }) {
         image: allThumbs[0] || allUrls[0] || '',
         lat: geo.lat,
         lng: geo.lng,
+        visitSlots: data.visitSlots || [],
       };
 
       // ===== MODE EDITION =====
@@ -366,7 +375,7 @@ export default function SellWizardScreen({ navigation, route }) {
       <>
 
       <View style={styles.steps}>
-        {['Infos', 'Photos', 'Tarif'].map((label, i) => (
+        {['Infos', 'Photos', 'Tarif', 'Visites'].map((label, i) => (
           <View key={label} style={styles.stepCol}>
             <View style={[styles.dot, i <= step && styles.dotOn]}>
               <Text style={[styles.dotTxt, i <= step && styles.dotTxtOn]}>{i + 1}</Text>
@@ -469,6 +478,13 @@ export default function SellWizardScreen({ navigation, route }) {
             )}
           </View>
         )}
+
+        {step === 3 && (
+          <VisitSlotsEditor
+            slots={data.visitSlots}
+            onChange={(slots) => update('visitSlots', slots)}
+          />
+        )}
       </ScrollView>
 
       <View style={styles.footer}>
@@ -479,7 +495,7 @@ export default function SellWizardScreen({ navigation, route }) {
           </Pressable>
         )}
         <Pressable style={[styles.cta, busy && { opacity: 0.6 }]} onPress={next} disabled={busy}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>{step < 2 ? 'Continuer' : (editId ? 'Enregistrer les modifications' : `Payer ${PUBLICATION_FEE_HTG.toLocaleString('fr-FR')} HTG et publier`)}</Text>}
+          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>{step < 3 ? 'Continuer' : (editId ? 'Enregistrer les modifications' : `Payer ${PUBLICATION_FEE_HTG.toLocaleString('fr-FR')} HTG et publier`)}</Text>}
         </Pressable>
       </View>
       </>
@@ -506,6 +522,127 @@ function Chip({ label, on, onPress }) {
     <Pressable onPress={onPress} style={[styles.chip, on && styles.chipOn]}>
       <Text style={[styles.chipTxt, on && styles.chipTxtOn]}>{label}</Text>
     </Pressable>
+  );
+}
+
+// Editor des creneaux de visite proposes par le proprietaire.
+// Sur web on utilise les inputs HTML date/time natifs (UX bien meilleure),
+// sur mobile on utilise des TextInput simples avec masques.
+function VisitSlotsEditor({ slots, onChange }) {
+  const [draft, setDraft] = useState({ date: '', start: '', end: '' });
+  const isWeb = Platform.OS === 'web';
+
+  const add = () => {
+    if (!draft.date || !draft.start || !draft.end) {
+      Alert.alert('Visite', 'Renseigne la date et les horaires de debut et de fin.');
+      return;
+    }
+    if (draft.start >= draft.end) {
+      Alert.alert('Visite', "L'heure de fin doit etre apres l'heure de debut.");
+      return;
+    }
+    onChange([...(slots || []), { ...draft }]);
+    setDraft({ date: '', start: '', end: '' });
+  };
+
+  const remove = (idx) => onChange((slots || []).filter((_, i) => i !== idx));
+
+  const fmt = (s) => {
+    try {
+      const d = new Date(s.date + 'T' + s.start);
+      const day = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+      return `${day.charAt(0).toUpperCase() + day.slice(1)} | ${s.start} - ${s.end}`;
+    } catch { return `${s.date} ${s.start} - ${s.end}`; }
+  };
+
+  return (
+    <View style={{ gap: 14 }}>
+      <View style={styles.feeBox}>
+        <Ionicons name="calendar-outline" size={20} color={C.primary} />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.feeTitle}>Tes disponibilites pour les visites</Text>
+          <Text style={styles.feeTxt}>
+            Ajoute les creneaux ou tu peux recevoir des visiteurs. Ce sont les seuls
+            creneaux que les acheteurs pourront choisir pour demander une visite.
+          </Text>
+        </View>
+      </View>
+
+      <View style={{ gap: 8 }}>
+        <Text style={styles.label}>NOUVEAU CRENEAU</Text>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          {isWeb ? (
+            <input
+              type="date"
+              value={draft.date}
+              onChange={(e) => setDraft((d) => ({ ...d, date: e.target.value }))}
+              style={{ flex: 1, padding: 12, fontSize: 13, borderRadius: 12, borderWidth: 1.5, borderStyle: 'solid', borderColor: C.border, backgroundColor: C.surface, color: C.text }}
+            />
+          ) : (
+            <TextInput
+              value={draft.date}
+              onChangeText={(v) => setDraft((d) => ({ ...d, date: v }))}
+              placeholder="AAAA-MM-JJ"
+              placeholderTextColor={C.muted}
+              style={[styles.field, { flex: 1 }]}
+            />
+          )}
+        </View>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          {isWeb ? (
+            <input
+              type="time"
+              value={draft.start}
+              onChange={(e) => setDraft((d) => ({ ...d, start: e.target.value }))}
+              style={{ flex: 1, padding: 12, fontSize: 13, borderRadius: 12, borderWidth: 1.5, borderStyle: 'solid', borderColor: C.border, backgroundColor: C.surface, color: C.text }}
+            />
+          ) : (
+            <TextInput
+              value={draft.start}
+              onChangeText={(v) => setDraft((d) => ({ ...d, start: v }))}
+              placeholder="HH:MM"
+              placeholderTextColor={C.muted}
+              style={[styles.field, { flex: 1 }]}
+            />
+          )}
+          {isWeb ? (
+            <input
+              type="time"
+              value={draft.end}
+              onChange={(e) => setDraft((d) => ({ ...d, end: e.target.value }))}
+              style={{ flex: 1, padding: 12, fontSize: 13, borderRadius: 12, borderWidth: 1.5, borderStyle: 'solid', borderColor: C.border, backgroundColor: C.surface, color: C.text }}
+            />
+          ) : (
+            <TextInput
+              value={draft.end}
+              onChangeText={(v) => setDraft((d) => ({ ...d, end: v }))}
+              placeholder="HH:MM"
+              placeholderTextColor={C.muted}
+              style={[styles.field, { flex: 1 }]}
+            />
+          )}
+        </View>
+        <Pressable style={styles.slotAddBtn} onPress={add}>
+          <Ionicons name="add" size={18} color="#fff" />
+          <Text style={{ color: '#fff', fontWeight: '700', fontSize: 13 }}>Ajouter ce creneau</Text>
+        </Pressable>
+      </View>
+
+      {(slots || []).length > 0 && (
+        <View style={{ gap: 8 }}>
+          <Text style={styles.label}>CRENEAUX AJOUTES ({(slots || []).length})</Text>
+          {(slots || []).map((s, i) => (
+            <View key={`${s.date}-${s.start}-${i}`} style={styles.slotRow}>
+              <Ionicons name="calendar-outline" size={16} color={C.primary} />
+              <Text style={{ flex: 1, fontSize: 13, color: C.text }}>{fmt(s)}</Text>
+              <Pressable onPress={() => remove(i)} hitSlop={8}>
+                <Ionicons name="close-circle" size={20} color={C.danger} />
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -577,4 +714,13 @@ const styles = StyleSheet.create({
   },
   feeTitle: { color: C.text, fontWeight: '800', fontSize: 13, marginBottom: 2 },
   feeTxt: { color: C.text, fontSize: 12, lineHeight: 17 },
+  slotAddBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: C.primary, paddingVertical: 12, borderRadius: 10,
+  },
+  slotRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    paddingHorizontal: 12, paddingVertical: 10,
+    borderWidth: 1, borderColor: C.border, borderRadius: 10, backgroundColor: '#fff',
+  },
 });

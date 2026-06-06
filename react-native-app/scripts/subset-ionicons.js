@@ -68,9 +68,9 @@ async function run() {
   [
     'help', 'help-circle', 'alert-circle', 'close', 'menu', 'ellipse',
     'home', 'home-outline', 'heart', 'heart-outline',
-    'person-outline', 'person-circle-outline', 'people-outline',
+    'person', 'person-outline', 'person-circle', 'person-circle-outline', 'people-outline',
     'search-outline', 'search', 'add', 'add-circle',
-    'chatbubbles-outline', 'chatbubble-ellipses-outline', 'chatbubble-outline',
+    'chatbubbles', 'chatbubbles-outline', 'chatbubble', 'chatbubble-ellipses-outline', 'chatbubble-outline',
     'calendar-outline', 'calendar', 'stats-chart-outline', 'stats-chart',
     'card-outline', 'wallet-outline', 'cash-outline',
     'notifications-outline', 'notifications', 'star-outline', 'star',

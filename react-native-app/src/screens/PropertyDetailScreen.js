@@ -30,7 +30,7 @@ import ReportSheet from '../components/ReportSheet';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { openConversation } from '../services/messagingService';
 import { isSuperhost } from '../utils/superhost';
-import { getProperty } from '../services/propertiesService';
+import { getProperty, getPublicProfile } from '../services/propertiesService';
 
 const { width: W } = Dimensions.get('window');
 const HERO_H = Math.round(W * 0.75);
@@ -61,6 +61,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [ownerProfile, setOwnerProfile] = useState(null);
   const superhost = isSuperhost(item);
 
   // Charge l'annonce depuis Supabase si on n'a que l'id (deep-link / my-listings).
@@ -78,6 +79,17 @@ export default function PropertyDetailScreen({ navigation, route }) {
     })();
     return () => { alive = false; };
   }, [params.id, params.item, navigation]);
+
+  // Hydrate l'avatar + statut verifie du proprietaire (best-effort).
+  useEffect(() => {
+    if (!item.ownerId) return;
+    let alive = true;
+    (async () => {
+      const r = await getPublicProfile(item.ownerId);
+      if (alive && r.ok) setOwnerProfile(r.data);
+    })();
+    return () => { alive = false; };
+  }, [item.ownerId]);
 
   const favIds = useFavorites((s) => s.ids);
   const toggleFav = useFavorites((s) => s.toggle);
@@ -251,17 +263,25 @@ export default function PropertyDetailScreen({ navigation, route }) {
           <View style={styles.divider} />
 
           {/* Hote */}
-          <View style={styles.hostRow}>
-            <View style={styles.hostAvatar}>
-              <Text style={styles.hostAvatarTxt}>
-                {(item.ownerName || 'O').slice(0, 1).toUpperCase()}
-              </Text>
-            </View>
+          <Pressable
+            style={styles.hostRow}
+            onPress={() => item.ownerId && navigation.navigate('PublicProfile', { userId: item.ownerId, name: item.ownerName })}
+            disabled={!item.ownerId}
+          >
+            {ownerProfile?.avatarUrl ? (
+              <Image source={{ uri: ownerProfile.avatarUrl }} style={styles.hostAvatar} />
+            ) : (
+              <View style={styles.hostAvatar}>
+                <Text style={styles.hostAvatarTxt}>
+                  {(item.ownerName || 'O').slice(0, 1).toUpperCase()}
+                </Text>
+              </View>
+            )}
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={styles.hostTitle}>Propose par {item.ownerName || 'le proprietaire'}</Text>
-                {item.verified && (
-                  <Ionicons name="checkmark-circle" size={14} color={C.primary} />
+                {(item.verified || ownerProfile?.verified) && (
+                  <Ionicons name="checkmark-circle" size={14} color="#1D4ED8" />
                 )}
               </View>
               <Text style={styles.hostSub}>{item.ownerType || 'Proprietaire individuel'}</Text>
@@ -270,7 +290,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
               <Ionicons name="chatbubble-ellipses-outline" size={16} color={C.primary} />
               <Text style={styles.contactBtnTxt}>Contacter</Text>
             </Pressable>
-          </View>
+          </Pressable>
 
           <View style={styles.divider} />
 

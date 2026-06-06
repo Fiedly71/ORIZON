@@ -55,20 +55,6 @@ export default function SettingsScreen({ navigation }) {
       </View>
 
       <ScrollView contentContainerStyle={{ padding: spacing.lg }}>
-        <Section title="LANGUE">
-          {LANGS.map((l) => (
-            <Row key={l.id} label={l.label} active={ui.language === l.id}
-              onPress={() => { ui.setLanguage(l.id); toast.show('Langue mise a jour'); }} />
-          ))}
-        </Section>
-
-        <Section title="DEVISE">
-          {CURRENCIES.map((c) => (
-            <Row key={c.id} label={c.label} active={ui.currency === c.id}
-              onPress={() => { ui.setCurrency(c.id); toast.show('Devise mise a jour'); }} />
-          ))}
-        </Section>
-
         {!isWeb && (
           <Section title="NOTIFICATIONS">
             <Toggle label="Notifications push" value={ui.notifPush} onChange={ui.setNotifPush} />

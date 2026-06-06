@@ -7,9 +7,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { requestPasswordReset } from '../services/authService';
+import { useAuthStore } from '../store/useAuthStore';
 
-export default function ForgotPasswordScreen({ navigation }) {
-  const [email, setEmail] = useState('');
+export default function ForgotPasswordScreen({ navigation, route }) {
+  const userEmail = useAuthStore((s) => s.user?.email);
+  const prefill = route?.params?.prefillEmail || userEmail || '';
+  const fromProfile = !!route?.params?.fromProfile;
+  const [email, setEmail] = useState(prefill);
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -38,7 +42,7 @@ export default function ForgotPasswordScreen({ navigation }) {
         <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
           <Ionicons name="chevron-back" size={22} color={C.text} />
         </Pressable>
-        <Text style={styles.headerTxt}>Mot de passe oublie</Text>
+        <Text style={styles.headerTxt}>{fromProfile ? 'Changer mot de passe' : 'Mot de passe oublie'}</Text>
         <View style={{ width: 22 }} />
       </View>
 

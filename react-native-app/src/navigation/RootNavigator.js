@@ -16,6 +16,8 @@ import CheckoutScreen from '../screens/CheckoutScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import ConfirmEmailScreen from '../screens/ConfirmEmailScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import PublicProfileScreen from '../screens/PublicProfileScreen';
 import MortgageScreen from '../screens/MortgageScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import SellerStatsScreen from '../screens/SellerStatsScreen';
@@ -134,6 +136,8 @@ export default function RootNavigator() {
             <Stack.Screen name="Compare" component={CompareScreen} />
             <Stack.Screen name="AgencyManage" component={AgencyManageScreen} />
             <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+            <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
           </>
         ) : (
           <>

@@ -101,7 +101,7 @@ export async function listConversations() {
 
   const [profilesRes, propsRes] = await Promise.all([
     otherIds.length > 0
-      ? supabase.from('profiles').select('id,full_name,agency_name,avatar_url').in('id', otherIds)
+      ? supabase.from('profiles').select('id,full_name,agency_name,avatar_url,verified').in('id', otherIds)
       : Promise.resolve({ data: [] }),
     propIds.length > 0
       ? supabase.from('properties').select('id,title,image,images').in('id', propIds)
@@ -118,6 +118,7 @@ export async function listConversations() {
       ...c,
       otherName: prof.agency_name || prof.full_name || (c.buyerId === uid ? 'Proprietaire' : 'Acheteur'),
       otherAvatar: prof.avatar_url || '',
+      otherVerified: !!prof.verified,
       propertyTitle: prop.title || '',
       propertyImage: prop.image || (Array.isArray(prop.images) ? prop.images[0] : ''),
     };

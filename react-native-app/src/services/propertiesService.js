@@ -45,6 +45,7 @@ function fromRow(r) {
     lng: r.lng != null ? Number(r.lng) : null,
     paymentStatus: r.payment_status || 'unpaid',
     publishedAt: r.published_at || null,
+    visitSlots: Array.isArray(r.visit_slots) ? r.visit_slots : [],
   };
 }
 
@@ -76,6 +77,7 @@ function toRow(p) {
     lat: p.lat ?? null,
     lng: p.lng ?? null,
     payment_status: p.paymentStatus || 'unpaid',
+    visit_slots: Array.isArray(p.visitSlots) ? p.visitSlots : [],
   };
 }
 
@@ -218,3 +220,54 @@ export async function searchProperties({ query = '', type, status, minPrice, max
   if (error) return { ok: false, error: error.message, data: [] };
   return { ok: true, data: (data || []).map(fromRow) };
 }
+
+// Liste les annonces d'un proprietaire/agence donne (par owner_id).
+// Utilise pour la page profil public.
+export async function listPropertiesByOwner(ownerId) {
+  if (!ownerId) return { ok: true, data: [] };
+  if (!isSupabaseConfigured) {
+    const list = propertiesSeed.filter((p) => p.ownerId === ownerId);
+    return { ok: true, data: list, mock: true };
+  }
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('owner_id', ownerId)
+    .order('posted_at', { ascending: false });
+  if (error) return { ok: false, error: error.message, data: [] };
+  return { ok: true, data: (data || []).map(fromRow) };
+}
+
+// Recupere le profil public d'un utilisateur (proprietaire / agence) pour
+// affichage sur la page profil publique accessible depuis une annonce.
+// Retourne uniquement les infos non sensibles.
+export async function getPublicProfile(userId) {
+  if (!userId) return { ok: false, error: 'ID requis' };
+  if (!isSupabaseConfigured) {
+    return { ok: true, data: { id: userId, fullName: 'Utilisateur', verified: false } };
+  }
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, role, agency_name, avatar_url, bio, address, verified, verification_level, verified_at, created_at')
+    .eq('id', userId)
+    .maybeSingle();
+  if (error) return { ok: false, error: error.message };
+  if (!data) return { ok: false, error: 'Profil introuvable' };
+  return {
+    ok: true,
+    data: {
+      id: data.id,
+      fullName: data.full_name || 'Utilisateur',
+      role: data.role || 'Particulier',
+      agencyName: data.agency_name || null,
+      avatarUrl: data.avatar_url || null,
+      bio: data.bio || null,
+      address: data.address || null,
+      verified: !!data.verified,
+      verificationLevel: data.verification_level || (data.verified ? 'basic' : 'none'),
+      verifiedAt: data.verified_at || null,
+      memberSince: data.created_at || null,
+    },
+  };
+}
+
