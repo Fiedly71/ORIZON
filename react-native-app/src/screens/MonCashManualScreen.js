@@ -112,12 +112,15 @@ export default function MonCashManualScreen({ navigation, route }) {
           </View>
         </View>
 
-        {/* Instructions */}
-        <Text style={styles.sectionTitle}>Comment payer</Text>
-        {instructions.map((step, i) => (
+        {/* Instructions bilingues (creole + francais) */}
+        <Text style={styles.sectionTitle}>Kijan pou peye / Comment payer</Text>
+        {instructions.ht.map((step, i) => (
           <View key={i} style={styles.stepRow}>
             <View style={styles.stepNum}><Text style={styles.stepNumTxt}>{i + 1}</Text></View>
-            <Text style={styles.stepTxt}>{step}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.stepTxt}>{step}</Text>
+              <Text style={styles.stepTxtFr}>{instructions.fr[i]}</Text>
+            </View>
           </View>
         ))}
 
@@ -201,7 +204,8 @@ const styles = StyleSheet.create({
   stepRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 10 },
   stepNum: { width: 24, height: 24, borderRadius: 12, backgroundColor: M.text, alignItems: 'center', justifyContent: 'center' },
   stepNumTxt: { color: '#fff', fontSize: 12, fontWeight: '800' },
-  stepTxt: { flex: 1, color: M.text, fontSize: 13, lineHeight: 19 },
+  stepTxt: { flex: 1, color: M.text, fontSize: 14, lineHeight: 20, fontWeight: '600' },
+  stepTxtFr: { color: M.muted, fontSize: 12, lineHeight: 17, marginTop: 2, fontStyle: 'italic' },
 
   openBtn: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: M.border, paddingVertical: 12, borderRadius: 10, marginTop: 6, marginBottom: 18, backgroundColor: M.surface },
   openBtnTxt: { color: M.text, fontWeight: '700', fontSize: 13 },

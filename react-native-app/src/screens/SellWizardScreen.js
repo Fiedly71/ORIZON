@@ -1,9 +1,10 @@
 // Wizard "Vendre" en 3 etapes: Infos -> Medias -> Tarifs.
 // Utilise propertiesService (CRUD) + storageService (upload).
 // Mode edition: navigation.navigate('SellWizard', { editId: '<uuid>' })
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Image, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Image, Alert, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { propertyTypes, propertyAmenities } from '../data/mockData';
@@ -12,6 +13,10 @@ import { useProperty } from '../store/useProperty';
 import { useAuthStore } from '../store/useAuthStore';
 import { canPublish } from '../services/authService';
 import { getProperty as getPropertyById, updateProperty as svcUpdate } from '../services/propertiesService';
+import { DEPARTMENTS, CITIES_BY_DEPT, formatLocation, parseLocation } from '../constants/haiti';
+import PickerField from '../components/PickerField';
+
+const DRAFT_KEY = 'orizon.sellwizard.draft.v1';
 
 const STATUSES = ['A vendre', 'A louer'];
 const PUBLICATION_FEE_USD = 20;
@@ -113,6 +118,8 @@ export default function SellWizardScreen({ navigation, route }) {
   const [data, setData] = useState({
     title: '',
     location: '',
+    dept: '',
+    city: '',
     type: 'Maison',
     description: '',
     bedrooms: '',
@@ -123,6 +130,7 @@ export default function SellWizardScreen({ navigation, route }) {
     price: '',
     status: 'A vendre',
   });
+  const draftLoadedRef = useRef(false);
 
   // Mode edition: precharge la propriete.
   useEffect(() => {
@@ -131,9 +139,12 @@ export default function SellWizardScreen({ navigation, route }) {
       const r = await getPropertyById(editId);
       if (r.ok && r.data) {
         const p = r.data;
+        const parsed = parseLocation(p.location);
         setData({
           title: p.title || '',
           location: p.location || '',
+          dept: parsed.dept,
+          city: parsed.city,
           type: p.type || 'Maison',
           description: p.description || '',
           bedrooms: String(p.bedrooms || ''),
@@ -151,13 +162,61 @@ export default function SellWizardScreen({ navigation, route }) {
     })();
   }, [editId]);
 
+  // Mode creation: tente de charger un brouillon sauvegarde.
+  useEffect(() => {
+    if (editId) return;
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (!draft || typeof draft !== 'object') return;
+        // Ne pas restaurer si vide (sauvegarde initiale).
+        const hasContent = (draft.title || draft.dept || draft.city || draft.description || (draft.images && draft.images.length));
+        if (!hasContent) return;
+        const restore = () => {
+          setData((d) => ({ ...d, ...draft, images: draft.images || [] }));
+          draftLoadedRef.current = true;
+        };
+        if (Platform.OS === 'web') {
+          if (typeof window !== 'undefined' && window.confirm(`Tu as un brouillon non termine ("${draft.title || 'sans titre'}"). Reprendre ?`)) restore();
+          else AsyncStorage.removeItem(DRAFT_KEY).catch(() => {});
+        } else {
+          Alert.alert(
+            'Brouillon trouve',
+            `Tu as un brouillon non termine ("${draft.title || 'sans titre'}"). Reprendre ?`,
+            [
+              { text: 'Nouveau', style: 'destructive', onPress: () => AsyncStorage.removeItem(DRAFT_KEY).catch(() => {}) },
+              { text: 'Reprendre', onPress: restore },
+            ],
+          );
+        }
+      } catch {}
+    })();
+  }, [editId]);
+
+  // Auto-save brouillon a chaque changement (mode creation uniquement).
+  useEffect(() => {
+    if (editId) return;
+    const hasContent = data.title || data.dept || data.city || data.description || data.images.length;
+    if (!hasContent) return;
+    // On ne sauve PAS les images locales (uri file://) car non valides apres relance.
+    const persistable = {
+      ...data,
+      images: data.images.filter((i) => i.existing).map((i) => ({ uri: i.uri, existing: true })),
+    };
+    AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(persistable)).catch(() => {});
+  }, [data, editId]);
+
   const update = (k, v) => setData((d) => ({ ...d, [k]: v }));
   const toggleAmenity = (a) =>
     setData((d) => ({ ...d, amenities: d.amenities.includes(a) ? d.amenities.filter((x) => x !== a) : [...d.amenities, a] }));
 
   const validateStep = () => {
     if (step === 0) {
-      if (!data.title || !data.location || !data.type) return 'Titre, lieu et type requis.';
+      if (!data.title) return 'Donne un titre a ton annonce.';
+      if (!data.dept || !data.city) return 'Choisis le departement ET la ville.';
+      if (!data.type) return 'Choisis un type de bien.';
     }
     if (step === 1) {
       if (data.images.length === 0) return 'Ajoute au moins une photo.';
@@ -207,9 +266,13 @@ export default function SellWizardScreen({ navigation, route }) {
         if (g.ok) geo = { lat: g.lat, lng: g.lng };
       } catch {}
 
+      const baseLoc = formatLocation(data.city, data.dept);
+      const fullLocation = data.location?.trim()
+        ? `${data.location.trim()}, ${baseLoc || ''}`.replace(/, $/, '')
+        : baseLoc;
       const payload = {
         title: data.title,
-        location: data.location,
+        location: fullLocation || data.location,
         type: data.type,
         status: data.status,
         price: Number(data.price) || 0,
@@ -246,6 +309,9 @@ export default function SellWizardScreen({ navigation, route }) {
       };
       const r = await addProperty(createPayload);
       if (!r.ok) { Alert.alert('Publication', r.error || ''); return; }
+
+      // Brouillon utilise -> on l'efface.
+      AsyncStorage.removeItem(DRAFT_KEY).catch(() => {});
 
       // On enchaine sur l'ecran de paiement avec l'id de la propriete creee.
       navigation.replace('Checkout', {
@@ -286,7 +352,27 @@ export default function SellWizardScreen({ navigation, route }) {
         {step === 0 && (
           <View style={{ gap: 10 }}>
             <Field label="TITRE" value={data.title} onChangeText={(v) => update('title', v)} placeholder="Belle villa au Cap-Haitien" />
-            <Field label="LOCALISATION" value={data.location} onChangeText={(v) => update('location', v)} placeholder="Quartier, Ville" />
+            <PickerField
+              label="DEPARTEMENT"
+              value={data.dept}
+              placeholder="Choisis ton departement"
+              options={DEPARTMENTS}
+              onChange={(v) => setData((d) => ({ ...d, dept: v, city: '' }))}
+            />
+            <PickerField
+              label="VILLE / COMMUNE"
+              value={data.city}
+              placeholder={data.dept ? 'Choisis ta ville' : "Choisis d'abord le departement"}
+              options={data.dept ? (CITIES_BY_DEPT[data.dept] || []) : []}
+              onChange={(v) => update('city', v)}
+              disabled={!data.dept}
+            />
+            <Field
+              label="QUARTIER / ADRESSE (FACULTATIF)"
+              value={data.location}
+              onChangeText={(v) => update('location', v)}
+              placeholder="Ex: Rue Capois, Bourdon, etc."
+            />
             <Text style={styles.label}>TYPE</Text>
             <View style={styles.chipRow}>
               {propertyTypes.map((t) => (

@@ -116,7 +116,7 @@ export async function signInWithPassword({ email, password }) {
   }
 }
 
-export async function signUp({ email, password, fullName, phone, role }) {
+export async function signUp({ email, password, fullName, phone, role, address, city, department }) {
   const { setLoading, setUser } = useAuthStore.getState();
   setLoading(true);
   try {
@@ -127,10 +127,17 @@ export async function signUp({ email, password, fullName, phone, role }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { fullName, phone, role } },
+      options: { data: { fullName, phone, role, address, city, department } },
     });
     if (error) return { ok: false, error: error.message };
     setSessionFromSupabase(data);
+    // Met a jour la ligne profiles avec l'adresse (au cas ou le trigger handle_new_user
+    // ne la prend pas). Best-effort, ne bloque pas le retour.
+    if (data?.user?.id && address) {
+      try {
+        await supabase.from('profiles').update({ address }).eq('id', data.user.id);
+      } catch {}
+    }
     return { ok: true, needsEmailConfirm: !data.session };
   } finally {
     setLoading(false);

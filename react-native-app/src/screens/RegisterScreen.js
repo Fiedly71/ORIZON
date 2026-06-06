@@ -19,6 +19,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import PickerField from '../components/PickerField';
+import { DEPARTMENTS, CITIES_BY_DEPT, formatLocation } from '../constants/haiti';
 import { C } from '../theme/colors';
 import { appAlert } from '../utils/appAlert';
 import { signUp } from '../services/authService';
@@ -49,6 +51,8 @@ export default function RegisterScreen({ navigation }) {
     email: '',
     phone: '',
     address: '',
+    dept: '',
+    city: '',
     password: '',
     confirmPassword: '',
     acceptTerms: false,
@@ -78,6 +82,8 @@ export default function RegisterScreen({ navigation }) {
     if (form.password !== form.confirmPassword) errors.push('Les mots de passe ne correspondent pas');
     if (!form.acceptTerms) errors.push("Tu dois accepter les conditions d'utilisation");
     if (isPublisher) {
+      if (!form.dept) errors.push('Departement requis');
+      if (!form.city) errors.push('Ville requise');
       if (!form.address.trim()) errors.push('Adresse requise');
       if (!form.profilePhoto) errors.push('Photo de profil requise');
       if (!form.docNumber.trim()) errors.push('Numéro du document requis');
@@ -101,6 +107,11 @@ export default function RegisterScreen({ navigation }) {
         fullName: form.fullName.trim(),
         phone: form.phone.trim(),
         role,
+        address: isPublisher
+          ? [form.address.trim(), form.city, form.dept].filter(Boolean).join(', ')
+          : '',
+        city: isPublisher ? form.city : '',
+        department: isPublisher ? form.dept : '',
       });
       if (!res.ok) {
         appAlert('Inscription', res.error || 'Échec de la création du compte.');
@@ -254,8 +265,23 @@ export default function RegisterScreen({ navigation }) {
 
           {isPublisher && (
             <>
-              <Text style={styles.label}>ADRESSE *</Text>
-              <TextInput value={form.address} onChangeText={(v) => update('address', v)} placeholder="Quartier, ville" placeholderTextColor={C.muted} style={styles.field} />
+              <PickerField
+                label="DEPARTEMENT *"
+                value={form.dept}
+                placeholder="Choisis ton departement"
+                options={DEPARTMENTS}
+                onChange={(v) => setForm((p) => ({ ...p, dept: v, city: '' }))}
+              />
+              <PickerField
+                label="VILLE / COMMUNE *"
+                value={form.city}
+                placeholder={form.dept ? 'Choisis ta ville' : "Choisis d'abord le departement"}
+                options={form.dept ? (CITIES_BY_DEPT[form.dept] || []) : []}
+                onChange={(v) => update('city', v)}
+                disabled={!form.dept}
+              />
+              <Text style={styles.label}>ADRESSE COMPLETE *</Text>
+              <TextInput value={form.address} onChangeText={(v) => update('address', v)} placeholder="Rue, quartier, point de repere" placeholderTextColor={C.muted} style={styles.field} />
             </>
           )}
 

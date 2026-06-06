@@ -316,12 +316,27 @@ export async function submitMonCashManual({ propertyId, reference, phone, amount
   }
 }
 
-// Instructions affichees au client
+// Instructions affichees au client.
+// Retourne un objet { fr, ht } pour affichage bilingue. Le creole est la
+// langue principale en Haiti -> on l'affiche d'abord, le francais en sous-texte.
 export function getMonCashInstructions(amount = LISTING_FEE_HTG) {
-  return [
-    `Compose *202# ou ouvre l'app MonCash`,
-    `Envoie ${amount} HTG au numero ${MONCASH_RECEIVER_NUMBER} (${MONCASH_RECEIVER_NAME})`,
-    `Note la reference recue par SMS, puis reviens ici pour la soumettre`,
-  ];
+  return {
+    ht: [
+      `Ouvri aplikasyon MonCash ou konpoze *202# nan telefonn ou`,
+      `Chwazi "Transfere lajan" -> "Voye bay yon moun"`,
+      `Antre nimewo sa a: ${MONCASH_RECEIVER_NUMBER} (${MONCASH_RECEIVER_NAME})`,
+      `Antre kantite lajan: ${amount} HTG`,
+      `Valide ak kod sekre MonCash ou`,
+      `W ap resevwa yon SMS ak yon nimewo referans - tounen sou ORIZON pou antre li`,
+    ],
+    fr: [
+      `Ouvre l'application MonCash ou compose *202# sur ton telephone`,
+      `Choisis "Transferer de l'argent" -> "Envoyer a quelqu'un"`,
+      `Entre ce numero: ${MONCASH_RECEIVER_NUMBER} (${MONCASH_RECEIVER_NAME})`,
+      `Entre le montant: ${amount} HTG`,
+      `Valide avec ton code secret MonCash`,
+      `Tu vas recevoir un SMS avec un numero de reference - reviens sur ORIZON pour l'entrer`,
+    ],
+  };
 }
 

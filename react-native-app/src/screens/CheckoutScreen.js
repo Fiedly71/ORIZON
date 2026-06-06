@@ -3,62 +3,23 @@
 // Si pas de propertyId (mode pre-creation), on simule juste le paiement et on
 // renvoie le resultat via navigation.navigate('SellWizard', { paid: true, ... }).
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, Pressable, StyleSheet, ActivityIndicator, Alert, ScrollView, TextInput,
+  View, Text, Pressable, StyleSheet, ActivityIndicator, Alert, ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import {
-  PROVIDERS,
-  LISTING_FEE_USD,
   LISTING_FEE_HTG,
-  payListingWithStripe,
-  payListingWithMonCash,
 } from '../services/paymentsService';
 
 export default function CheckoutScreen({ navigation, route }) {
   const propertyId = route?.params?.propertyId || null;
   const propertyTitle = route?.params?.propertyTitle || 'Nouvelle annonce';
 
-  const [provider, setProvider] = useState(PROVIDERS.MONCASH);
-  const [phone, setPhone] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  const isMonCash = provider === PROVIDERS.MONCASH;
-
-  const submit = async () => {
-    // MonCash : on redirige vers l'ecran manuel (paiement hors-app + soumission preuve).
-    if (isMonCash) {
-      navigation.replace('MonCashManual', { propertyId, amount: LISTING_FEE_HTG, purpose: 'listing' });
-      return;
-    }
-
-    setBusy(true);
-    try {
-      const r = await payListingWithStripe({ propertyId });
-
-      if (!r.ok) {
-        Alert.alert('Paiement échoué', r.error || 'Réessaie.');
-        return;
-      }
-      Alert.alert(
-        'Paiement confirmé âœ“',
-        `Ton annonce est maintenant publiée et visible par tous les utilisateurs ORIZON.\n\nRéférence : ${r.reference}`,
-        [
-          {
-            text: 'Voir mes annonces',
-            onPress: () => navigation.reset({
-              index: 0,
-              routes: [{ name: 'App' }, { name: 'MyListings' }],
-            }),
-          },
-        ],
-      );
-    } finally {
-      setBusy(false);
-    }
+  const proceed = () => {
+    navigation.replace('MonCashManual', { propertyId, amount: LISTING_FEE_HTG, purpose: 'listing' });
   };
 
   return (
@@ -73,96 +34,49 @@ export default function CheckoutScreen({ navigation, route }) {
 
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14 }}>
         <View style={styles.summary}>
-          <Text style={styles.sumLabel}>Récapitulatif</Text>
+          <Text style={styles.sumLabel}>Resume / Rezime</Text>
           <Text style={styles.sumTitle}>{propertyTitle}</Text>
           <View style={styles.sumRow}>
             <Text style={styles.sumKey}>Frais de publication</Text>
-            <Text style={styles.sumVal}>
-              {isMonCash ? `${LISTING_FEE_HTG} HTG` : `${LISTING_FEE_USD} USD`}
-            </Text>
+            <Text style={styles.sumVal}>{LISTING_FEE_HTG.toLocaleString('fr-FR')} HTG</Text>
           </View>
           <Text style={styles.sumNote}>
-            Ton annonce sera publiée immédiatement après confirmation du paiement
-            et restera visible jusqu'à 60 jours.
+            Ton annonce sera publiee des que ton paiement sera valide (quelques minutes a quelques heures) et restera visible 60 jours.
+          </Text>
+          <Text style={[styles.sumNote, { marginTop: 4 }]}>
+            Anons ou ap pibliye le yo verifye peman an. Li ap rete vizib pou 60 jou.
           </Text>
         </View>
 
-        <Text style={styles.section}>Méthode de paiement</Text>
-
-        <Pressable
-          style={[styles.method, isMonCash && styles.methodOn]}
-          onPress={() => setProvider(PROVIDERS.MONCASH)}
-        >
+        <View style={styles.methodCard}>
           <View style={[styles.logo, { backgroundColor: '#F26B21' }]}>
             <Text style={styles.logoTxt}>M</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.methodTitle}>MonCash</Text>
-            <Text style={styles.methodSub}>2 500 HTG • Recommandé en Haïti</Text>
+            <Text style={styles.methodSub}>Sel mwayen peman pou kounye a / Seul moyen de paiement pour l'instant</Text>
           </View>
-          <View style={[styles.radio, isMonCash && styles.radioOn]}>
-            {isMonCash && <View style={styles.radioDot} />}
-          </View>
-        </Pressable>
+          <Ionicons name="checkmark-circle" size={20} color={C.success || '#00C901'} />
+        </View>
 
-        <Pressable
-          style={[styles.method, !isMonCash && styles.methodOn]}
-          onPress={() => setProvider(PROVIDERS.STRIPE)}
-        >
-          <View style={[styles.logo, { backgroundColor: '#635BFF' }]}>
-            <Ionicons name="card" size={20} color="#fff" />
-          </View>
+        <View style={styles.infoBox}>
+          <Ionicons name="information-circle" size={18} color={C.primary} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.methodTitle}>Carte bancaire (Stripe)</Text>
-            <Text style={styles.methodSub}>20 USD • Visa, MasterCard</Text>
-          </View>
-          <View style={[styles.radio, !isMonCash && styles.radioOn]}>
-            {!isMonCash && <View style={styles.radioDot} />}
-          </View>
-        </Pressable>
-
-        {isMonCash && (
-          <View style={{ gap: 6 }}>
-            <Text style={styles.label}>NUMÉRO MONCASH</Text>
-            <TextInput
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="ex: 37123456"
-              keyboardType="phone-pad"
-              style={styles.input}
-              maxLength={12}
-            />
-            <Text style={styles.hint}>
-              Tu vas recevoir une demande de paiement sur ton portefeuille MonCash.
+            <Text style={styles.infoTxt}>
+              Apre w klike sou bouton an, n ap montre w ki nimewo MonCash pou voye lajan an ak kijan pou w fe sa, etap pa etap.
+            </Text>
+            <Text style={[styles.infoTxt, { marginTop: 4, fontStyle: 'italic', color: C.muted }]}>
+              Apres avoir clique, nous t'indiquons le numero MonCash et la procedure etape par etape.
             </Text>
           </View>
-        )}
-
-        {__DEV__ && (
-          <View style={styles.sandboxBox}>
-            <Ionicons name="construct-outline" size={16} color="#92400E" />
-            <Text style={styles.sandboxTxt}>
-              Mode SANDBOX (dev) : aucun paiement réel n'est effectué.
-            </Text>
-          </View>
-        )}
+        </View>
       </ScrollView>
 
       <View style={styles.footer}>
-        <Pressable
-          style={[styles.cta, busy && { opacity: 0.6 }]}
-          onPress={submit}
-          disabled={busy}
-        >
-          {busy ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.ctaTxt}>
-              {isMonCash
-                ? `Payer ${LISTING_FEE_HTG} HTG avec MonCash`
-                : `Payer ${LISTING_FEE_USD} USD avec Stripe`}
-            </Text>
-          )}
+        <Pressable style={styles.cta} onPress={proceed}>
+          <Text style={styles.ctaTxt}>
+            Kontinye ak MonCash - {LISTING_FEE_HTG.toLocaleString('fr-FR')} HTG
+          </Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -199,6 +113,17 @@ const styles = StyleSheet.create({
     padding: 14, borderRadius: 14,
     borderWidth: 1.5, borderColor: C.border, backgroundColor: '#fff',
   },
+  methodCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    padding: 14, borderRadius: 14,
+    borderWidth: 1.5, borderColor: C.primary, backgroundColor: C.primarySoft,
+  },
+  infoBox: {
+    flexDirection: 'row', gap: 10, alignItems: 'flex-start',
+    backgroundColor: C.primarySoft, padding: 12, borderRadius: 12,
+    borderWidth: 1, borderColor: C.primary,
+  },
+  infoTxt: { fontSize: 12, color: C.text, lineHeight: 17 },
   methodOn: { borderColor: C.primary, backgroundColor: C.primarySoft },
   logo: {
     width: 40, height: 40, borderRadius: 10,
