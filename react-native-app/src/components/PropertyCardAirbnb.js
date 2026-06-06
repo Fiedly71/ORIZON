@@ -29,7 +29,9 @@ export default function PropertyCardAirbnb({
 
   const photos = (item.images && item.images.length > 0)
     ? item.images
-    : (item.image ? [item.image] : ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&q=60&auto=format']);
+    : (item.image ? [item.image] : []);
+
+  const hasPhotos = photos.length > 0;
 
   const onScroll = (e) => {
     const idx = Math.round(e.nativeEvent.contentOffset.x / CARD_W);
@@ -43,18 +45,25 @@ export default function PropertyCardAirbnb({
     <Pressable style={styles.wrap} onPress={() => onOpen?.(item)}>
       {/* Carrousel photos */}
       <View style={styles.imgWrap}>
-        <FlatList
-          ref={flatRef}
-          data={photos}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={onScroll}
-          keyExtractor={(_, i) => String(i)}
-          renderItem={({ item: uri }) => (
-            <Image source={{ uri }} style={styles.img} resizeMode="cover" />
-          )}
-        />
+        {hasPhotos ? (
+          <FlatList
+            ref={flatRef}
+            data={photos}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={onScroll}
+            keyExtractor={(_, i) => String(i)}
+            renderItem={({ item: uri }) => (
+              <Image source={{ uri }} style={styles.img} resizeMode="cover" />
+            )}
+          />
+        ) : (
+          <View style={[styles.img, styles.imgPlaceholder]}>
+            <Ionicons name="image-outline" size={42} color="#9CA3AF" />
+            <Text style={styles.imgPlaceholderTxt}>Pas de photo</Text>
+          </View>
+        )}
 
         {/* Heart favori */}
         <Pressable
@@ -153,6 +162,13 @@ const styles = StyleSheet.create({
     width: CARD_W,
     height: CARD_H,
   },
+  imgPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F1F5F9',
+    gap: 6,
+  },
+  imgPlaceholderTxt: { color: '#9CA3AF', fontSize: 12, fontWeight: '600' },
   heartBtn: {
     position: 'absolute',
     top: 12,

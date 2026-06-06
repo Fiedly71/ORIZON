@@ -38,7 +38,14 @@ export default function ResetPasswordScreen({ navigation, route }) {
       Alert.alert(
         'Mot de passe change',
         'Tu peux maintenant te connecter avec ton nouveau mot de passe.',
-        [{ text: 'OK', onPress: () => navigation.goBack() }],
+        [{ text: 'OK', onPress: () => {
+          if (fromProfile) {
+            navigation.goBack();
+          } else {
+            // On vient d'un lien d'email -> rediriger vers Login
+            navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+          }
+        } }],
       );
     } finally {
       setBusy(false);

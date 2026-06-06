@@ -394,12 +394,21 @@ function UserRow({ item, reload }) {
 }
 
 function PendingRow({ item, reload }) {
+  // Etat optimiste pour faire disparaitre les boutons des qu'on a decide,
+  // meme avant que le reload() de la liste n'ait fini.
+  const [decided, setDecided] = useState(item.moderation_status);
+
   const decide = (action) => {
     Alert.alert(action === 'approved' ? 'Approuver' : 'Rejeter', item.title, [
       { text: 'Annuler', style: 'cancel' },
       {
         text: 'OK',
-        onPress: async () => { await moderateProperty(item.id, action); reload(); },
+        onPress: async () => {
+          setDecided(action);
+          const r = await moderateProperty(item.id, action);
+          if (!r?.ok && r?.error) { setDecided(item.moderation_status); Alert.alert('Erreur', r.error); }
+          reload();
+        },
       },
     ]);
   };
@@ -419,19 +428,26 @@ function PendingRow({ item, reload }) {
           Par {item.owner_name || 'inconnu'}{item.owner_phone ? ' | ' + item.owner_phone : ''} | {(item.images || []).length} photo(s)
         </Text>
       </View>
-      <View style={{ gap: 6 }}>
-        <Pressable onPress={() => decide('approved')} style={[styles.btn, styles.btnOk]}>
-          <Text style={styles.btnTxt}>OK</Text>
-        </Pressable>
-        <Pressable onPress={() => decide('rejected')} style={[styles.btn, styles.btnDanger]}>
-          <Text style={styles.btnTxt}>Rejeter</Text>
-        </Pressable>
-      </View>
+      {decided === 'approved' ? (
+        <DecisionBadge kind="ok" label="Approuve" />
+      ) : decided === 'rejected' ? (
+        <DecisionBadge kind="danger" label="Rejete" />
+      ) : (
+        <View style={{ gap: 6 }}>
+          <Pressable onPress={() => decide('approved')} style={[styles.btn, styles.btnOk]}>
+            <Text style={styles.btnTxt}>OK</Text>
+          </Pressable>
+          <Pressable onPress={() => decide('rejected')} style={[styles.btn, styles.btnDanger]}>
+            <Text style={styles.btnTxt}>Rejeter</Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
 
 function PhotoRow({ item, reload }) {
+  const [decided, setDecided] = useState(null);
   // Annonces deja live — admin peut SEULEMENT rejeter (cache l'annonce)
   const reject = () => {
     Alert.alert('Rejeter cette annonce', `Les photos de "${item.title}" sont inappropriees ?`, [
@@ -440,6 +456,7 @@ function PhotoRow({ item, reload }) {
         text: 'Rejeter',
         style: 'destructive',
         onPress: async () => {
+          setDecided('rejected');
           await moderateProperty(item.id, 'rejected', 'Photos non conformes');
           reload();
         },
@@ -453,21 +470,30 @@ function PhotoRow({ item, reload }) {
         <Text style={styles.rowTitle} numberOfLines={1}>{item.title}</Text>
         <Text style={styles.rowSub}>{(item.images || []).length} photos | {item.moderation_status}</Text>
       </View>
-      <Pressable onPress={reject} style={[styles.btn, styles.btnDanger]}>
-        <Text style={styles.btnTxt}>Rejeter</Text>
-      </Pressable>
+      {decided === 'rejected' ? (
+        <DecisionBadge kind="danger" label="Rejete" />
+      ) : (
+        <Pressable onPress={reject} style={[styles.btn, styles.btnDanger]}>
+          <Text style={styles.btnTxt}>Rejeter</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
 
 function PaymentRow({ item, reload }) {
+  const [refunded, setRefunded] = useState(!!item.refunded);
   const refund = () => {
     Alert.alert('Rembourser', `${fmt(item.amount)} a ${item.user_id?.slice(0, 8) || '?'}`, [
       { text: 'Annuler', style: 'cancel' },
       {
         text: 'Rembourser',
         style: 'destructive',
-        onPress: async () => { await refundPayment(item.id, 'Remboursement admin'); reload(); },
+        onPress: async () => {
+          setRefunded(true);
+          await refundPayment(item.id, 'Remboursement admin');
+          reload();
+        },
       },
     ]);
   };
@@ -480,19 +506,22 @@ function PaymentRow({ item, reload }) {
           <Tag dark={item.status === 'succeeded'} danger={item.status === 'failed'}>
             {item.status}
           </Tag>
-          {item.refunded ? <Tag danger>Rembourse</Tag> : null}
+          {refunded ? <Tag danger>Rembourse</Tag> : null}
         </View>
       </View>
-      {item.status === 'succeeded' && !item.refunded ? (
+      {item.status === 'succeeded' && !refunded ? (
         <Pressable onPress={refund} style={[styles.btn, styles.btnDanger]}>
           <Text style={styles.btnTxt}>Rembourser</Text>
         </Pressable>
+      ) : refunded ? (
+        <DecisionBadge kind="danger" label="Rembourse" />
       ) : null}
     </View>
   );
 }
 
 function MonCashPendingRow({ item, reload }) {
+  const [decided, setDecided] = useState(item.status === 'succeeded' ? 'approved' : item.status === 'failed' ? 'rejected' : null);
   const approve = () => {
     Alert.alert(
       'Approuver ce paiement',
@@ -502,8 +531,9 @@ function MonCashPendingRow({ item, reload }) {
         {
           text: 'Approuver',
           onPress: async () => {
+            setDecided('approved');
             const r = await approveMonCashPayment(item.id);
-            if (!r.ok) Alert.alert('Erreur', r.error);
+            if (!r.ok) { setDecided(null); Alert.alert('Erreur', r.error); }
             reload();
           },
         },
@@ -520,8 +550,9 @@ function MonCashPendingRow({ item, reload }) {
           text: 'Rejeter',
           style: 'destructive',
           onPress: async () => {
+            setDecided('rejected');
             const r = await rejectMonCashPayment(item.id, 'Reference introuvable sur MonCash');
-            if (!r.ok) Alert.alert('Erreur', r.error);
+            if (!r.ok) { setDecided(null); Alert.alert('Erreur', r.error); }
             reload();
           },
         },
@@ -550,19 +581,26 @@ function MonCashPendingRow({ item, reload }) {
           {item.property_id ? <Tag dark>Annonce liee</Tag> : null}
         </View>
       </View>
-      <View style={{ gap: 6 }}>
-        <Pressable onPress={approve} style={[styles.btn, styles.btnOk]}>
-          <Text style={styles.btnTxt}>Approuver</Text>
-        </Pressable>
-        <Pressable onPress={reject} style={[styles.btn, styles.btnDanger]}>
-          <Text style={styles.btnTxt}>Rejeter</Text>
-        </Pressable>
-      </View>
+      {decided === 'approved' ? (
+        <DecisionBadge kind="ok" label="Approuve" />
+      ) : decided === 'rejected' ? (
+        <DecisionBadge kind="danger" label="Rejete" />
+      ) : (
+        <View style={{ gap: 6 }}>
+          <Pressable onPress={approve} style={[styles.btn, styles.btnOk]}>
+            <Text style={styles.btnTxt}>Approuver</Text>
+          </Pressable>
+          <Pressable onPress={reject} style={[styles.btn, styles.btnDanger]}>
+            <Text style={styles.btnTxt}>Rejeter</Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
 
 function KycRow({ item, reload }) {
+  const [decided, setDecided] = useState(item.status === 'approved' ? 'approved' : item.status === 'rejected' ? 'rejected' : null);
   const decide = (action) => {
     const reason = action === 'rejected' ? 'Documents illisibles ou incomplets' : null;
     Alert.alert(
@@ -572,7 +610,11 @@ function KycRow({ item, reload }) {
         : 'L\'agence sera verifiee et pourra publier.',
       [
         { text: 'Annuler', style: 'cancel' },
-        { text: 'OK', onPress: async () => { await decideKyc(item.id, item.user_id, action, reason); reload(); } },
+        { text: 'OK', onPress: async () => {
+          setDecided(action);
+          await decideKyc(item.id, item.user_id, action, reason);
+          reload();
+        } },
       ],
     );
   };
@@ -587,20 +629,27 @@ function KycRow({ item, reload }) {
           </Pressable>
         ) : null}
       </View>
-      <View style={{ gap: 6 }}>
-        <Pressable onPress={() => decide('approved')} style={[styles.btn, styles.btnOk]}>
-          <Text style={styles.btnTxt}>OK</Text>
-        </Pressable>
-        <Pressable onPress={() => decide('rejected')} style={[styles.btn, styles.btnDanger]}>
-          <Text style={styles.btnTxt}>Rejeter</Text>
-        </Pressable>
-      </View>
+      {decided === 'approved' ? (
+        <DecisionBadge kind="ok" label="Approuve" />
+      ) : decided === 'rejected' ? (
+        <DecisionBadge kind="danger" label="Rejete" />
+      ) : (
+        <View style={{ gap: 6 }}>
+          <Pressable onPress={() => decide('approved')} style={[styles.btn, styles.btnOk]}>
+            <Text style={styles.btnTxt}>OK</Text>
+          </Pressable>
+          <Pressable onPress={() => decide('rejected')} style={[styles.btn, styles.btnDanger]}>
+            <Text style={styles.btnTxt}>Rejeter</Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
 
 function ReportRow({ item, reload }) {
-  const resolve = async () => { await resolveReport(item.id); reload(); };
+  const [resolved, setResolved] = useState(item.status === 'resolved');
+  const resolve = async () => { setResolved(true); await resolveReport(item.id); reload(); };
   return (
     <View style={styles.row}>
       <View style={{ flex: 1 }}>
@@ -608,11 +657,13 @@ function ReportRow({ item, reload }) {
         <Text style={styles.rowSub}>{item.target_type} | {String(item.target_id).slice(0, 8)}</Text>
         {item.message ? <Text style={styles.rowSub} numberOfLines={2}>{item.message}</Text> : null}
       </View>
-      {item.status !== 'resolved' ? (
+      {resolved ? (
+        <DecisionBadge kind="ok" label="Resolu" />
+      ) : (
         <Pressable onPress={resolve} style={[styles.btn, styles.btnOk]}>
           <Text style={styles.btnTxt}>Resoudre</Text>
         </Pressable>
-      ) : <Tag dark>Resolu</Tag>}
+      )}
     </View>
   );
 }
@@ -628,6 +679,23 @@ function Tag({ children, dark, danger }) {
         styles.tagTxt,
         (dark || danger) && { color: '#fff' },
       ]}>{children}</Text>
+    </View>
+  );
+}
+
+function DecisionBadge({ kind, label }) {
+  const isOk = kind === 'ok';
+  return (
+    <View style={[
+      styles.decision,
+      isOk ? { backgroundColor: '#DCFCE7', borderColor: M.ok } : { backgroundColor: '#FEE2E2', borderColor: M.danger },
+    ]}>
+      <Ionicons
+        name={isOk ? 'checkmark-circle' : 'close-circle'}
+        size={14}
+        color={isOk ? M.ok : M.danger}
+      />
+      <Text style={[styles.decisionTxt, { color: isOk ? M.ok : M.danger }]}>{label}</Text>
     </View>
   );
 }
@@ -688,4 +756,10 @@ const styles = StyleSheet.create({
   tagsRow: { flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' },
   tag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4, borderWidth: 1, borderColor: M.border, backgroundColor: M.bg },
   tagTxt: { fontSize: 10, fontWeight: '700', color: M.text },
+  decision: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: 10, paddingVertical: 8, borderRadius: 10,
+    borderWidth: 1, alignSelf: 'flex-start',
+  },
+  decisionTxt: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
 });

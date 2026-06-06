@@ -95,7 +95,7 @@ export default function ProfileScreen({ navigation }) {
   const initial = (user?.fullName || user?.email || 'U').slice(0, 1).toUpperCase();
   const showEmailWarning = user && !user.emailConfirmedAt;
   const isAdmin = user?.role === 'admin';
-  const isPublisher = canPublish(user?.role);
+  const isPublisher = canPublish(user);
 
   const filterItems = (items) =>
     items.filter((it) => {

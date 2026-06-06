@@ -86,6 +86,19 @@ export default function ExploreScreen({ navigation }) {
 
   useEffect(() => { load(); }, [load]);
 
+  // Banner "Email confirme" apres clic sur le lien dans l'email de verification.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get('email_confirmed') === '1') {
+        toast?.show?.('Email confirme. Bienvenue sur ORIZON.');
+        url.searchParams.delete('email_confirmed');
+        window.history.replaceState({}, '', url.pathname + (url.search || ''));
+      }
+    } catch (_) {}
+  }, [toast]);
+
   // Realtime : refresh la liste quand une annonce est cree, modifiee ou supprimee.
   useEffect(() => {
     if (!isSupabaseConfigured) return;

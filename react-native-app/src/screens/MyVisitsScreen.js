@@ -11,8 +11,8 @@ import { useAuthStore } from '../store/useAuthStore';
 import { canPublish } from '../services/authService';
 
 export default function MyVisitsScreen({ navigation }) {
-  const role = useAuthStore((s) => s.user?.role);
-  const showOwnerTab = canPublish(role);
+  const user = useAuthStore((s) => s.user);
+  const showOwnerTab = canPublish(user);
   const [tab, setTab] = useState('visitor'); // 'visitor' | 'owner'
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ export default function MyVisitsScreen({ navigation }) {
     const otherId = tab === 'visitor' ? item.ownerId : item.visitorId;
     if (!item.propertyId || !otherId) return;
     const r = await openConversation({ propertyId: item.propertyId, ownerId: otherId });
-    if (r.ok) navigation.navigate('Conversation', { conversationId: r.id, otherUserId: otherId, propertyId: item.propertyId });
+    if (r.ok) navigation.navigate('Conversation', { conversationId: r.data?.id || r.id, otherUserId: otherId, propertyId: item.propertyId });
   };
 
   return (

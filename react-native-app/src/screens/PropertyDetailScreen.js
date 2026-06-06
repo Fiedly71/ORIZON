@@ -85,7 +85,8 @@ export default function PropertyDetailScreen({ navigation, route }) {
 
   const photos = (item.images && item.images.length > 0)
     ? item.images
-    : (item.image ? [item.image] : ['https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&q=70&auto=format']);
+    : (item.image ? [item.image] : []);
+  const hasPhotos = photos.length > 0;
 
   const isRent = item.status === 'A louer' || item.status === 'A lwe' || item.status === 'rent';
 
@@ -150,25 +151,34 @@ export default function PropertyDetailScreen({ navigation, route }) {
       >
         {/* Hero gallery */}
         <View style={styles.heroWrap}>
-          <FlatList
-            data={photos}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(_, i) => String(i)}
-            onMomentumScrollEnd={(e) => {
-              const idx = Math.round(e.nativeEvent.contentOffset.x / W);
-              setActiveImg(idx);
-            }}
-            renderItem={({ item: uri, index }) => (
-              <Pressable onPress={() => { setActiveImg(index); setViewerOpen(true); }}>
-                <Image source={{ uri }} style={styles.hero} resizeMode="cover" />
-              </Pressable>
-            )}
-          />
-          <View style={styles.heroDots}>
-            <Text style={styles.heroDotsTxt}>{activeImg + 1} / {photos.length}</Text>
-          </View>
+          {hasPhotos ? (
+            <FlatList
+              data={photos}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(_, i) => String(i)}
+              onMomentumScrollEnd={(e) => {
+                const idx = Math.round(e.nativeEvent.contentOffset.x / W);
+                setActiveImg(idx);
+              }}
+              renderItem={({ item: uri, index }) => (
+                <Pressable onPress={() => { setActiveImg(index); setViewerOpen(true); }}>
+                  <Image source={{ uri }} style={styles.hero} resizeMode="cover" />
+                </Pressable>
+              )}
+            />
+          ) : (
+            <View style={[styles.hero, styles.heroPlaceholder]}>
+              <Ionicons name="image-outline" size={64} color="#9CA3AF" />
+              <Text style={styles.heroPlaceholderTxt}>Pas de photo disponible</Text>
+            </View>
+          )}
+          {hasPhotos ? (
+            <View style={styles.heroDots}>
+              <Text style={styles.heroDotsTxt}>{activeImg + 1} / {photos.length}</Text>
+            </View>
+          ) : null}
 
           {/* Top buttons */}
           <SafeAreaView style={styles.topBar} edges={['top']}>
@@ -386,6 +396,8 @@ const styles = StyleSheet.create({
     backgroundColor: C.surface,
   },
   hero: { width: W, height: HERO_H },
+  heroPlaceholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#F1F5F9', gap: 8 },
+  heroPlaceholderTxt: { color: '#9CA3AF', fontSize: 13, fontWeight: '600' },
   heroDots: {
     position: 'absolute',
     bottom: 16,

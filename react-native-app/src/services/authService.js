@@ -10,8 +10,26 @@ import { setUserContext } from './errorService';
 const ROLES = ['Acheteur / Locataire', 'Proprietaire', 'Agence'];
 const PUBLISHER_ROLES = ['Proprietaire', 'Agence'];
 
-export function canPublish(role) {
-  return PUBLISHER_ROLES.includes(role);
+// Normalise une chaine (retire accents + minuscule) pour comparer les roles
+// de facon robuste (la DB peut contenir 'Propriétaire' avec accent, des
+// espaces parasites, ou des variantes de casse).
+function norm(s) {
+  if (!s) return '';
+  return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+}
+
+// Accepte soit un role (string) soit un objet user complet.
+// - Publisher si role normalise est 'proprietaire' ou 'agence' (peu importe accent/casse)
+// - OU si user.canPublish = true (flag DB, ex: admin a accorde publication gratuite)
+// - OU si user.role === 'admin' (admin peut tout faire)
+export function canPublish(roleOrUser) {
+  if (!roleOrUser) return false;
+  if (typeof roleOrUser === 'object') {
+    if (roleOrUser.canPublish === true) return true;
+    if (norm(roleOrUser.role) === 'admin') return true;
+    return PUBLISHER_ROLES.map(norm).includes(norm(roleOrUser.role));
+  }
+  return PUBLISHER_ROLES.map(norm).includes(norm(roleOrUser));
 }
 
 // --- helpers internes ---
@@ -81,6 +99,8 @@ export async function hydrateProfile() {
     bio: data.bio || null,
     verified: !!data.verified,
     canPublish: !!data.can_publish,
+    publishFree: !!data.publish_free,
+    publish_free: !!data.publish_free,
     verificationLevel: data.verification_level || (data.verified ? 'basic' : 'none'),
     verifiedAt: data.verified_at || null,
   });
@@ -127,7 +147,10 @@ export async function signUp({ email, password, fullName, phone, role, address, 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { fullName, phone, role, address, city, department } },
+      options: {
+        data: { fullName, phone, role, address, city, department },
+        emailRedirectTo: buildAppRedirect('confirm-email'),
+      },
     });
     if (error) return { ok: false, error: error.message };
     setSessionFromSupabase(data);
@@ -171,13 +194,22 @@ export const PUBLISHER_AUTH_ROLES = PUBLISHER_ROLES;
 // Etape 1: envoie un email avec un lien magique de reinitialisation.
 // Le lien doit pointer vers un deep link de l'app: orizon://reset-password
 // (a configurer dans Supabase > Auth > URL Configuration > Redirect URLs).
+function buildAppRedirect(path) {
+  // En web (Vercel ou local), utilise window.location.origin pour rester sur
+  // le bon domaine. Sur mobile, utilise le scheme deep-link.
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    return `${window.location.origin}/${path}`;
+  }
+  return `orizon://${path}`;
+}
+
 export async function requestPasswordReset(email) {
   if (!isSupabaseConfigured) {
     await new Promise((r) => setTimeout(r, 800));
     return { ok: true, mock: true };
   }
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: 'orizon://reset-password',
+    redirectTo: buildAppRedirect('reset-password'),
   });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
@@ -206,6 +238,7 @@ export async function resendEmailVerification() {
   const { error } = await supabase.auth.resend({
     type: 'signup',
     email: user.email,
+    options: { emailRedirectTo: buildAppRedirect('confirm-email') },
   });
   if (error) return { ok: false, error: error.message };
   return { ok: true };

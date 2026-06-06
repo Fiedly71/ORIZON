@@ -15,6 +15,7 @@ import PaymentsScreen from '../screens/PaymentsScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
+import ConfirmEmailScreen from '../screens/ConfirmEmailScreen';
 import MortgageScreen from '../screens/MortgageScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import SellerStatsScreen from '../screens/SellerStatsScreen';
@@ -75,7 +76,9 @@ const linking = {
       BoostListing: 'boost/:id',
       Terms: 'legal/terms',
       Privacy: 'legal/privacy',
-      Auth: { screens: { Login: 'login', Register: 'register', Onboarding: 'onboarding' } },
+      ResetPassword: 'reset-password',
+      ConfirmEmail: 'confirm-email',
+      Auth: { screens: { Login: 'login', Register: 'register', Onboarding: 'onboarding', ForgotPassword: 'forgot-password' } },
     },
   },
 };
@@ -130,9 +133,14 @@ export default function RootNavigator() {
             <Stack.Screen name="BoostListing" component={BoostListingScreen} />
             <Stack.Screen name="Compare" component={CompareScreen} />
             <Stack.Screen name="AgencyManage" component={AgencyManageScreen} />
+            <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} />
           </>
         ) : (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
+          <>
+            <Stack.Screen name="Auth" component={AuthNavigator} />
+            <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} />
+            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

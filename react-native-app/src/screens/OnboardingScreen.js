@@ -42,8 +42,15 @@ export default function OnboardingScreen({ navigation }) {
   };
 
   const next = () => {
-    if (index < SLIDES.length - 1) {
-      ref.current?.scrollToIndex({ index: index + 1, animated: true });
+    const nextIndex = index + 1;
+    if (nextIndex < SLIDES.length) {
+      // setIndex immediat pour que le dot + le texte du CTA bougent meme si
+      // onMomentumScrollEnd n'est pas declenche (cas web). On utilise
+      // scrollToOffset car scrollToIndex est instable sur react-native-web.
+      setIndex(nextIndex);
+      try {
+        ref.current?.scrollToOffset({ offset: nextIndex * width, animated: true });
+      } catch {}
     } else {
       finish();
     }
@@ -70,6 +77,12 @@ export default function OnboardingScreen({ navigation }) {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
+        getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
+        onScroll={(e) => {
+          const i = Math.round(e.nativeEvent.contentOffset.x / width);
+          if (i !== index) setIndex(i);
+        }}
+        scrollEventThrottle={32}
         onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>

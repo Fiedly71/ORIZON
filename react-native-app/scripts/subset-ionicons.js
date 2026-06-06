@@ -55,12 +55,42 @@ async function run() {
         let s;
         while ((s = strRe.exec(inner))) usedNames.add(s[1]);
       }
+      // Match object property `icon: 'foo-outline'` (config tables for menus / tabs)
+      const re3 = /\bicon\s*:\s*['"`]([a-z0-9-]+)['"`]/gi;
+      while ((m = re3.exec(code))) usedNames.add(m[1]);
     }
   }
   walk(srcDir);
 
   // Always keep a handful of fallback glyphs to be safe.
-  ['help', 'help-circle', 'alert-circle', 'close', 'menu', 'ellipse'].forEach((n) => usedNames.add(n));
+  // Inclut aussi les icones critiques de menus / onglets pour eviter les rectangles vides
+  // sur des configs dynamiques (cartes, profil, dashboard, etc.).
+  [
+    'help', 'help-circle', 'alert-circle', 'close', 'menu', 'ellipse',
+    'home', 'home-outline', 'heart', 'heart-outline',
+    'person-outline', 'person-circle-outline', 'people-outline',
+    'search-outline', 'search', 'add', 'add-circle',
+    'chatbubbles-outline', 'chatbubble-ellipses-outline', 'chatbubble-outline',
+    'calendar-outline', 'calendar', 'stats-chart-outline', 'stats-chart',
+    'card-outline', 'wallet-outline', 'cash-outline',
+    'notifications-outline', 'notifications', 'star-outline', 'star',
+    'shield-checkmark-outline', 'ban-outline', 'lock-closed-outline',
+    'document-text-outline', 'information-circle-outline',
+    'business-outline', 'grid-outline', 'image-outline',
+    'flag-outline', 'flame', 'flame-outline',
+    'call-outline', 'call', 'mail-outline', 'mail-open-outline',
+    'logo-whatsapp', 'logo-facebook', 'logo-google',
+    'chevron-back', 'chevron-forward', 'chevron-down', 'chevron-up',
+    'arrow-back', 'arrow-forward',
+    'checkmark', 'checkmark-circle', 'close-circle', 'close-outline',
+    'pencil-outline', 'trash-outline', 'eye-outline', 'eye-off-outline',
+    'share-outline', 'share-social-outline',
+    'location-outline', 'location', 'map-outline',
+    'calculator-outline',
+    'settings-outline', 'log-out-outline',
+    'bed-outline', 'water-outline', 'resize-outline',
+    'time-outline', 'filter-outline', 'options-outline',
+  ].forEach((n) => usedNames.add(n));
 
   const codepoints = [];
   for (const name of usedNames) {

@@ -328,6 +328,19 @@ export default function SellWizardScreen({ navigation, route }) {
       // Brouillon utilise -> on l'efface.
       AsyncStorage.removeItem(DRAFT_KEY).catch(() => {});
 
+      // Si l'admin a accorde la publication gratuite a ce user (flag profile.publish_free),
+      // le trigger DB a deja mis payment_status='paid' + moderation_status='approved'.
+      // L'annonce est en ligne immediatement -> on saute l'ecran Checkout.
+      const isFreePublisher = !!(user?.publish_free || user?.publishFree);
+      if (isFreePublisher) {
+        Alert.alert(
+          'Annonce publiee',
+          'Felicitations ! Ton annonce est en ligne. Tu beneficies de la publication gratuite.',
+          [{ text: 'OK', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'App' }, { name: 'MyListings' }] }) }],
+        );
+        return;
+      }
+
       // On enchaine sur l'ecran de paiement avec l'id de la propriete creee.
       navigation.replace('Checkout', {
         propertyId: r.data?.id || r.id || null,
