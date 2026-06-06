@@ -240,6 +240,21 @@ export default function SellWizardScreen({ navigation, route }) {
     else if (!r.canceled) Alert.alert('Photos', r.error || '');
   };
 
+  const saveDraftExplicit = async () => {
+    if (editId) return;
+    const persistable = {
+      ...data,
+      images: data.images.filter((i) => i.existing).map((i) => ({ uri: i.uri, existing: true })),
+    };
+    try {
+      await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(persistable));
+      Alert.alert('Brouillon enregistre', 'Tu pourras reprendre ton annonce a tout moment depuis cet ecran.');
+      navigation.goBack();
+    } catch (e) {
+      Alert.alert('Brouillon', "Impossible d'enregistrer le brouillon.");
+    }
+  };
+
   const submit = async () => {
     setBusy(true);
     try {
@@ -444,8 +459,14 @@ export default function SellWizardScreen({ navigation, route }) {
       </ScrollView>
 
       <View style={styles.footer}>
+        {!editId && (
+          <Pressable style={styles.draftBtn} onPress={saveDraftExplicit} disabled={busy}>
+            <Ionicons name="save-outline" size={16} color={C.primary} />
+            <Text style={styles.draftBtnTxt}>Enregistrer comme brouillon</Text>
+          </Pressable>
+        )}
         <Pressable style={[styles.cta, busy && { opacity: 0.6 }]} onPress={next} disabled={busy}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>{step < 2 ? 'Continuer' : (editId ? 'Enregistrer les modifications' : `Payer ${PUBLICATION_FEE_USD}$ et publier`)}</Text>}
+          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>{step < 2 ? 'Continuer' : (editId ? 'Enregistrer les modifications' : `Payer ${PUBLICATION_FEE_HTG.toLocaleString('fr-FR')} HTG et publier`)}</Text>}
         </Pressable>
       </View>
       </>
@@ -513,6 +534,12 @@ const styles = StyleSheet.create({
   footer: { padding: 16, borderTopWidth: 1, borderTopColor: C.border, backgroundColor: '#fff' },
   cta: { backgroundColor: C.accent, paddingVertical: 14, borderRadius: 14, alignItems: 'center' },
   ctaTxt: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  draftBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    paddingVertical: 10, borderRadius: 12, marginBottom: 8,
+    borderWidth: 1, borderColor: C.primary, backgroundColor: C.primarySoft,
+  },
+  draftBtnTxt: { color: C.primary, fontWeight: '700', fontSize: 12 },
 
   guardWrap: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
