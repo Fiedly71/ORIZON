@@ -143,15 +143,36 @@ export async function listProperties({ filter = 'all', limit = 100 } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: [] };
   let q = supabase
     .from('properties')
-    .select('*')
+    .select('*, owner:profiles!properties_owner_id_fkey(full_name, phone)')
     .order('created_at', { ascending: false })
     .limit(limit);
   if (filter === 'pending') q = q.eq('moderation_status', 'pending');
   if (filter === 'rejected') q = q.eq('moderation_status', 'rejected');
   if (filter === 'live') q = q.eq('payment_status', 'paid').neq('moderation_status', 'rejected');
   const { data, error } = await q;
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, data: data || [] };
+  if (error) {
+    // Fallback sans jointure (au cas ou la contrainte FK ne porte pas le nom attendu)
+    const r2 = await supabase
+      .from('properties')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (r2.error) return { ok: false, error: r2.error.message };
+    return { ok: true, data: (r2.data || []).map(normalizeProperty) };
+  }
+  return { ok: true, data: (data || []).map(normalizeProperty) };
+}
+
+function normalizeProperty(r) {
+  const images = Array.isArray(r.images) ? r.images.filter(Boolean) : [];
+  const image = r.image || images[0] || null;
+  return {
+    ...r,
+    image,
+    images,
+    owner_name: r.owner?.full_name || r.owner_name || null,
+    owner_phone: r.owner?.phone || null,
+  };
 }
 
 export async function listPendingProperties({ status = 'pending', limit = 50 } = {}) {

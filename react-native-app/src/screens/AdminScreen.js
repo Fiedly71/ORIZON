@@ -405,10 +405,19 @@ function PendingRow({ item, reload }) {
   };
   return (
     <View style={styles.row}>
-      {item.image ? <Image source={{ uri: item.image }} style={styles.thumb} /> : null}
+      {item.image ? <Image source={{ uri: item.image }} style={styles.thumb} /> : (
+        <View style={[styles.thumb, { backgroundColor: M.card, alignItems: 'center', justifyContent: 'center' }]}>
+          <Ionicons name="image-outline" size={20} color={M.muted} />
+        </View>
+      )}
       <View style={{ flex: 1 }}>
-        <Text style={styles.rowTitle} numberOfLines={1}>{item.title}</Text>
-        <Text style={styles.rowSub}>{fmt(item.price)} | {item.city || '—'}</Text>
+        <Text style={styles.rowTitle} numberOfLines={1}>{item.title || 'Sans titre'}</Text>
+        <Text style={styles.rowSub} numberOfLines={1}>
+          {fmt(item.price)} | {item.city || item.location || '—'}
+        </Text>
+        <Text style={styles.rowSub} numberOfLines={1}>
+          Par {item.owner_name || 'inconnu'}{item.owner_phone ? ' | ' + item.owner_phone : ''} | {(item.images || []).length} photo(s)
+        </Text>
       </View>
       <View style={{ gap: 6 }}>
         <Pressable onPress={() => decide('approved')} style={[styles.btn, styles.btnOk]}>
