@@ -259,7 +259,33 @@ export async function listPayments({ filter = 'all', limit = 100 } = {}) {
   if (filter === 'refunded') q = q.eq('refunded', true);
   const { data, error } = await q;
   if (error) return { ok: false, error: error.message };
-  return { ok: true, data: data || [] };
+  const payments = data || [];
+  // Enrichir avec proprio (via user_id) + titre annonce (via property_id) en
+  // batch pour eviter N+1.
+  const userIds = Array.from(new Set(payments.map((p) => p.user_id).filter(Boolean)));
+  const propIds = Array.from(new Set(payments.map((p) => p.property_id).filter(Boolean)));
+  const [profilesRes, propsRes] = await Promise.all([
+    userIds.length
+      ? supabase.from('profiles').select('id,full_name,phone').in('id', userIds)
+      : Promise.resolve({ data: [] }),
+    propIds.length
+      ? supabase.from('properties').select('id,title,image,images').in('id', propIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+  const profById = Object.fromEntries((profilesRes.data || []).map((p) => [p.id, p]));
+  const propById = Object.fromEntries((propsRes.data || []).map((p) => [p.id, p]));
+  const enriched = payments.map((p) => {
+    const prof = profById[p.user_id] || {};
+    const prop = propById[p.property_id] || {};
+    return {
+      ...p,
+      payer_name: prof.full_name || null,
+      payer_phone: prof.phone || null,
+      property_title: prop.title || null,
+      property_image: prop.image || (Array.isArray(prop.images) ? prop.images[0] : null),
+    };
+  });
+  return { ok: true, data: enriched };
 }
 
 // Approuve un paiement MonCash manuel (active la propriete liee)

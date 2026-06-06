@@ -530,10 +530,20 @@ function MonCashPendingRow({ item, reload }) {
   };
   return (
     <View style={styles.row}>
+      {item.property_image ? (
+        <Image source={{ uri: item.property_image }} style={styles.thumb} />
+      ) : (
+        <View style={[styles.thumb, { backgroundColor: M.card, alignItems: 'center', justifyContent: 'center' }]}>
+          <Ionicons name="wallet-outline" size={20} color={M.muted} />
+        </View>
+      )}
       <View style={{ flex: 1 }}>
         <Text style={styles.rowTitle}>{fmt(item.amount)} {item.currency || 'HTG'}</Text>
-        <Text style={styles.rowSub}>Ref : {item.moncash_reference || '—'}</Text>
-        <Text style={styles.rowSub}>Tel client : {item.moncash_phone || '—'}</Text>
+        {item.property_title ? (
+          <Text style={styles.rowSub} numberOfLines={1}>Pour : {item.property_title}</Text>
+        ) : null}
+        <Text style={styles.rowSub}>Payeur : {item.payer_name || 'inconnu'}{item.payer_phone ? ' | ' + item.payer_phone : ''}</Text>
+        <Text style={styles.rowSub}>Ref : {item.moncash_reference || '—'} | Tel MonCash : {item.moncash_phone || '—'}</Text>
         <Text style={styles.rowSub}>{new Date(item.created_at).toLocaleString('fr-FR')}</Text>
         <View style={styles.tagsRow}>
           <Tag>{item.purpose || 'listing'}</Tag>
