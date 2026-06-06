@@ -221,16 +221,16 @@ export default function SellWizardScreen({ navigation, route }) {
       if (!data.type) return 'Choisis un type de bien.';
     }
     if (step === 1) {
-      if (data.images.length === 0) return 'Ajoute au moins une photo.';
-    }
-    if (step === 2) {
-      if (!data.price) return 'Prix requis.';
-    }
-    if (step === 3) {
       // Visites: facultatif. Si renseigne, valide format.
       for (const s of (data.visitSlots || [])) {
         if (!s.date || !s.start || !s.end) return 'Chaque creneau doit avoir une date et des horaires.';
       }
+    }
+    if (step === 2) {
+      if (data.images.length === 0) return 'Ajoute au moins une photo.';
+    }
+    if (step === 3) {
+      if (!data.price) return 'Prix requis.';
     }
     return null;
   };
@@ -375,7 +375,7 @@ export default function SellWizardScreen({ navigation, route }) {
       <>
 
       <View style={styles.steps}>
-        {['Infos', 'Photos', 'Tarif', 'Visites'].map((label, i) => (
+        {['Infos', 'Visites', 'Photos', 'Tarif'].map((label, i) => (
           <View key={label} style={styles.stepCol}>
             <View style={[styles.dot, i <= step && styles.dotOn]}>
               <Text style={[styles.dotTxt, i <= step && styles.dotTxtOn]}>{i + 1}</Text>
@@ -432,6 +432,13 @@ export default function SellWizardScreen({ navigation, route }) {
         )}
 
         {step === 1 && (
+          <VisitSlotsEditor
+            slots={data.visitSlots}
+            onChange={(slots) => update('visitSlots', slots)}
+          />
+        )}
+
+        {step === 2 && (
           <View style={{ gap: 12 }}>
             <Pressable style={styles.uploadBtn} onPress={onPickPhotos}>
               <Ionicons name="cloud-upload-outline" size={22} color={C.primary} />
@@ -453,7 +460,7 @@ export default function SellWizardScreen({ navigation, route }) {
           </View>
         )}
 
-        {step === 2 && (
+        {step === 3 && (
           <View style={{ gap: 10 }}>
             <Text style={styles.label}>STATUT</Text>
             <View style={styles.chipRow}>
@@ -477,13 +484,6 @@ export default function SellWizardScreen({ navigation, route }) {
             </View>
             )}
           </View>
-        )}
-
-        {step === 3 && (
-          <VisitSlotsEditor
-            slots={data.visitSlots}
-            onChange={(slots) => update('visitSlots', slots)}
-          />
         )}
       </ScrollView>
 

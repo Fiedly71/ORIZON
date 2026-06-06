@@ -98,7 +98,7 @@ export const SECTIONS = [
     subtitle: 'Annonces de confiance',
     icon: 'shield-checkmark',
     color: '#059669',
-    predicate: (p) => p.verified === true,
+    predicate: (p) => p.ownerVerified === true || p.verified === true,
   },
   {
     id: 'studios',

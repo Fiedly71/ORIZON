@@ -46,6 +46,7 @@ function fromRow(r) {
     paymentStatus: r.payment_status || 'unpaid',
     publishedAt: r.published_at || null,
     visitSlots: Array.isArray(r.visit_slots) ? r.visit_slots : [],
+    ownerVerified: !!r.owner_verified,
   };
 }
 
@@ -112,7 +113,24 @@ export async function listProperties({ page = 0, pageSize = 20 } = {}) {
     }
     return { ok: true, data: (r2.data || []).map(fromRow), hasMore: (r2.data || []).length === pageSize };
   }
-  return { ok: true, data: (data || []).map(fromRow), hasMore: (data || []).length === pageSize };
+  const enriched = await attachOwnerVerified(data || []);
+  return { ok: true, data: enriched.map(fromRow), hasMore: (data || []).length === pageSize };
+}
+
+// Hydrate chaque row avec `owner_verified` issu de profiles.verified.
+// Utilise pour rendre la section "Vendeurs verifies" coherente avec le badge
+// affiche a cote du nom du proprio dans la page annonce.
+async function attachOwnerVerified(rows) {
+  if (!rows || rows.length === 0) return rows;
+  const ownerIds = Array.from(new Set(rows.map((r) => r.owner_id).filter(Boolean)));
+  if (ownerIds.length === 0) return rows;
+  const { data: profs, error } = await supabase
+    .from('profiles')
+    .select('id, verified')
+    .in('id', ownerIds);
+  if (error || !profs) return rows;
+  const map = new Map(profs.map((p) => [p.id, !!p.verified]));
+  return rows.map((r) => ({ ...r, owner_verified: map.get(r.owner_id) === true }));
 }
 
 export async function getProperty(id) {
