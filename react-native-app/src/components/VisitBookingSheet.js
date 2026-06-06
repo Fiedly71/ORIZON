@@ -1,4 +1,4 @@
-﻿// VisitBookingSheet - bottom sheet modal pour reserver une visite.
+// VisitBookingSheet - bottom sheet modal pour reserver une visite.
 // Selection date + creneau horaire + notes. Cree une visite via visitsService.
 import React, { useState } from 'react';
 import {
@@ -86,7 +86,7 @@ export default function VisitBookingSheet({ visible, onClose, property }) {
             <View style={styles.recap}>
               <Ionicons name="calendar" size={18} color={C.primary} />
               <Text style={styles.recapTxt}>
-                {date || 'â€”'}{slot ? ` a ${slot}` : ''}
+                {date || '—'}{slot ? ` a ${slot}` : ''}
               </Text>
             </View>
           )}

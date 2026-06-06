@@ -1,12 +1,13 @@
-﻿// Section "Mes annonces" - liste les biens dont owner_id = utilisateur courant.
+// Section "Mes annonces" - liste les biens dont owner_id = utilisateur courant.
 // Fetch direct Supabase pour inclure les annonces non payees / en attente / rejetees.
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, Pressable, Image, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Pressable, Image, ActivityIndicator, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 import { useAuthStore } from '../store/useAuthStore';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
+import { deleteProperty } from '../services/propertiesService';
 import EmptyState from '../components/EmptyState';
 
 function statusBadge(p) {
@@ -41,6 +42,32 @@ export default function MyListingsScreen({ navigation }) {
   }, [user?.id]);
 
   useEffect(() => { load(); }, [load]);
+
+  const onDelete = useCallback((item) => {
+    const doDelete = async () => {
+      const r = await deleteProperty(item.id);
+      if (r.ok) {
+        setMine((prev) => prev.filter((x) => x.id !== item.id));
+      } else {
+        Alert.alert('Suppression impossible', r.error || "Impossible de supprimer l'annonce. Reessaie.");
+      }
+    };
+    if (Platform.OS === 'web') {
+      // Alert.alert avec boutons ne fonctionne pas en web -> confirm natif.
+      if (typeof window !== 'undefined' && window.confirm(`Supprimer definitivement "${item.title}" ?`)) {
+        doDelete();
+      }
+      return;
+    }
+    Alert.alert(
+      'Supprimer cette annonce ?',
+      `"${item.title}" sera definitivement supprimee. Cette action est irreversible.`,
+      [
+        { text: 'Annuler', style: 'cancel' },
+        { text: 'Supprimer', style: 'destructive', onPress: doDelete },
+      ],
+    );
+  }, []);
 
   // Realtime : refresh quand une annonce change (paiement valide, moderation, etc.)
   useEffect(() => {
@@ -93,6 +120,13 @@ export default function MyListingsScreen({ navigation }) {
                     >
                       <Ionicons name="create-outline" size={12} color={C.primary} />
                       <Text style={styles.editTxt}>Modifier</Text>
+                    </Pressable>
+                    <Pressable
+                      style={styles.deleteBtn}
+                      onPress={(e) => { e.stopPropagation?.(); onDelete(item); }}
+                    >
+                      <Ionicons name="trash-outline" size={12} color="#B91C1C" />
+                      <Text style={styles.deleteTxt}>Supprimer</Text>
                     </Pressable>
                     {item.payment_status === 'paid' && item.moderation_status === 'approved' && (
                       <Pressable
@@ -154,6 +188,8 @@ const styles = StyleSheet.create({
   boostTxt: { color: '#92400E', fontWeight: '700', fontSize: 11 },
   editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: '#EEF2FF' },
   editTxt: { color: C.primary, fontWeight: '700', fontSize: 11 },
+  deleteBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: '#FEE2E2' },
+  deleteTxt: { color: '#B91C1C', fontWeight: '700', fontSize: 11 },
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999 },
   badgeTxt: { fontSize: 10.5, fontWeight: '700', letterSpacing: 0.3 },
 });

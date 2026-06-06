@@ -1,4 +1,4 @@
-﻿// PropertyCardAirbnb - card style Airbnb avec photo plein largeur swipeable,
+// PropertyCardAirbnb - card style Airbnb avec photo plein largeur swipeable,
 // coeur favori en overlay, prix gras, infos minimales sous l'image.
 import React, { useState, useRef } from 'react';
 import {
@@ -123,9 +123,9 @@ export default function PropertyCardAirbnb({
 
         <Text style={styles.specs} numberOfLines={1}>
           {item.type}
-          {item.bedrooms > 0 ? ` Â· ${item.bedrooms} ch` : ''}
-          {item.bathrooms > 0 ? ` Â· ${item.bathrooms} sdb` : ''}
-          {item.area > 0 ? ` Â· ${item.area} mÂ²` : ''}
+          {item.bedrooms > 0 ? ` · ${item.bedrooms} ch` : ''}
+          {item.bathrooms > 0 ? ` · ${item.bathrooms} sdb` : ''}
+          {item.area > 0 ? ` · ${item.area} m²` : ''}
         </Text>
 
         <Text style={styles.price}>

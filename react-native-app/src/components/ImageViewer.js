@@ -1,4 +1,4 @@
-﻿// ImageViewer - Visionneuse plein ecran avec swipe + close.
+// ImageViewer - Visionneuse plein ecran avec swipe + close.
 import React, { useState } from 'react';
 import {
   Modal, View, Image, Pressable, FlatList, Dimensions, Text, StyleSheet,

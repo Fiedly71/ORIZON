@@ -1,4 +1,4 @@
-﻿// KycScreen - Verification d'identite (badge "Verifie").
+// KycScreen - Verification d'identite (badge "Verifie").
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Pressable, Image, TextInput, Alert, ActivityIndicator,

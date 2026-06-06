@@ -1,4 +1,4 @@
-﻿// BoostListingScreen - choix du plan + paiement (Stripe/MonCash) + activation premium.
+// BoostListingScreen - choix du plan + paiement (Stripe/MonCash) + activation premium.
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, Pressable, ScrollView, Alert, ActivityIndicator,

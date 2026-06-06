@@ -1,4 +1,4 @@
-﻿// ResetPasswordScreen - definit un nouveau mot de passe.
+// ResetPasswordScreen - definit un nouveau mot de passe.
 // Accessible:
 //   - depuis le profil ("Changer mot de passe", utilisateur connecte)
 //   - via deep link 'orizon://reset-password' apres clic sur l'email magique

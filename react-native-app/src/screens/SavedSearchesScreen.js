@@ -1,4 +1,4 @@
-﻿// SavedSearchesScreen - Liste des recherches enregistrees + alerte d'activite.
+// SavedSearchesScreen - Liste des recherches enregistrees + alerte d'activite.
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, RefreshControl,
@@ -119,7 +119,7 @@ function summarize(c = {}) {
   if (c.minPrice || c.maxPrice) parts.push(`$${c.minPrice || 0} - $${c.maxPrice || 'âˆž'}`);
   if (c.beds) parts.push(`${c.beds}+ ch`);
   if (c.city) parts.push(c.city);
-  return parts.join(' Â· ') || 'Tous les biens';
+  return parts.join(' · ') || 'Tous les biens';
 }
 
 const styles = StyleSheet.create({

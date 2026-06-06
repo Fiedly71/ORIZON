@@ -1,4 +1,4 @@
-﻿// SellerStatsScreen - Dashboard vendeur (vues / contacts / favoris / boost).
+// SellerStatsScreen - Dashboard vendeur (vues / contacts / favoris / boost).
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

@@ -1,4 +1,4 @@
-﻿// MessagesScreen - Liste des conversations utilisateur. Realtime via Supabase.
+// MessagesScreen - Liste des conversations utilisateur. Realtime via Supabase.
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, RefreshControl, ActivityIndicator, Image,

@@ -1,4 +1,4 @@
-﻿// Ecran "A propos" ORIZON: identite, version, equipe, mentions legales, liens.
+// Ecran "A propos" ORIZON: identite, version, equipe, mentions legales, liens.
 import React from 'react';
 import { View, Text, ScrollView, Pressable, Image, StyleSheet, Linking, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';

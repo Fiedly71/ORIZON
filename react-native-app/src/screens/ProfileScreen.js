@@ -1,4 +1,4 @@
-﻿// Ecran Profil ORIZON - Design epure noir et blanc.
+// Ecran Profil ORIZON - Design epure noir et blanc.
 // Items groupes par categorie, sans redondance.
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Image, Alert } from 'react-native';

@@ -1,4 +1,4 @@
-﻿// ReviewsScreen - Voir et laisser des avis sur un vendeur
+// ReviewsScreen - Voir et laisser des avis sur un vendeur
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Pressable, Image, TextInput, Alert, ActivityIndicator, FlatList,

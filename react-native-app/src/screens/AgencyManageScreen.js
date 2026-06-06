@@ -1,4 +1,4 @@
-﻿// AgencyManageScreen - Creer / gerer une agence + inviter des agents.
+// AgencyManageScreen - Creer / gerer une agence + inviter des agents.
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, TextInput, Alert,
@@ -129,7 +129,7 @@ export default function AgencyManageScreen({ navigation }) {
                 <View key={m.user_id} style={styles.agentCard}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.agentName}>{m.profiles?.full_name || m.invited_email || 'Agent'}</Text>
-                    <Text style={styles.agentRole}>{m.role} Â· {m.status}</Text>
+                    <Text style={styles.agentRole}>{m.role} · {m.status}</Text>
                   </View>
                   {m.role !== 'owner' && (
                     <Pressable onPress={() => onRemove(m)} hitSlop={6}>

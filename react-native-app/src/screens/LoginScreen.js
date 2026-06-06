@@ -1,4 +1,4 @@
-﻿// Ecran de connexion ORIZON
+// Ecran de connexion ORIZON
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, Alert, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

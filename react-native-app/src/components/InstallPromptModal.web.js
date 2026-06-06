@@ -1,4 +1,4 @@
-﻿// Pop-up d'installation PWA.
+// Pop-up d'installation PWA.
 // - Android/Chrome/Edge: bouton "Installer" (utilise beforeinstallprompt natif).
 // - iOS Safari: explication des etapes manuelles (Partager -> Sur l'ecran d'accueil).
 // - Apparait a la 1ere visite, puis toutes les 5 visites tant que l'utilisateur n'a pas installe.

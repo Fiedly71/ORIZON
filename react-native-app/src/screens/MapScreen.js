@@ -1,4 +1,4 @@
-﻿// Ecran Carte ORIZON: affiche les annonces georefencees sur une carte.
+// Ecran Carte ORIZON: affiche les annonces georefencees sur une carte.
 // Sur web : Leaflet/OpenStreetMap (gratuit). Sur mobile : react-native-maps.
 // Les annonces sans coordonnees reelles sont comptees mais non affichees.
 import React, { useEffect, useMemo, useState } from 'react';

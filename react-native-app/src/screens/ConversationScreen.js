@@ -1,4 +1,4 @@
-﻿// ConversationScreen - Thread view avec realtime.
+// ConversationScreen - Thread view avec realtime.
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TextInput, Pressable,

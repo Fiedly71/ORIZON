@@ -1,4 +1,4 @@
-﻿// ExploreScreen - Home Airbnb-style avec :
+// ExploreScreen - Home Airbnb-style avec :
 //  - Header sticky : barre de recherche ronde + filtres
 //  - Pills de categories scrollables horizontales
 //  - Feed vertical de PropertyCardAirbnb

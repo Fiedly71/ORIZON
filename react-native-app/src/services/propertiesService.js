@@ -161,9 +161,23 @@ export async function createProperty(p) {
 
 export async function updateProperty(id, patch) {
   if (!isSupabaseConfigured) return { ok: true, data: { id, ...patch }, mock: true };
+  // IMPORTANT: ne JAMAIS overrider owner_id ni des champs server-managed.
+  // On ne renvoie que les colonnes effectivement modifiees.
+  const full = toRow(patch);
+  const row = {};
+  const allowed = ['title','location','price','type','bedrooms','bathrooms','area','status','rating','reviews','amenities','description','image','images','owner_name','owner_type','agent_id','featured','verified','posted_at','year_built','floors','lat','lng'];
+  for (const k of allowed) {
+    const v = full[k];
+    if (v === undefined) continue;
+    // Champs texte requis: ne pas ecraser par chaine vide non voulue.
+    if (k === 'title' && (v === '' || v === null)) continue;
+    if (k === 'location' && (v === '' || v === null)) continue;
+    if (k === 'type' && (v === '' || v === null)) continue;
+    row[k] = v;
+  }
   const { data, error } = await supabase
     .from(TABLE)
-    .update(toRow(patch))
+    .update(row)
     .eq('id', id)
     .select('*')
     .single();

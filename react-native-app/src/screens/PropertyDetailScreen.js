@@ -1,9 +1,9 @@
-﻿// PropertyDetailScreen - Detail bien Airbnb-style :
+// PropertyDetailScreen - Detail bien Airbnb-style :
 //  - Galerie photos plein largeur
 //  - Header info (titre, location, rating)
 //  - Section "Hote" + Description + Equipements
 //  - Sticky bottom bar : prix + bouton "Demander une visite" / "Contacter"
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Alert,
   Dimensions,
@@ -16,6 +16,7 @@ import {
   StyleSheet,
   Text,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -29,6 +30,7 @@ import ReportSheet from '../components/ReportSheet';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { openConversation } from '../services/messagingService';
 import { isSuperhost } from '../utils/superhost';
+import { getProperty } from '../services/propertiesService';
 
 const { width: W } = Dimensions.get('window');
 const HERO_H = Math.round(W * 0.75);
@@ -51,12 +53,31 @@ const AMENITY_ICONS = {
 
 export default function PropertyDetailScreen({ navigation, route }) {
   const params = route?.params || {};
-  const item = params.item || {};
+  // Source 1: item complet passe en navigation. Source 2: id (deep-link, my-listings, etc.)
+  const initialItem = params.item || (params.id ? { id: params.id } : {});
+  const [item, setItem] = useState(initialItem);
+  const [loading, setLoading] = useState(!params.item && !!params.id);
   const [activeImg, setActiveImg] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const superhost = isSuperhost(item);
+
+  // Charge l'annonce depuis Supabase si on n'a que l'id (deep-link / my-listings).
+  useEffect(() => {
+    if (params.item || !params.id) return;
+    let alive = true;
+    (async () => {
+      const r = await getProperty(params.id);
+      if (!alive) return;
+      if (r.ok && r.data) setItem(r.data);
+      else Alert.alert('Annonce introuvable', r.error || "Cette annonce n'existe plus ou a ete supprimee.", [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
+      setLoading(false);
+    })();
+    return () => { alive = false; };
+  }, [params.id, params.item, navigation]);
 
   const favIds = useFavorites((s) => s.ids);
   const toggleFav = useFavorites((s) => s.toggle);
@@ -79,7 +100,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
       }
       if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(url);
-        Alert.alert('Lien copiÃ©', url);
+        Alert.alert('Lien copié', url);
         return;
       }
       await Share.share({ title, message, url });
@@ -94,7 +115,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
     if (!item.ownerId) {
       Alert.alert(
         'Contact indisponible',
-        "Le vendeur n'a pas encore liÃ© son compte Ã  cette annonce. Pour toute question, contacte ORIZON via le support.",
+        "Le vendeur n'a pas encore lié son compte à cette annonce. Pour toute question, contacte ORIZON via le support.",
         [
           { text: 'Contacter le support', onPress: () => navigation.navigate('Support') },
           { text: 'Annuler', style: 'cancel' },
@@ -116,6 +137,13 @@ export default function PropertyDetailScreen({ navigation, route }) {
 
   return (
     <View style={styles.root}>
+      {loading ? (
+        <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} edges={['top']}>
+          <ActivityIndicator color={C.primary} size="large" />
+          <Text style={{ marginTop: 12, color: C.muted, fontSize: 13 }}>Chargement de l'annonce...</Text>
+        </SafeAreaView>
+      ) : (
+      <>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
@@ -187,10 +215,10 @@ export default function PropertyDetailScreen({ navigation, route }) {
             <View style={styles.metaRow}>
               <Ionicons name="star" size={14} color={C.text} />
               <Text style={styles.rating}>{Number(item.rating).toFixed(1)}</Text>
-              <Text style={styles.reviewsCount}>Â· {item.reviews || 0} avis</Text>
+              <Text style={styles.reviewsCount}>· {item.reviews || 0} avis</Text>
               {item.verified && (
                 <>
-                  <Text style={styles.dot}> Â· </Text>
+                  <Text style={styles.dot}> · </Text>
                   <Ionicons name="shield-checkmark" size={13} color={C.primary} />
                   <Text style={[styles.rating, { color: C.primary, marginLeft: 4 }]}>Verifie</Text>
                 </>
@@ -202,10 +230,10 @@ export default function PropertyDetailScreen({ navigation, route }) {
 
           {/* Specs */}
           <View style={styles.specsGrid}>
-            <SpecCell icon="home-outline" label={item.type || 'â€”'} />
+            <SpecCell icon="home-outline" label={item.type || '—'} />
             {item.bedrooms > 0 && <SpecCell icon="bed-outline" label={`${item.bedrooms} ch.`} />}
             {item.bathrooms > 0 && <SpecCell icon="water-outline" label={`${item.bathrooms} sdb`} />}
-            {item.area > 0 && <SpecCell icon="resize-outline" label={`${item.area} mÂ²`} />}
+            {item.area > 0 && <SpecCell icon="resize-outline" label={`${item.area} m²`} />}
             {item.floors > 0 && <SpecCell icon="layers-outline" label={`${item.floors} etages`} />}
             {item.yearBuilt && <SpecCell icon="calendar-outline" label={`${item.yearBuilt}`} />}
           </View>
@@ -334,6 +362,8 @@ export default function PropertyDetailScreen({ navigation, route }) {
         targetId={item.id}
         targetLabel={item.title}
       />
+      </>
+      )}
     </View>
   );
 }

@@ -1,4 +1,4 @@
-﻿// CheckoutScreen â€” Choix du mode de paiement pour publier une annonce.
+// CheckoutScreen — Choix du mode de paiement pour publier une annonce.
 // Recoit en params: { propertyId, propertyTitle?, onSuccess? }
 // Si pas de propertyId (mode pre-creation), on simule juste le paiement et on
 // renvoie le resultat via navigation.navigate('SellWizard', { paid: true, ... }).
@@ -40,12 +40,12 @@ export default function CheckoutScreen({ navigation, route }) {
       const r = await payListingWithStripe({ propertyId });
 
       if (!r.ok) {
-        Alert.alert('Paiement Ã©chouÃ©', r.error || 'RÃ©essaie.');
+        Alert.alert('Paiement échoué', r.error || 'Réessaie.');
         return;
       }
       Alert.alert(
-        'Paiement confirmÃ© âœ“',
-        `Ton annonce est maintenant publiÃ©e et visible par tous les utilisateurs ORIZON.\n\nRÃ©fÃ©rence : ${r.reference}`,
+        'Paiement confirmé âœ“',
+        `Ton annonce est maintenant publiée et visible par tous les utilisateurs ORIZON.\n\nRéférence : ${r.reference}`,
         [
           {
             text: 'Voir mes annonces',
@@ -73,7 +73,7 @@ export default function CheckoutScreen({ navigation, route }) {
 
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14 }}>
         <View style={styles.summary}>
-          <Text style={styles.sumLabel}>RÃ©capitulatif</Text>
+          <Text style={styles.sumLabel}>Récapitulatif</Text>
           <Text style={styles.sumTitle}>{propertyTitle}</Text>
           <View style={styles.sumRow}>
             <Text style={styles.sumKey}>Frais de publication</Text>
@@ -82,12 +82,12 @@ export default function CheckoutScreen({ navigation, route }) {
             </Text>
           </View>
           <Text style={styles.sumNote}>
-            Ton annonce sera publiÃ©e immÃ©diatement aprÃ¨s confirmation du paiement
-            et restera visible jusqu'Ã  60 jours.
+            Ton annonce sera publiée immédiatement après confirmation du paiement
+            et restera visible jusqu'à 60 jours.
           </Text>
         </View>
 
-        <Text style={styles.section}>MÃ©thode de paiement</Text>
+        <Text style={styles.section}>Méthode de paiement</Text>
 
         <Pressable
           style={[styles.method, isMonCash && styles.methodOn]}
@@ -98,7 +98,7 @@ export default function CheckoutScreen({ navigation, route }) {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.methodTitle}>MonCash</Text>
-            <Text style={styles.methodSub}>2 500 HTG â€¢ RecommandÃ© en HaÃ¯ti</Text>
+            <Text style={styles.methodSub}>2 500 HTG • Recommandé en Haïti</Text>
           </View>
           <View style={[styles.radio, isMonCash && styles.radioOn]}>
             {isMonCash && <View style={styles.radioDot} />}
@@ -114,7 +114,7 @@ export default function CheckoutScreen({ navigation, route }) {
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.methodTitle}>Carte bancaire (Stripe)</Text>
-            <Text style={styles.methodSub}>20 USD â€¢ Visa, MasterCard</Text>
+            <Text style={styles.methodSub}>20 USD • Visa, MasterCard</Text>
           </View>
           <View style={[styles.radio, !isMonCash && styles.radioOn]}>
             {!isMonCash && <View style={styles.radioDot} />}
@@ -123,7 +123,7 @@ export default function CheckoutScreen({ navigation, route }) {
 
         {isMonCash && (
           <View style={{ gap: 6 }}>
-            <Text style={styles.label}>NUMÃ‰RO MONCASH</Text>
+            <Text style={styles.label}>NUMÉRO MONCASH</Text>
             <TextInput
               value={phone}
               onChangeText={setPhone}
@@ -142,7 +142,7 @@ export default function CheckoutScreen({ navigation, route }) {
           <View style={styles.sandboxBox}>
             <Ionicons name="construct-outline" size={16} color="#92400E" />
             <Text style={styles.sandboxTxt}>
-              Mode SANDBOX (dev) : aucun paiement rÃ©el n'est effectuÃ©.
+              Mode SANDBOX (dev) : aucun paiement réel n'est effectué.
             </Text>
           </View>
         )}

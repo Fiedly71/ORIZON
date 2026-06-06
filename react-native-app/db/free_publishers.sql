@@ -25,9 +25,9 @@ BEGIN
   SELECT publish_free INTO v_free FROM public.profiles WHERE id = NEW.owner_id;
   IF v_free = true THEN
     NEW.payment_status := 'paid';
-    -- Optionnel: si tu veux aussi auto-approuver les annonces des partenaires
-    -- de confiance, decommente la ligne suivante :
-    -- NEW.moderation_status := 'approved';
+    -- Auto-approuve aussi la moderation pour les partenaires de confiance.
+    -- Comme ils ont l'autorisation de publier gratuitement, on leur fait confiance.
+    NEW.moderation_status := 'approved';
   END IF;
   RETURN NEW;
 END $$;

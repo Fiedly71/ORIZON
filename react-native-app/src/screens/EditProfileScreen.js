@@ -1,4 +1,4 @@
-﻿// EditProfileScreen - Modifier les infos du profil utilisateur.
+// EditProfileScreen - Modifier les infos du profil utilisateur.
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, Pressable, StyleSheet, ScrollView, Image, Alert, ActivityIndicator,

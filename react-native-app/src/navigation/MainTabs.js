@@ -1,4 +1,4 @@
-﻿// MainTabs - Navigation par onglets bas Airbnb-style :
+// MainTabs - Navigation par onglets bas Airbnb-style :
 // Explorer / Favoris / Messages / Profil
 // Adapte aux barres systeme Android (gesture nav) via useSafeAreaInsets.
 import React from 'react';

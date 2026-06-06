@@ -1,4 +1,4 @@
-﻿// CalendarPicker - calendrier mensuel simple (sans lib externe).
+// CalendarPicker - calendrier mensuel simple (sans lib externe).
 // Selectionne 1 ou 2 dates (range). Locale FR.
 import React, { useMemo, useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';

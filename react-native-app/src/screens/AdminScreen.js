@@ -1,4 +1,4 @@
-﻿// AdminScreen - Vrai tableau de bord administrateur ORIZON.
+// AdminScreen - Vrai tableau de bord administrateur ORIZON.
 // Stats en haut + 6 sections : utilisateurs, annonces, photos, revenus, KYC agences, signalements.
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -408,7 +408,7 @@ function PendingRow({ item, reload }) {
       {item.image ? <Image source={{ uri: item.image }} style={styles.thumb} /> : null}
       <View style={{ flex: 1 }}>
         <Text style={styles.rowTitle} numberOfLines={1}>{item.title}</Text>
-        <Text style={styles.rowSub}>{fmt(item.price)} | {item.city || 'â€”'}</Text>
+        <Text style={styles.rowSub}>{fmt(item.price)} | {item.city || '—'}</Text>
       </View>
       <View style={{ gap: 6 }}>
         <Pressable onPress={() => decide('approved')} style={[styles.btn, styles.btnOk]}>
@@ -423,7 +423,7 @@ function PendingRow({ item, reload }) {
 }
 
 function PhotoRow({ item, reload }) {
-  // Annonces deja live â€” admin peut SEULEMENT rejeter (cache l'annonce)
+  // Annonces deja live — admin peut SEULEMENT rejeter (cache l'annonce)
   const reject = () => {
     Alert.alert('Rejeter cette annonce', `Les photos de "${item.title}" sont inappropriees ?`, [
       { text: 'Annuler', style: 'cancel' },
@@ -466,7 +466,7 @@ function PaymentRow({ item, reload }) {
     <View style={styles.row}>
       <View style={{ flex: 1 }}>
         <Text style={styles.rowTitle}>{fmt(item.amount)}</Text>
-        <Text style={styles.rowSub}>{item.method || 'â€”'} | {new Date(item.created_at).toLocaleDateString('fr-FR')}</Text>
+        <Text style={styles.rowSub}>{item.method || '—'} | {new Date(item.created_at).toLocaleDateString('fr-FR')}</Text>
         <View style={styles.tagsRow}>
           <Tag dark={item.status === 'succeeded'} danger={item.status === 'failed'}>
             {item.status}
@@ -523,8 +523,8 @@ function MonCashPendingRow({ item, reload }) {
     <View style={styles.row}>
       <View style={{ flex: 1 }}>
         <Text style={styles.rowTitle}>{fmt(item.amount)} {item.currency || 'HTG'}</Text>
-        <Text style={styles.rowSub}>Ref : {item.moncash_reference || 'â€”'}</Text>
-        <Text style={styles.rowSub}>Tel client : {item.moncash_phone || 'â€”'}</Text>
+        <Text style={styles.rowSub}>Ref : {item.moncash_reference || '—'}</Text>
+        <Text style={styles.rowSub}>Tel client : {item.moncash_phone || '—'}</Text>
         <Text style={styles.rowSub}>{new Date(item.created_at).toLocaleString('fr-FR')}</Text>
         <View style={styles.tagsRow}>
           <Tag>{item.purpose || 'listing'}</Tag>

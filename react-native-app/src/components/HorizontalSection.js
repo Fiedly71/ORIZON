@@ -1,4 +1,4 @@
-﻿// HorizontalSection - rangee horizontale de proprietes avec titre + "Voir plus".
+// HorizontalSection - rangee horizontale de proprietes avec titre + "Voir plus".
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, FlatList, Image } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -65,7 +65,7 @@ export default function HorizontalSection({
             </View>
             <Text style={styles.name} numberOfLines={1}>{item.title}</Text>
             <Text style={styles.loc} numberOfLines={1}>
-              <Ionicons name="location-outline" size={10} color={C.muted} /> {item.location || 'â€”'}
+              <Ionicons name="location-outline" size={10} color={C.muted} /> {item.location || '—'}
             </Text>
             <Text style={styles.price}>${Number(item.price || 0).toLocaleString()}</Text>
           </Pressable>

@@ -1,4 +1,4 @@
-﻿// PhoneVerifyScreen - Saisie tel + reception OTP SMS.
+// PhoneVerifyScreen - Saisie tel + reception OTP SMS.
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator,

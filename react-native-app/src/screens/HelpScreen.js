@@ -1,4 +1,4 @@
-﻿// Ecran Aide / FAQ avec accordeon + boutons de support (WhatsApp, email).
+// Ecran Aide / FAQ avec accordeon + boutons de support (WhatsApp, email).
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet, Linking, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';

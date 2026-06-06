@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -19,7 +19,7 @@ const C = {
 function stars(n) {
   const full = Math.floor(n);
   const half = n - full >= 0.5;
-  return 'â˜…'.repeat(full) + (half ? 'Â½' : '') + 'â˜†'.repeat(5 - full - (half ? 1 : 0));
+  return 'â˜…'.repeat(full) + (half ? '½' : '') + 'â˜†'.repeat(5 - full - (half ? 1 : 0));
 }
 
 export default function PropertyCard({
@@ -111,7 +111,7 @@ export default function PropertyCard({
             )}
             <View style={styles.inlineMeta}>
               <Ionicons name="resize-outline" size={13} color={C.textDark} />
-              <Text style={styles.spec}>{item.area} mÂ²</Text>
+              <Text style={styles.spec}>{item.area} m²</Text>
             </View>
           </View>
         )}
@@ -119,7 +119,7 @@ export default function PropertyCard({
           <View style={styles.specsRow}>
             <View style={styles.inlineMeta}>
               <Ionicons name="resize-outline" size={13} color={C.textDark} />
-              <Text style={styles.spec}>{item.area} mÂ²</Text>
+              <Text style={styles.spec}>{item.area} m²</Text>
             </View>
           </View>
         )}
@@ -130,7 +130,7 @@ export default function PropertyCard({
         {/* owner */}
         <View style={styles.inlineMeta}>
           <Ionicons name="pricetag-outline" size={13} color={C.muted} />
-          <Text style={styles.owner} numberOfLines={1}>{item.ownerName} Â· {item.ownerType}</Text>
+          <Text style={styles.owner} numberOfLines={1}>{item.ownerName} · {item.ownerType}</Text>
         </View>
 
         {/* actions */}

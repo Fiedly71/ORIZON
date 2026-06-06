@@ -1,4 +1,4 @@
-﻿// SectionDetailScreen - "Voir tout" sur une section ORIZON (grille verticale).
+// SectionDetailScreen - "Voir tout" sur une section ORIZON (grille verticale).
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator,

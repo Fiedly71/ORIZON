@@ -1,4 +1,4 @@
-﻿// Banniere "Nouvelle version disponible" - apparait quand le service worker
+// Banniere "Nouvelle version disponible" - apparait quand le service worker
 // detecte un nouveau bundle deploye sur Vercel. Un clic recharge proprement.
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';

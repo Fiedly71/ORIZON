@@ -1,4 +1,4 @@
-﻿// CompareScreen - Compare 2 ou 3 annonces cote a cote.
+// CompareScreen - Compare 2 ou 3 annonces cote a cote.
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Pressable, Image,

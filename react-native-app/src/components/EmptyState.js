@@ -1,4 +1,4 @@
-﻿// Composant generique d'etat vide ORIZON, avec icone, titre, message et CTA optionnel.
+// Composant generique d'etat vide ORIZON, avec icone, titre, message et CTA optionnel.
 // A utiliser dans toutes les listes (annonces, visites, paiements, favoris, etc.).
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';

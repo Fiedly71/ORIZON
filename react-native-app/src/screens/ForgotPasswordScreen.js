@@ -1,4 +1,4 @@
-﻿// ForgotPasswordScreen - demande l'envoi du lien de reinitialisation par email.
+// ForgotPasswordScreen - demande l'envoi du lien de reinitialisation par email.
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator,

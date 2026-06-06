@@ -1,4 +1,4 @@
-﻿// AdvancedFilterSheet - Modal filtres avances : prix, chambres, sdb, surface, type bien.
+// AdvancedFilterSheet - Modal filtres avances : prix, chambres, sdb, surface, type bien.
 import React, { useState } from 'react';
 import {
   Modal, View, Text, Pressable, StyleSheet, ScrollView, TextInput,
@@ -56,7 +56,7 @@ export default function AdvancedFilterSheet({ visible, onClose, value, onApply }
               placeholder="Min" placeholderTextColor={C.muted}
               keyboardType="numeric" style={styles.input}
             />
-            <Text style={styles.dash}>â€”</Text>
+            <Text style={styles.dash}>—</Text>
             <TextInput
               value={f.maxPrice} onChangeText={(v) => setF({...f, maxPrice: v})}
               placeholder="Max" placeholderTextColor={C.muted}
@@ -70,14 +70,14 @@ export default function AdvancedFilterSheet({ visible, onClose, value, onApply }
           <Text style={styles.h2}>Salles de bain min</Text>
           <Stepper value={f.minBaths} onChange={(v) => setF({...f, minBaths: v})} />
 
-          <Text style={styles.h2}>Surface (mÂ²)</Text>
+          <Text style={styles.h2}>Surface (m²)</Text>
           <View style={styles.row}>
             <TextInput
               value={f.minArea} onChangeText={(v) => setF({...f, minArea: v})}
               placeholder="Min" placeholderTextColor={C.muted}
               keyboardType="numeric" style={styles.input}
             />
-            <Text style={styles.dash}>â€”</Text>
+            <Text style={styles.dash}>—</Text>
             <TextInput
               value={f.maxArea} onChangeText={(v) => setF({...f, maxArea: v})}
               placeholder="Max" placeholderTextColor={C.muted}

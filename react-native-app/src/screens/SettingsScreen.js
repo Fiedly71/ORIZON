@@ -1,4 +1,4 @@
-﻿// SettingsScreen - parametres app : langue, devise, notifications, donnees.
+// SettingsScreen - parametres app : langue, devise, notifications, donnees.
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Pressable, Switch, Alert, Platform,
