@@ -61,6 +61,7 @@ export default function RegisterScreen({ navigation }) {
     docNumber: '',
     docFront: null,
     docBack: null,
+    referralCode: '',
   });
 
   const update = (k, v) => setForm((p) => ({ ...p, [k]: v }));
@@ -112,6 +113,7 @@ export default function RegisterScreen({ navigation }) {
           : '',
         city: isPublisher ? form.city : '',
         department: isPublisher ? form.dept : '',
+        referralCode: form.referralCode.trim() || null,
       });
       if (!res.ok) {
         appAlert('Inscription', res.error || 'Échec de la création du compte.');
@@ -360,6 +362,19 @@ export default function RegisterScreen({ navigation }) {
                   Publier une annonce coûte <Text style={{ fontWeight: '800' }}>20 USD (2 500 HTG)</Text>. Tu pourras publier après validation de ton compte (24-48h).
                 </Text>
               </View>
+
+              <Text style={styles.label}>CODE DE PARRAINAGE (OPTIONNEL)</Text>
+              <Text style={styles.helpTxt}>
+                Quelqu'un t'a parlé d'ORIZON ? Saisis son code influenceur ou parrain pour qu'il soit crédité.
+              </Text>
+              <TextInput
+                value={form.referralCode}
+                onChangeText={(v) => update('referralCode', v.toUpperCase())}
+                placeholder="Ex: NICK2026"
+                placeholderTextColor={C.muted}
+                style={styles.field}
+                autoCapitalize="characters"
+              />
             </>
           )}
 

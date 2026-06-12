@@ -15,6 +15,7 @@ import { canPublish } from '../services/authService';
 import { getProperty as getPropertyById, updateProperty as svcUpdate } from '../services/propertiesService';
 import { DEPARTMENTS, CITIES_BY_DEPT, formatLocation, parseLocation } from '../constants/haiti';
 import PickerField from '../components/PickerField';
+import { isLaunchFreeActive, LAUNCH_FREE_END_LABEL } from '../config/launchPromo';
 
 const DRAFT_KEY = 'orizon.sellwizard.draft.v1';
 
@@ -341,10 +342,12 @@ export default function SellWizardScreen({ navigation, route }) {
       // le trigger DB a deja mis payment_status='paid' + moderation_status='approved'.
       // L'annonce est en ligne immediatement -> on saute l'ecran Checkout.
       const isFreePublisher = !!(user?.publish_free || user?.publishFree);
-      if (isFreePublisher) {
+      if (isFreePublisher || isLaunchFreeActive()) {
         Alert.alert(
           'Annonce publiee',
-          'Felicitations ! Ton annonce est en ligne. Tu beneficies de la publication gratuite.',
+          isLaunchFreeActive()
+            ? `Ton annonce est en ligne gratuitement (promo de lancement ORIZON jusqu'au ${LAUNCH_FREE_END_LABEL}).`
+            : 'Felicitations ! Ton annonce est en ligne. Tu beneficies de la publication gratuite.',
           [{ text: 'OK', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'App' }, { name: 'MyListings' }] }) }],
         );
         return;
@@ -470,7 +473,21 @@ export default function SellWizardScreen({ navigation, route }) {
             </View>
             <Field label="PRIX (USD)" value={data.price} onChangeText={(v) => update('price', v)} keyboardType="number-pad" placeholder="ex: 95000" />
 
-            {!editId && (
+            {!editId && isLaunchFreeActive() && (
+              <View style={[styles.feeBox, { backgroundColor: '#DCFCE7', borderColor: '#16A34A', borderWidth: 1 }]}>
+                <Ionicons name="gift-outline" size={20} color="#16A34A" />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.feeTitle, { color: '#15803D' }]}>Publication 100% gratuite</Text>
+                  <Text style={styles.feeTxt}>
+                    Promo de lancement ORIZON jusqu'au{' '}
+                    <Text style={{ fontWeight: '800' }}>{LAUNCH_FREE_END_LABEL}</Text>.
+                    Aucun paiement requis, ton annonce est en ligne dès validation.
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {!editId && !isLaunchFreeActive() && (
             <View style={styles.feeBox}>
               <Ionicons name="card-outline" size={20} color={C.primary} />
               <View style={{ flex: 1 }}>
@@ -495,7 +512,17 @@ export default function SellWizardScreen({ navigation, route }) {
           </Pressable>
         )}
         <Pressable style={[styles.cta, busy && { opacity: 0.6 }]} onPress={next} disabled={busy}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>{step < 3 ? 'Continuer' : (editId ? 'Enregistrer les modifications' : `Payer ${PUBLICATION_FEE_HTG.toLocaleString('fr-FR')} HTG et publier`)}</Text>}
+          {busy ? <ActivityIndicator color="#fff" /> : (
+            <Text style={styles.ctaTxt}>
+              {step < 3
+                ? 'Continuer'
+                : (editId
+                    ? 'Enregistrer les modifications'
+                    : (isLaunchFreeActive()
+                        ? 'Publier gratuitement'
+                        : `Payer ${PUBLICATION_FEE_HTG.toLocaleString('fr-FR')} HTG et publier`))}
+            </Text>
+          )}
         </Pressable>
       </View>
       </>

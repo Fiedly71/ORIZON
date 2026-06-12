@@ -11,9 +11,10 @@ const VERSION = Constants.expoConfig?.version || '1.0.0';
 const COMPANY = {
   name: process.env.EXPO_PUBLIC_COMPANY_NAME || 'ORIZON Immobilier',
   address: process.env.EXPO_PUBLIC_COMPANY_ADDRESS || 'Cap-Haitien, Departement du Nord, Haiti',
-  phone: process.env.EXPO_PUBLIC_SUPPORT_PHONE || '',
-  email: process.env.EXPO_PUBLIC_SUPPORT_EMAIL || '',
-  website: process.env.EXPO_PUBLIC_COMPANY_WEBSITE || '',
+  phone: process.env.EXPO_PUBLIC_SUPPORT_PHONE || '+509 42 15 25 69',
+  whatsapp: process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP || '50942152569',
+  email: process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'admin@orizon.com',
+  website: process.env.EXPO_PUBLIC_COMPANY_WEBSITE || 'https://orizon-pi.vercel.app',
 };
 
 async function open(url) {
@@ -48,6 +49,9 @@ export default function AboutScreen({ navigation }) {
           <Row icon="location-outline" label={COMPANY.address} />
           {COMPANY.phone ? (
             <Row icon="call-outline" label={COMPANY.phone} onPress={() => open(`tel:${COMPANY.phone.replace(/\s/g, '')}`)} />
+          ) : null}
+          {COMPANY.whatsapp ? (
+            <Row icon="logo-whatsapp" label={`WhatsApp ${COMPANY.phone || COMPANY.whatsapp}`} onPress={() => open(`https://wa.me/${COMPANY.whatsapp.replace(/\D/g, '')}`)} />
           ) : null}
           {COMPANY.email ? (
             <Row icon="mail-outline" label={COMPANY.email} onPress={() => open(`mailto:${COMPANY.email}`)} />

@@ -136,7 +136,7 @@ export async function signInWithPassword({ email, password }) {
   }
 }
 
-export async function signUp({ email, password, fullName, phone, role, address, city, department }) {
+export async function signUp({ email, password, fullName, phone, role, address, city, department, referralCode }) {
   const { setLoading, setUser } = useAuthStore.getState();
   setLoading(true);
   try {
@@ -148,17 +148,21 @@ export async function signUp({ email, password, fullName, phone, role, address, 
       email,
       password,
       options: {
-        data: { fullName, phone, role, address, city, department },
+        data: { fullName, phone, role, address, city, department, referralCode: referralCode || null },
         emailRedirectTo: buildAppRedirect('confirm-email'),
       },
     });
     if (error) return { ok: false, error: error.message };
     setSessionFromSupabase(data);
-    // Met a jour la ligne profiles avec l'adresse (au cas ou le trigger handle_new_user
-    // ne la prend pas). Best-effort, ne bloque pas le retour.
-    if (data?.user?.id && address) {
+    // Met a jour la ligne profiles avec l'adresse + le code parrain. Best-effort.
+    if (data?.user?.id) {
       try {
-        await supabase.from('profiles').update({ address }).eq('id', data.user.id);
+        const patch = {};
+        if (address) patch.address = address;
+        if (referralCode) patch.referral_code = referralCode;
+        if (Object.keys(patch).length > 0) {
+          await supabase.from('profiles').update(patch).eq('id', data.user.id);
+        }
       } catch {}
     }
     return { ok: true, needsEmailConfirm: !data.session };
