@@ -23,6 +23,7 @@ import PickerField from '../components/PickerField';
 import { DEPARTMENTS, CITIES_BY_DEPT, formatLocation } from '../constants/haiti';
 import { C } from '../theme/colors';
 import { appAlert } from '../utils/appAlert';
+import { isLaunchFreeActive, LAUNCH_FREE_END_LABEL } from '../config/launchPromo';
 import { signUp } from '../services/authService';
 import { useAuthStore } from '../store/useAuthStore';
 import { pickImages, uploadImage } from '../services/storageService';
@@ -198,7 +199,7 @@ export default function RegisterScreen({ navigation }) {
               <Text style={styles.roleCardSub}>Je veux publier ma propre maison, terrain ou appartement à vendre ou à louer.</Text>
               <Text style={styles.roleBullet}>• Photo de profil obligatoire</Text>
               <Text style={styles.roleBullet}>• Pièce d'identité obligatoire (vérification KYC)</Text>
-              <Text style={styles.roleBullet}>• 20 USD (2 500 HTG) par publication</Text>
+              <Text style={styles.roleBullet}>{isLaunchFreeActive() ? `• GRATUIT jusqu'au ${LAUNCH_FREE_END_LABEL}` : '• 20 USD (2 500 HTG) par publication'}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={C.muted} />
           </Pressable>
@@ -212,7 +213,7 @@ export default function RegisterScreen({ navigation }) {
               <Text style={styles.roleCardSub}>Je représente une agence et publie plusieurs biens pour mes clients.</Text>
               <Text style={styles.roleBullet}>• Vérification KYC complète</Text>
               <Text style={styles.roleBullet}>• Licence d'agence requise</Text>
-              <Text style={styles.roleBullet}>• 20 USD (2 500 HTG) par publication</Text>
+              <Text style={styles.roleBullet}>{isLaunchFreeActive() ? `• GRATUIT jusqu'au ${LAUNCH_FREE_END_LABEL}` : '• 20 USD (2 500 HTG) par publication'}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color={C.muted} />
           </Pressable>
@@ -356,10 +357,14 @@ export default function RegisterScreen({ navigation }) {
                 </>
               )}
 
-              <View style={styles.priceBox}>
-                <Ionicons name="information-circle-outline" size={18} color={C.primary} />
-                <Text style={styles.priceTxt}>
-                  Publier une annonce coûte <Text style={{ fontWeight: '800' }}>20 USD (2 500 HTG)</Text>. Tu pourras publier après validation de ton compte (24-48h).
+              <View style={[styles.priceBox, isLaunchFreeActive() && { backgroundColor: '#ECFDF5', borderColor: '#86EFAC' }]}>
+                <Ionicons name={isLaunchFreeActive() ? 'gift-outline' : 'information-circle-outline'} size={18} color={isLaunchFreeActive() ? '#047857' : C.primary} />
+                <Text style={[styles.priceTxt, isLaunchFreeActive() && { color: '#047857' }]}>
+                  {isLaunchFreeActive() ? (
+                    <>Publication <Text style={{ fontWeight: '800' }}>100% GRATUITE</Text> pendant le lancement (jusqu'au {LAUNCH_FREE_END_LABEL}). Validation du compte 24-48h.</>
+                  ) : (
+                    <>Publier une annonce coûte <Text style={{ fontWeight: '800' }}>20 USD (2 500 HTG)</Text>. Tu pourras publier après validation de ton compte (24-48h).</>
+                  )}
                 </Text>
               </View>
 
