@@ -132,6 +132,43 @@ async function run() {
     const subset = await subsetFont(original, text, { targetFormat: 'truetype' });
     fs.writeFileSync(ttfPath, subset);
     const after = subset.length;
+
+    // Re-hash filename so browsers (and CDN edge caches with immutable
+    // headers) fetch the new subset instead of serving a stale cached copy
+    // that lacks the newly-included glyphs.
+    const crypto = require('crypto');
+    const newHash = crypto.createHash('sha256').update(subset).digest('hex').slice(0, 32);
+    const oldName = path.basename(ttfPath);
+    const m = oldName.match(/^(Ionicons)\.([a-f0-9]+)\.ttf$/);
+    if (m) {
+      const oldHash = m[2];
+      if (oldHash !== newHash) {
+        const newName = `Ionicons.${newHash}.ttf`;
+        const newPath = path.join(path.dirname(ttfPath), newName);
+        fs.renameSync(ttfPath, newPath);
+
+        // Walk dist and replace old hash -> new hash inside text assets.
+        function walkDist(dir) {
+          let replaced = 0;
+          for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
+            const p = path.join(dir, f.name);
+            if (f.isDirectory()) { replaced += walkDist(p); continue; }
+            if (!/\.(js|css|html|json|webmanifest|map)$/i.test(f.name)) continue;
+            const buf = fs.readFileSync(p, 'utf8');
+            if (!buf.includes(oldHash)) continue;
+            const out = buf.split(oldHash).join(newHash);
+            if (out !== buf) {
+              fs.writeFileSync(p, out, 'utf8');
+              replaced++;
+            }
+          }
+          return replaced;
+        }
+        const count = walkDist(distDir);
+        console.log(`[subset-ionicons] rehashed ${oldName} -> ${newName} (${count} files updated)`);
+      }
+    }
+
     console.log(
       `[subset-ionicons] ${path.basename(ttfPath)} ${Math.round(before / 1024)} KB -> ${Math.round(
         after / 1024
