@@ -20,7 +20,7 @@ export default function MortgageScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Header title="Calculateur d'hypotheque" onBack={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, width: '100%', maxWidth: 720, alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
         <Field label="PRIX DU BIEN ($)" value={price} onChangeText={setPrice} />
         <Field label="APPORT ($)" value={down} onChangeText={setDown} />
         <Field label="DUREE (ANNEES)" value={years} onChangeText={setYears} />

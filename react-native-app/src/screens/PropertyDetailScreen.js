@@ -6,7 +6,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Alert,
-  Dimensions,
   FlatList,
   Image,
   Platform,
@@ -17,6 +16,7 @@ import {
   Text,
   View,
   ActivityIndicator,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -31,6 +31,8 @@ import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { openConversation } from '../services/messagingService';
 import { isSuperhost } from '../utils/superhost';
 import { getProperty, getPublicProfile } from '../services/propertiesService';
+import { useResponsive } from '../hooks/useResponsive';
+import Container from '../components/Container';
 
 const { width: W } = Dimensions.get('window');
 const HERO_H = Math.round(W * 0.75);
@@ -53,6 +55,10 @@ const AMENITY_ICONS = {
 
 export default function PropertyDetailScreen({ navigation, route }) {
   const params = route?.params || {};
+  const r = useResponsive();
+  const { width: W } = useWindowDimensions();
+  // Cap hero pour desktop : on prefere 500px max pour ne pas dominer l'ecran.
+  const HERO_H = Math.min(Math.round(W * 0.75), r.isDesktop ? 520 : 600);
   // Source 1: item complet passe en navigation. Source 2: id (deep-link, my-listings, etc.)
   const initialItem = params.item || (params.id ? { id: params.id } : {});
   const [item, setItem] = useState(initialItem);
@@ -176,12 +182,12 @@ export default function PropertyDetailScreen({ navigation, route }) {
               }}
               renderItem={({ item: uri, index }) => (
                 <Pressable onPress={() => { setActiveImg(index); setViewerOpen(true); }}>
-                  <Image source={{ uri }} style={styles.hero} resizeMode="cover" />
+                  <Image source={{ uri }} style={[styles.hero, { width: W, height: HERO_H }]} resizeMode="cover" />
                 </Pressable>
               )}
             />
           ) : (
-            <View style={[styles.hero, styles.heroPlaceholder]}>
+            <View style={[styles.hero, styles.heroPlaceholder, { width: W, height: HERO_H }]}>
               <Ionicons name="image-outline" size={64} color="#9CA3AF" />
               <Text style={styles.heroPlaceholderTxt}>Pas de photo disponible</Text>
             </View>
@@ -411,11 +417,10 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.bg },
   heroWrap: {
     position: 'relative',
-    width: W,
-    height: HERO_H,
+    width: '100%',
     backgroundColor: C.surface,
   },
-  hero: { width: W, height: HERO_H },
+  hero: {},
   heroPlaceholder: { alignItems: 'center', justifyContent: 'center', backgroundColor: '#F1F5F9', gap: 8 },
   heroPlaceholderTxt: { color: '#9CA3AF', fontSize: 13, fontWeight: '600' },
   heroDots: {
@@ -447,7 +452,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   topRight: { flexDirection: 'row', gap: spacing.md },
-  body: { paddingHorizontal: spacing.xxl, paddingTop: spacing.xxl },
+  body: {
+    paddingHorizontal: spacing.xxl,
+    paddingTop: spacing.xxl,
+    width: '100%',
+    maxWidth: 880,
+    alignSelf: 'center',
+  },
   title: { fontSize: 22, fontWeight: '700', color: C.text },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
   location: { fontSize: 14, color: C.muted },
@@ -521,6 +532,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: spacing.xxl,
     paddingVertical: spacing.lg,
+    width: '100%',
+    maxWidth: 1280,
+    alignSelf: 'center',
   },
   bottomPrice: { fontSize: 18, fontWeight: '700', color: C.text },
   bottomPriceUnit: { fontSize: 12, color: C.muted, marginTop: 2 },

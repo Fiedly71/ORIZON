@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 14, fontWeight: '700', color: C.text },
 
-  body: { padding: 16, gap: 14, paddingBottom: 40 },
+  body: { padding: 16, gap: 14, paddingBottom: 40, width: '100%', maxWidth: 720, alignSelf: 'center' },
 
   avatarBlock: { alignItems: 'center', gap: 8, paddingVertical: 8 },
   avatarWrap: { position: 'relative' },

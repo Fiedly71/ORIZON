@@ -50,7 +50,7 @@ export default function HelpScreen({ navigation }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.surface }}>
       <Header title="Aide & FAQ" onBack={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }}>
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 14, width: '100%', maxWidth: 720, alignSelf: 'center' }}>
         <Text style={styles.intro}>
           Une question? Parcours les sujets frequents ou contacte notre equipe.
         </Text>

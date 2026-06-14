@@ -157,7 +157,7 @@ export default function LoginScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
-  page: { flexGrow: 1, padding: 20, gap: 18 },
+  page: { flexGrow: 1, padding: 20, gap: 18, width: '100%', maxWidth: 480, alignSelf: 'center' },
   hero: { gap: 4, marginTop: 8, alignItems: 'center' },
   brand: { color: C.primary, fontWeight: '800', letterSpacing: 3, fontSize: 13 },
   logoImg: { width: 150, height: 160, alignSelf: 'center', marginBottom: 6 },

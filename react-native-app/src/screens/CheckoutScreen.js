@@ -32,7 +32,7 @@ export default function CheckoutScreen({ navigation, route }) {
         <View style={{ width: 22 }} />
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 14 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, gap: 14, width: '100%', maxWidth: 720, alignSelf: 'center' }}>
         <View style={styles.summary}>
           <Text style={styles.sumLabel}>Resume / Rezime</Text>
           <Text style={styles.sumTitle}>{propertyTitle}</Text>

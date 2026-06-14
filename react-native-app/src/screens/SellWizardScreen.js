@@ -687,7 +687,7 @@ const styles = StyleSheet.create({
   dotTxt: { color: C.muted, fontSize: 11, fontWeight: '700' },
   dotTxtOn: { color: '#fff' },
   stepLabel: { fontSize: 11, color: C.muted },
-  body: { padding: 16 },
+  body: { padding: 16, width: '100%', maxWidth: 720, alignSelf: 'center' },
   label: { fontSize: 10, fontWeight: '700', letterSpacing: 1, color: C.muted },
   field: {
     backgroundColor: C.surface, borderWidth: 1.5, borderColor: C.border, borderRadius: 12,

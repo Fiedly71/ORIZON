@@ -8,22 +8,22 @@ import {
   Text,
   View,
   FlatList,
-  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { isSuperhost } from '../utils/superhost';
-
-const { width: SCREEN_W } = Dimensions.get('window');
-const CARD_W = SCREEN_W - spacing.xxl * 2; // 16px de chaque cote
-const CARD_H = Math.round(CARD_W * 0.95); // ratio Airbnb-like
 
 export default function PropertyCardAirbnb({
   item,
   isFavorite,
   onFavorite,
   onOpen,
+  width,
 }) {
+  const { width: SCREEN_W } = useWindowDimensions();
+  const CARD_W = width || (SCREEN_W - spacing.xxl * 2);
+  const CARD_H = Math.round(CARD_W * 0.95);
   const [activeIdx, setActiveIdx] = useState(0);
   const flatRef = useRef(null);
 
@@ -42,9 +42,9 @@ export default function PropertyCardAirbnb({
   const priceLabel = isRent ? '/ mois' : '';
 
   return (
-    <Pressable style={styles.wrap} onPress={() => onOpen?.(item)}>
+    <Pressable style={[styles.wrap, { width: CARD_W }]} onPress={() => onOpen?.(item)}>
       {/* Carrousel photos */}
-      <View style={styles.imgWrap}>
+      <View style={[styles.imgWrap, { width: CARD_W, height: CARD_H }]}>
         {hasPhotos ? (
           <FlatList
             ref={flatRef}
@@ -55,11 +55,11 @@ export default function PropertyCardAirbnb({
             onMomentumScrollEnd={onScroll}
             keyExtractor={(_, i) => String(i)}
             renderItem={({ item: uri }) => (
-              <Image source={{ uri }} style={styles.img} resizeMode="cover" />
+              <Image source={{ uri }} style={[styles.img, { width: CARD_W, height: CARD_H }]} resizeMode="cover" />
             )}
           />
         ) : (
-          <View style={[styles.img, styles.imgPlaceholder]}>
+          <View style={[styles.img, styles.imgPlaceholder, { width: CARD_W, height: CARD_H }]}>
             <Ionicons name="image-outline" size={42} color="#9CA3AF" />
             <Text style={styles.imgPlaceholderTxt}>Pas de photo</Text>
           </View>
@@ -148,20 +148,14 @@ export default function PropertyCardAirbnb({
 
 const styles = StyleSheet.create({
   wrap: {
-    width: CARD_W,
     marginBottom: spacing.xxl,
   },
   imgWrap: {
-    width: CARD_W,
-    height: CARD_H,
     borderRadius: radii.lg,
     overflow: 'hidden',
     backgroundColor: C.surface,
   },
-  img: {
-    width: CARD_W,
-    height: CARD_H,
-  },
+  img: {},
   imgPlaceholder: {
     alignItems: 'center',
     justifyContent: 'center',

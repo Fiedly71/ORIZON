@@ -52,7 +52,7 @@ export default function MyVisitsScreen({ navigation }) {
         keyExtractor={(v) => v.id}
         refreshing={loading}
         onRefresh={reload}
-        contentContainerStyle={{ padding: 16, gap: 10 }}
+        contentContainerStyle={{ padding: 16, gap: 10, width: '100%', maxWidth: 880, alignSelf: 'center' }}
         ListEmptyComponent={<EmptyState icon="calendar-outline" title={tab === 'visitor' ? 'Aucune visite demandee' : 'Aucune demande recue'} message={tab === 'visitor' ? 'Reserve une visite depuis une annonce.' : 'Tu verras ici les demandes des visiteurs.'} />}
         renderItem={({ item }) => (
           <View style={styles.card}>

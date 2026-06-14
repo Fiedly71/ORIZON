@@ -92,7 +92,7 @@ export default function MyListingsScreen({ navigation }) {
         <FlatList
           data={mine}
           keyExtractor={(p) => String(p.id)}
-          contentContainerStyle={{ padding: 16, gap: 12 }}
+          contentContainerStyle={{ padding: 16, gap: 12, width: '100%', maxWidth: 880, alignSelf: 'center' }}
           refreshing={refreshing}
           onRefresh={() => { setRefreshing(true); load(); }}
           ListEmptyComponent={<EmptyState icon="home-outline" title="Aucune annonce publiee" message="Publie ton premier bien en quelques minutes." ctaLabel="Publier une annonce" onCta={() => navigation.navigate('SellWizard')} />}

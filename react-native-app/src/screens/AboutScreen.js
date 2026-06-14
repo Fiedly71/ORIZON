@@ -25,7 +25,7 @@ export default function AboutScreen({ navigation }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.surface }}>
       <Header title="A propos" onBack={() => navigation.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }}>
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 14, width: '100%', maxWidth: 720, alignSelf: 'center' }}>
         <View style={styles.hero}>
           <Image
             source={require('../../assets/logo-vertical.png')}

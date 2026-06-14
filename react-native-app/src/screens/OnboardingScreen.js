@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   skip: { color: C.muted, fontSize: 13, fontWeight: '600' },
   slide: { alignItems: 'center', justifyContent: 'flex-start', paddingTop: 12 },
   img: { width: width - 40, height: width - 60, borderRadius: 24, backgroundColor: C.surface },
-  body: { paddingHorizontal: 28, marginTop: 28, alignItems: 'center', gap: 10 },
+  body: { paddingHorizontal: 28, marginTop: 28, alignItems: 'center', gap: 10, width: '100%', maxWidth: 640, alignSelf: 'center' },
   title: { fontSize: 22, fontWeight: '800', color: C.text, textAlign: 'center' },
   sub: { fontSize: 13, color: C.muted, textAlign: 'center', lineHeight: 20 },
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginVertical: 18 },

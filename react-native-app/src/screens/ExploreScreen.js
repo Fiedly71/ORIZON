@@ -30,6 +30,8 @@ import HorizontalSection from '../components/HorizontalSection';
 import { useFavorites } from '../store/useFavorites';
 import { isSuperhost } from '../utils/superhost';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
+import { useResponsive } from '../hooks/useResponsive';
+import Container from '../components/Container';
 
 const CATEGORIES = [
   { key: 'all',        label: 'Tout',        icon: 'apps-outline' },
@@ -57,6 +59,7 @@ const SORTS = [
 
 export default function ExploreScreen({ navigation }) {
   const toast = useToast();
+  const r = useResponsive();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -304,20 +307,22 @@ export default function ExploreScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      {renderHeader()}
+      <Container padded={false}>{renderHeader()}</Container>
       {!isFiltering && sectionsToShow.length > 0 ? (
         <FlatList
           data={sectionsToShow}
           keyExtractor={(x) => x.section.id}
           renderItem={({ item }) => (
-            <HorizontalSection
-              section={item.section}
-              items={item.items}
-              isFavorite={(id) => favIds.includes(id)}
-              onFavorite={(id) => toggleFav(id)}
-              onItemPress={(it) => navigation.navigate('PropertyDetail', { id: it.id, item: it })}
-              onSeeAll={() => navigation.navigate('SectionDetail', { sectionId: item.section.id })}
-            />
+            <Container>
+              <HorizontalSection
+                section={item.section}
+                items={item.items}
+                isFavorite={(id) => favIds.includes(id)}
+                onFavorite={(id) => toggleFav(id)}
+                onItemPress={(it) => navigation.navigate('PropertyDetail', { id: it.id, item: it })}
+                onSeeAll={() => navigation.navigate('SectionDetail', { sectionId: item.section.id })}
+              />
+            </Container>
           )}
           refreshControl={
             <RefreshControl refreshing={refreshing}
@@ -330,12 +335,16 @@ export default function ExploreScreen({ navigation }) {
       ) : (
         <FlatList
           data={filtered}
+          key={`grid-${r.columns}`}
+          numColumns={r.columns}
+          columnWrapperStyle={r.columns > 1 ? { gap: r.gap, paddingHorizontal: r.sidePadding, justifyContent: 'flex-start', alignSelf: 'center', width: r.contentWidth } : undefined}
           keyExtractor={(it) => String(it.id)}
           stickyHeaderIndices={[]}
           renderItem={({ item }) => (
-            <View style={styles.cardWrap}>
+            <View style={r.columns === 1 ? styles.cardWrap : { marginBottom: spacing.xxl }}>
               <PropertyCardAirbnb
                 item={item}
+                width={r.columns > 1 ? r.cardWidth : undefined}
                 isFavorite={favIds.includes(item.id)}
                 onFavorite={(id) => toggleFav(id)}
                 onOpen={(it) => navigation.navigate('PropertyDetail', { id: it.id, item: it })}
@@ -358,7 +367,7 @@ export default function ExploreScreen({ navigation }) {
             />
           }
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: spacing.xxl }}
+          contentContainerStyle={{ paddingBottom: spacing.xxl, alignItems: r.columns === 1 ? 'stretch' : 'center' }}
         />
       )}
 

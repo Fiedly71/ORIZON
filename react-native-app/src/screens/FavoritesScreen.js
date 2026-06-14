@@ -78,7 +78,7 @@ export default function FavoritesScreen({ navigation }) {
         keyExtractor={(p) => String(p.id)}
         refreshing={refreshing}
         onRefresh={onRefresh}
-        contentContainerStyle={{ padding: 16, gap: 12 }}
+        contentContainerStyle={{ padding: 16, gap: 12, width: '100%', maxWidth: 880, alignSelf: 'center' }}
         ListEmptyComponent={
           <EmptyState
             icon="heart-outline"

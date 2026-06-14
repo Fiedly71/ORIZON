@@ -81,7 +81,7 @@ export default function ConversationScreen({ navigation, route }) {
             ref={listRef}
             data={messages}
             keyExtractor={(it) => String(it.id)}
-            contentContainerStyle={{ padding: spacing.xxl, gap: spacing.md }}
+            contentContainerStyle={{ padding: spacing.xxl, gap: spacing.md, width: '100%', maxWidth: 880, alignSelf: 'center' }}
             renderItem={({ item }) => {
               const mine = item.senderId === myId;
               return (

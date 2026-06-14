@@ -411,7 +411,7 @@ export default function RegisterScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
-  page: { flexGrow: 1, padding: 20, gap: 16, paddingBottom: 40 },
+  page: { flexGrow: 1, padding: 20, gap: 16, paddingBottom: 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   backTxt: { color: C.text, fontWeight: '600', fontSize: 13 },
   hero: { gap: 4, marginTop: 4, alignItems: 'center' },

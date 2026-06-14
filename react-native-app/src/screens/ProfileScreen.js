@@ -234,7 +234,7 @@ export default function ProfileScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: M.bg },
-  body: { padding: 16, gap: 16, paddingBottom: 40 },
+  body: { padding: 16, gap: 16, paddingBottom: 40, width: '100%', maxWidth: 720, alignSelf: 'center' },
 
   topBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',

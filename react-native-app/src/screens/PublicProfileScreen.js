@@ -101,7 +101,7 @@ export default function PublicProfileScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Header title="Profil" onBack={() => navigation.goBack()} onReport={onReport} />
-      <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 32, width: '100%', maxWidth: 880, alignSelf: 'center' }}>
         <View style={styles.hero}>
           {profile?.avatarUrl ? (
             <Image source={{ uri: profile.avatarUrl }} style={styles.avatar} />

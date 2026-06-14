@@ -54,7 +54,7 @@ export default function SettingsScreen({ navigation }) {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: spacing.lg }}>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, width: '100%', maxWidth: 720, alignSelf: 'center' }}>
         {!isWeb && (
           <Section title="NOTIFICATIONS">
             <Toggle label="Notifications push" value={ui.notifPush} onChange={ui.setNotifPush} />
