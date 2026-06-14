@@ -1,40 +1,34 @@
-# Finaliser Resend pour les emails ORIZON
+# Finaliser Resend pour les emails ORIZON (kayorizon.com)
 
-But : faire partir tous les emails Supabase (confirmation inscription, reset password, magic link, changement email) via **Resend**, avec le branding ORIZON, depuis ton domaine.
+But : faire partir tous les emails Supabase (confirmation inscription, reset password, magic link, changement email) via **Resend**, avec le branding ORIZON, depuis le domaine pro **kayorizon.com**.
 
----
-
-## Prerequis : un nom de domaine
-
-**Resend exige un domaine verifie** (DNS). Tu ne peux PAS envoyer depuis `@gmail.com` via Resend en production.
-
-Options :
-- **A.** Tu as deja un domaine (ex : `orizon.ht`, `orizonhaiti.com`) -> on l'utilise.
-- **B.** Tu n'en as pas -> achete-en un (~12 USD/an chez Namecheap, OVH, Gandi). Recommande : `orizonhaiti.com` ou `orizon.app`.
-- **C.** Pour tester maintenant sans domaine : Resend te laisse envoyer **uniquement vers ta propre adresse** depuis `onboarding@resend.dev`. Utile pour valider la config, pas pour la prod.
-
-> Pour la suite je suppose que tu utilises un domaine `orizon.ht` (remplace par le tien).
+> Email pro officiel : `admin@kayorizon.com`
+> Sender transactionnel : `noreply@kayorizon.com`
+> Domaine : `kayorizon.com`
 
 ---
 
-## Etape 1 : creer le compte Resend et ajouter le domaine
+## Etape 1 : ajouter kayorizon.com dans Resend
 
-1. Va sur https://resend.com -> Sign up (gratuit, 3 000 emails/mois)
-2. **Domains** -> Add Domain -> `orizon.ht`
-3. Resend te montre 3 enregistrements DNS a ajouter :
-   - `MX` (record)
-   - `TXT` SPF
-   - `TXT` DKIM
-4. Va chez ton registrar (Namecheap/OVH/etc) -> zone DNS -> ajoute les 3 records exactement comme indique.
-5. Reviens sur Resend et clique **Verify**. La propagation prend de 5 minutes a 24 heures.
-6. Une fois verifie (badge vert), va dans **API Keys** -> Create API Key -> Permission **Sending access** -> nom `supabase-smtp`.
-7. **Copie la cle** (elle commence par `re_...`). Tu ne la reverras qu'une fois.
+1. Va sur https://resend.com -> Sign up (gratuit, 3 000 emails/mois) ou Sign in.
+2. **Domains** -> **Add Domain** -> `kayorizon.com` -> Region `North Virginia (us-east-1)`.
+3. Resend affiche 4-5 enregistrements DNS a creer chez le registrar (Vercel/Cloudflare/Namecheap/etc) :
+   - `MX` `send.kayorizon.com` -> `feedback-smtp.us-east-1.amazonses.com` (priorite 10)
+   - `TXT` `send.kayorizon.com` -> `"v=spf1 include:amazonses.com ~all"`
+   - `TXT` `resend._domainkey.kayorizon.com` -> longue cle DKIM
+   - (optionnel mais recommande) `TXT` `_dmarc.kayorizon.com` -> `"v=DMARC1; p=none; rua=mailto:admin@kayorizon.com"`
+4. **Cote DNS** :
+   - Si tu utilises **Vercel DNS** (probable car le site est sur Vercel) : Vercel Dashboard -> Domains -> kayorizon.com -> DNS Records -> Add chaque record.
+   - Sinon va chez ton registrar et ajoute les 3 records exactement comme indique.
+5. Reviens sur Resend et clique **Verify DNS Records**. Propagation : 5 min a 24 h (souvent < 1 h).
+6. Une fois le domaine en **Verified** (badge vert) : Resend -> **API Keys** -> Create API Key -> Permission **Sending access** -> Domain `kayorizon.com` -> nom `supabase-smtp`.
+7. **Copie la cle** (commence par `re_...`). Tu ne la reverras qu'une fois -> stocke-la dans un gestionnaire de mots de passe.
 
 ---
 
 ## Etape 2 : configurer SMTP Resend dans Supabase
 
-1. Dashboard Supabase -> Project Settings -> **Authentication** -> section **SMTP Settings**
+1. Dashboard Supabase (`vghcduobhuccmsvlbokv`) -> **Project Settings** -> **Authentication** -> section **SMTP Settings**
 2. Coche **Enable Custom SMTP**
 3. Remplis :
 
@@ -43,19 +37,19 @@ Options :
    | Host | `smtp.resend.com` |
    | Port | `465` |
    | Username | `resend` |
-   | Password | `re_xxxxxxxx` (ta cle Resend) |
-   | Sender email | `noreply@orizon.ht` |
+   | Password | `re_xxxxxxxx` (ta cle Resend creee a l'etape 1) |
+   | Sender email | `noreply@kayorizon.com` |
    | Sender name | `ORIZON` |
    | Minimum interval | `60` secondes |
 
 4. Clique **Save**.
-5. Bouton **Send test email** -> ton adresse -> verifie reception.
+5. Bouton **Send test email** -> mets `admin@kayorizon.com` -> verifie la reception (boite admin Gmail si tu rediriges, ou directement dans la boite hebergee).
 
 ---
 
 ## Etape 3 : installer les templates HTML ORIZON
 
-Les templates sont dans [supabase/templates/](.) :
+Les templates ORIZON-branded (banner gradient bleu roi -> badge or "ORIZON" -> CTA bleu) sont dans [supabase/templates/](.) :
 
 - [confirm-signup.html](confirm-signup.html) -> email de confirmation a l'inscription
 - [reset-password.html](reset-password.html) -> reset mot de passe
@@ -65,25 +59,27 @@ Les templates sont dans [supabase/templates/](.) :
 **Pour chaque template** :
 
 1. Dashboard Supabase -> Authentication -> **Email Templates**
-2. Onglet **Confirm signup** -> efface le contenu existant -> colle le contenu de `confirm-signup.html` -> change le **Subject** en `Confirme ton email - ORIZON` -> Save
+2. Onglet **Confirm signup** -> efface le contenu existant -> colle le contenu de `confirm-signup.html` -> Subject : `Confirme ton email - ORIZON` -> Save
 3. Onglet **Reset Password** -> colle `reset-password.html` -> Subject : `Reinitialise ton mot de passe - ORIZON` -> Save
 4. Onglet **Magic Link** -> colle `magic-link.html` -> Subject : `Ton lien de connexion ORIZON` -> Save
 5. Onglet **Change Email Address** -> colle `email-change.html` -> Subject : `Confirme ton nouvel email ORIZON` -> Save
+
+> **Rappel** : les templates ne sont **pas** synchronises automatiquement via git. A chaque update de fichier `.html` dans `supabase/templates/`, il faut re-coller manuellement dans le dashboard.
 
 ---
 
 ## Etape 4 : configurer les Redirect URLs
 
-Pour que les liens des emails renvoient au bon endroit :
+Pour que les liens des emails renvoient sur kayorizon.com :
 
 1. Dashboard Supabase -> Authentication -> **URL Configuration**
-2. **Site URL** : `https://orizon-pi.vercel.app`
+2. **Site URL** : `https://kayorizon.com`
 3. **Redirect URLs** (ajoute toutes ces lignes) :
    ```
+   https://kayorizon.com
+   https://kayorizon.com/*
    https://orizon-pi.vercel.app
    https://orizon-pi.vercel.app/*
-   https://orizon.ht
-   https://orizon.ht/*
    orizon://*
    exp://*
    ```
@@ -93,12 +89,21 @@ Pour que les liens des emails renvoient au bon endroit :
 
 ## Etape 5 : tester en bout en bout
 
-1. Va sur https://orizon-pi.vercel.app
-2. Cree un compte avec une vraie adresse email
+1. Va sur https://kayorizon.com
+2. Cree un compte avec une vraie adresse email (different de admin@kayorizon.com)
 3. Ouvre ta boite -> tu dois recevoir l'email **ORIZON branded** (bleu roi + or) en quelques secondes
-4. Clique le bouton **Confirmer mon email**
-5. Tu es redirige vers le site, le compte est actif
-6. Deconnecte-toi, teste **Mot de passe oublie ?** -> verifie l'email de reset
+   - Sender visible : `ORIZON <noreply@kayorizon.com>`
+4. Clique le bouton **Confirmer mon email** -> redirige vers kayorizon.com, compte actif
+5. Deconnecte-toi, teste **Mot de passe oublie ?** -> verifie l'email de reset
+6. Va dans **Profil -> Modifier l'email** -> change l'adresse -> verifie email-change
+
+---
+
+## Etape 6 : monitoring
+
+- Dashboard Resend -> **Logs** : suis chaque envoi (Sent / Delivered / Bounced / Complaint)
+- Si **bounce rate > 5 %** ou **complaint rate > 0.1 %**, Resend suspend le sending -> nettoyer la liste
+- Webhook Resend (optionnel) : POST sur une Edge Function `/functions/v1/resend-webhook` pour tracker bounces dans la table `email_events`
 
 ---
 
@@ -106,11 +111,12 @@ Pour que les liens des emails renvoient au bon endroit :
 
 | Symptome | Solution |
 |---|---|
-| Email non recu | Verifier dans Resend > Logs ; si DNS pas verifie, attendre/recreer les records |
-| "From address not verified" | Domaine pas encore valide cote Resend, attendre la propagation |
-| Email arrive en spam | Ajouter aussi un record **DMARC** : `_dmarc.orizon.ht  TXT  "v=DMARC1; p=none; rua=mailto:kayorizoncontact@gmail.com"` |
-| Lien email pointe vers `localhost` | Verifier **Site URL** dans URL Configuration |
-| 429 rate limit Supabase | Augmenter "Minimum interval" a 60s ou plus |
+| Email non recu | Verifier dans Resend > Logs ; si DNS pas verifie, attendre la propagation ou recreer les records |
+| "From address not verified" | Domaine pas encore valide cote Resend, refresh apres 30 min |
+| Email arrive en spam | Verifie que **DMARC** est bien present : `_dmarc.kayorizon.com  TXT  "v=DMARC1; p=none; rua=mailto:admin@kayorizon.com"`. Apres 1 semaine de bons envois, passe a `p=quarantine`. |
+| Lien email pointe vers `localhost` | Site URL = `https://kayorizon.com` dans URL Configuration |
+| 429 rate limit Supabase | Augmenter "Minimum interval" a 60s ou plus, ou passer Supabase Pro |
+| Domaine cote Vercel ne montre pas les TXT | Vercel Dashboard -> kayorizon.com -> DNS Records -> verifier que TTL n'est pas trop long (3600 ok) |
 
 ---
 
@@ -118,4 +124,19 @@ Pour que les liens des emails renvoient au bon endroit :
 
 - Resend gratuit : **3 000 emails/mois**, 100/jour
 - Resend Pro (20 USD/mois) : 50 000 emails/mois
-- Supabase rate limit par defaut sur signup : 30 emails/heure par projet (peut etre augmente sur plans payants)
+- Supabase rate limit par defaut sur signup : 30 emails/heure par projet (augmente sur Pro)
+
+---
+
+## Adresses emails ORIZON officielles
+
+| Usage | Adresse | Type |
+|---|---|---|
+| Contact pro / support / legal / DPO | `admin@kayorizon.com` | Mailbox reelle (hebergee) |
+| Sender transactionnel (signup, reset, magic link) | `noreply@kayorizon.com` | Sender Resend (pas de mailbox) |
+| Reply-To des emails transactionnels (optionnel) | `admin@kayorizon.com` | Redirige les reponses vers admin |
+
+> Pour activer le **Reply-To**, ajoute dans le code Edge Function ou template Supabase :
+> ```
+> Reply-To: ORIZON Support <admin@kayorizon.com>
+> ```

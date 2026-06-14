@@ -13,8 +13,8 @@ const COMPANY = {
   address: process.env.EXPO_PUBLIC_COMPANY_ADDRESS || 'Cap-Haitien, Departement du Nord, Haiti',
   phone: process.env.EXPO_PUBLIC_SUPPORT_PHONE || '+509 42 15 25 69',
   whatsapp: process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP || '50942152569',
-  email: process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'admin@orizon.com',
-  website: process.env.EXPO_PUBLIC_COMPANY_WEBSITE || 'https://orizon-pi.vercel.app',
+  email: process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'admin@kayorizon.com',
+  website: process.env.EXPO_PUBLIC_COMPANY_WEBSITE || 'https://kayorizon.com',
 };
 
 async function open(url) {

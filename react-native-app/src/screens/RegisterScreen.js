@@ -261,7 +261,7 @@ export default function RegisterScreen({ navigation }) {
           <TextInput value={form.fullName} onChangeText={(v) => update('fullName', v)} placeholder="Prénom Nom" placeholderTextColor={C.muted} style={styles.field} />
 
           <Text style={styles.label}>EMAIL *</Text>
-          <TextInput value={form.email} onChangeText={(v) => update('email', v)} keyboardType="email-address" autoCapitalize="none" placeholder="toi@orizon.ht" placeholderTextColor={C.muted} style={styles.field} />
+          <TextInput value={form.email} onChangeText={(v) => update('email', v)} keyboardType="email-address" autoCapitalize="none" placeholder="toi@kayorizon.com" placeholderTextColor={C.muted} style={styles.field} />
 
           <Text style={styles.label}>TÉLÉPHONE *</Text>
           <TextInput value={form.phone} onChangeText={(v) => update('phone', v)} keyboardType="phone-pad" placeholder="+509 ..." placeholderTextColor={C.muted} style={styles.field} />
