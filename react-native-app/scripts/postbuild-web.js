@@ -100,30 +100,9 @@ const HEAD_INJECTION = `
       @keyframes orizon-spin { to { transform: rotate(360deg); } }
       @keyframes orizon-pop { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
 
-      @media (min-width: 900px) {
-        body { display: flex; align-items: center; justify-content: center; padding: 24px 0; box-sizing: border-box; overflow: auto; height: 100vh; height: 100svh; }
-        #root {
-          width: min(480px, calc(100vw - 32px));
-          height: min(900px, calc(100vh - 48px));
-          max-height: 900px;
-          border-radius: 32px;
-          box-shadow: var(--orizon-frame-shadow);
-          overflow: hidden;
-          border: 1px solid rgba(15, 23, 42, 0.08);
-        }
-      }
-      @media (min-width: 1280px) {
-        body::before {
-          content: 'ORIZON';
-          position: fixed; left: 48px; top: 32px;
-          font-weight: 800; font-size: 28px; letter-spacing: 0.5px; color: var(--orizon-primary);
-        }
-        body::after {
-          content: 'Disponible bientot sur App Store et Google Play';
-          position: fixed; left: 48px; top: 72px;
-          font-size: 14px; color: #475569;
-        }
-      }
+      html, body, #root { width: 100%; min-height: 100vh; min-height: 100svh; }
+      body { margin: 0; background: #F8FAFC; }
+      #root { display: flex; flex-direction: column; }
     </style>`;
 
 const expoResetRegex = /<style id="expo-reset">[\s\S]*?<\/style>/;
