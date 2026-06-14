@@ -2,7 +2,7 @@
 //  - Header sticky : barre de recherche ronde + filtres
 //  - Pills de categories scrollables horizontales
 //  - Feed vertical de PropertyCardAirbnb
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -73,6 +73,17 @@ export default function ExploreScreen({ navigation }) {
 
   const favIds = useFavorites((s) => s.ids);
   const toggleFav = useFavorites((s) => s.toggle);
+
+  // Scroll-to-top
+  const listRef = useRef(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const onListScroll = useCallback((e) => {
+    const y = e?.nativeEvent?.contentOffset?.y || 0;
+    setShowScrollTop(y > 600);
+  }, []);
+  const scrollToTop = useCallback(() => {
+    try { listRef.current?.scrollToOffset?.({ offset: 0, animated: true }); } catch {}
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -310,6 +321,9 @@ export default function ExploreScreen({ navigation }) {
       <Container padded={false}>{renderHeader()}</Container>
       {!isFiltering && sectionsToShow.length > 0 ? (
         <FlatList
+          ref={listRef}
+          onScroll={onListScroll}
+          scrollEventThrottle={16}
           data={sectionsToShow}
           keyExtractor={(x) => x.section.id}
           renderItem={({ item }) => (
@@ -334,6 +348,9 @@ export default function ExploreScreen({ navigation }) {
         />
       ) : (
         <FlatList
+          ref={listRef}
+          onScroll={onListScroll}
+          scrollEventThrottle={16}
           data={filtered}
           key={`grid-${r.columns}`}
           numColumns={r.columns}
@@ -377,6 +394,17 @@ export default function ExploreScreen({ navigation }) {
         value={advFilter}
         onApply={setAdvFilter}
       />
+
+      {showScrollTop && (
+        <Pressable
+          onPress={scrollToTop}
+          style={styles.scrollTopBtn}
+          accessibilityLabel="Remonter en haut"
+          accessibilityRole="button"
+        >
+          <Ionicons name="arrow-up" size={22} color="#FFFFFF" />
+        </Pressable>
+      )}
     </SafeAreaView>
   );
 }
@@ -525,6 +553,23 @@ const styles = StyleSheet.create({
   cardWrap: {
     paddingHorizontal: spacing.xxl,
     marginTop: spacing.xxl,
+  },
+  scrollTopBtn: {
+    position: 'absolute',
+    right: spacing.xl,
+    bottom: spacing.xxl + 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: C.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 6,
+    zIndex: 50,
   },
   loadingWrap: {
     flex: 1,

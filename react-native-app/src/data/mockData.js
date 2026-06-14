@@ -27,10 +27,10 @@ export const notificationsSeed = [];
 export const servicesList = [
   { id: 's1', icon: 'home', title: 'Vente & Location', desc: 'Publiez ou trouvez un bien. Maisons, appartements, terrains, hotels et espaces commerciaux.' },
   { id: 's2', icon: 'clipboard', title: 'Gestion locative', desc: 'Confiez votre bien a nos gestionnaires: loyers, entretien, locataires, comptabilite.' },
-  { id: 's3', icon: 'chart', title: 'Estimation & Evaluation', desc: 'Obtenez une estimation precise de la valeur de votre propriete par nos experts certifies.' },
+  { id: 's3', icon: 'stats-chart', title: 'Estimation & Evaluation', desc: 'Obtenez une estimation precise de la valeur de votre propriete par nos experts certifies.' },
   { id: 's4', icon: 'shield', title: 'Accompagnement juridique', desc: 'Contrats, actes notaries, due diligence. Nos partenaires juridiques securisent chaque transaction.' },
   { id: 's5', icon: 'card', title: 'Financement', desc: 'Acces aux meilleures offres de credit immobilier via nos partenaires bancaires locaux.' },
-  { id: 's6', icon: 'trend-up', title: 'Investissement', desc: 'Portefeuille, rendement locatif, promotions immobilieres. Maximisez votre patrimoine.' },
+  { id: 's6', icon: 'trending-up', title: 'Investissement', desc: 'Portefeuille, rendement locatif, promotions immobilieres. Maximisez votre patrimoine.' },
 ];
 
 // Aucune actualite predefinie - alimentation via Supabase / CMS.
