@@ -34,9 +34,6 @@ import { getProperty, getPublicProfile } from '../services/propertiesService';
 import { useResponsive } from '../hooks/useResponsive';
 import Container from '../components/Container';
 
-const { width: W } = Dimensions.get('window');
-const HERO_H = Math.round(W * 0.75);
-
 const AMENITY_ICONS = {
   'Piscine': 'water',
   'Jardin': 'leaf',
