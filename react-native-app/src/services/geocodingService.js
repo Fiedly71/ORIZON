@@ -1,7 +1,7 @@
 // geocodingService - Geocodage adresse -> lat/lng via Nominatim (OSM, gratuit).
 // Respecte la rate-limit Nominatim : 1 req/sec, User-Agent obligatoire.
 const NOMINATIM = 'https://nominatim.openstreetmap.org';
-const UA = 'ORIZON-Mobile/1.0 (contact@orizon.ht)';
+const UA = 'ORIZON-Mobile/1.0 (admin@kayorizon.com)';
 
 export async function geocodeAddress(query, { country = 'ht' } = {}) {
   const q = String(query || '').trim();

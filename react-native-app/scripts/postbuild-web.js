@@ -32,12 +32,46 @@ const bundleUrl = scriptMatch ? scriptMatch[1] : null;
 const HEAD_INJECTION = `
     <meta name="theme-color" content="#004c3f" />
     <link rel="preload" as="image" href="/logo3.webp" type="image/webp" fetchpriority="high" />
-    <meta name="description" content="ORIZON - Trouvez, visitez et achetez des biens immobiliers en Haiti." />
+    <meta name="description" content="ORIZON - Trouve, visite et achete des biens immobiliers en Haiti. Annonces verifiees, paiement MonCash ou carte bancaire." />
+    <meta name="keywords" content="immobilier Haiti, maison Haiti, appartement Haiti, achat immobilier Cap-Haitien, location Port-au-Prince, ORIZON, kayorizon" />
+    <meta name="author" content="ORIZON SAS" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://kayorizon.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ORIZON" />
+    <meta property="og:title" content="ORIZON - Immobilier en Haiti" />
+    <meta property="og:description" content="Trouve, visite et achete des biens immobiliers en Haiti. Annonces verifiees, paiement MonCash." />
+    <meta property="og:image" content="https://kayorizon.com/logo3.png" />
+    <meta property="og:url" content="https://kayorizon.com/" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ORIZON - Immobilier en Haiti" />
+    <meta name="twitter:description" content="Trouve, visite et achete des biens immobiliers en Haiti. Annonces verifiees." />
+    <meta name="twitter:image" content="https://kayorizon.com/logo3.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="ORIZON" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <link rel="icon" type="image/png" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "RealEstateAgent",
+      "name": "ORIZON",
+      "url": "https://kayorizon.com",
+      "logo": "https://kayorizon.com/logo3.png",
+      "description": "Plateforme immobiliere en Haiti - achat, vente, location.",
+      "areaServed": { "@type": "Country", "name": "Haiti" },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "admin@kayorizon.com",
+        "contactType": "customer support",
+        "availableLanguage": ["French", "Haitian Creole", "English", "Spanish"]
+      }
+    }
+    </script>
     ${bundleUrl ? `<link rel="preload" as="script" href="${bundleUrl}" />` : ''}
     <style id="orizon-responsive">
       :root { --orizon-frame-bg: #EEF2F7; --orizon-frame-shadow: 0 24px 60px rgba(15, 23, 42, 0.18); --orizon-primary: #004c3f; }

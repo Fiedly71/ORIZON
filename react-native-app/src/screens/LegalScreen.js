@@ -37,7 +37,7 @@ La marque ORIZON, le logo, et l'application restent la propriete d'ORIZON SAS.
 Droit haitien. Tribunal competent: Port-au-Prince.
 
 10. CONTACT
-support@orizon.ht
+admin@kayorizon.com
 `;
 
 const PRIVACY_TEXT = `
@@ -70,7 +70,7 @@ Aucune vente de donnees a des tiers.
 
 5. TES DROITS (RGPD + loi haitienne)
 - Acces, rectification, suppression: depuis Profil > Modifier ou Profil > Supprimer mon compte
-- Export de tes donnees: ecris a privacy@orizon.ht
+- Export de tes donnees: ecris a admin@kayorizon.com
 - Opposition au traitement analytics: Reglages > Confidentialite > Refuser le tracking
 
 6. PERMISSIONS APPAREIL
@@ -80,8 +80,8 @@ Aucune vente de donnees a des tiers.
 - Notifications: pour les alertes de prix, visites confirmees, messages
 
 7. CONTACT DPO
-privacy@orizon.ht
-ORIZON SAS - Port-au-Prince, Haiti
+admin@kayorizon.com
+ORIZON SAS - Cap-Haitien, Departement du Nord, Haiti
 `;
 
 export default function LegalScreen({ route, navigation }) {

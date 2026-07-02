@@ -369,11 +369,38 @@ export default function ExploreScreen({ navigation }) {
             </View>
           )}
           ListEmptyComponent={
-            <View style={styles.emptyWrap}>
-              <Ionicons name="search-outline" size={48} color={C.muted} />
-              <Text style={styles.emptyTitle}>Aucun bien trouve</Text>
-              <Text style={styles.emptyTxt}>Modifie tes filtres ou ta recherche.</Text>
-            </View>
+            isFiltering ? (
+              <View style={styles.emptyWrap}>
+                <Ionicons name="search-outline" size={48} color={C.muted} />
+                <Text style={styles.emptyTitle}>Aucun bien trouve</Text>
+                <Text style={styles.emptyTxt}>Modifie tes filtres ou ta recherche.</Text>
+                <Pressable
+                  style={styles.emptyBtn}
+                  onPress={() => {
+                    setSearch(''); setCategory('all'); setStatus('all');
+                    setAdvFilter(null); setSortKey('recent');
+                  }}
+                >
+                  <Ionicons name="refresh" size={16} color="#fff" />
+                  <Text style={styles.emptyBtnTxt}>Reinitialiser les filtres</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <View style={styles.emptyWrap}>
+                <Ionicons name="home-outline" size={56} color={C.primary} />
+                <Text style={styles.emptyTitle}>Bienvenue sur ORIZON</Text>
+                <Text style={styles.emptyTxt}>
+                  De nouvelles annonces arrivent chaque jour. Reviens bientot ou publie ta propre annonce en 2 minutes.
+                </Text>
+                <Pressable
+                  style={styles.emptyBtn}
+                  onPress={() => navigation.navigate('SellWizard')}
+                >
+                  <Ionicons name="add-circle" size={18} color="#fff" />
+                  <Text style={styles.emptyBtnTxt}>Publier mon annonce</Text>
+                </Pressable>
+              </View>
+            )
           }
           refreshControl={
             <RefreshControl
@@ -583,6 +610,7 @@ const styles = StyleSheet.create({
   },
   emptyWrap: {
     paddingTop: 60,
+    paddingHorizontal: spacing.xxl,
     alignItems: 'center',
     gap: spacing.md,
   },
@@ -591,9 +619,28 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: C.text,
     marginTop: spacing.lg,
+    textAlign: 'center',
   },
   emptyTxt: {
     fontSize: 14,
     color: C.muted,
+    textAlign: 'center',
+    lineHeight: 20,
+    maxWidth: 320,
+  },
+  emptyBtn: {
+    marginTop: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 999,
+    backgroundColor: C.primary,
+  },
+  emptyBtnTxt: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
   },
 });

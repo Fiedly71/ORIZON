@@ -93,7 +93,7 @@ export default function LoginScreen({ navigation }) {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            placeholder="toi@orizon.ht"
+            placeholder="toi@exemple.com"
             placeholderTextColor={C.muted}
             style={styles.field}
           />

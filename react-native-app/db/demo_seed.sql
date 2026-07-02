@@ -33,36 +33,10 @@ begin
     verified = excluded.verified,
     can_publish = excluded.can_publish;
 
-  -- 5 annonces de demo (statut paid pour etre visibles publiquement)
-  insert into public.properties
-    (owner_id, title, location, type, status, price, bedrooms, bathrooms, area,
-     description, image, images, payment_status, posted_at)
-  values
-    (uid_owner, 'Villa moderne Petion-Ville', 'Petion-Ville, Haiti', 'Villa', 'sale', 285000,
-     4, 3, 220, 'Villa demo - 4 chambres, piscine, vue panoramique sur la ville.',
-     'https://picsum.photos/seed/orizon-villa/800/600',
-     ARRAY['https://picsum.photos/seed/orizon-villa/800/600','https://picsum.photos/seed/orizon-villa2/800/600'],
-     'paid', (now() - interval '2 days')::date),
-    (uid_owner, 'Appartement centre-ville', 'Port-au-Prince, Haiti', 'Appartement', 'rent', 850,
-     2, 1, 75, 'Appartement demo - 2 chambres meuble, securise, internet inclus.',
-     'https://picsum.photos/seed/orizon-appart/800/600',
-     ARRAY['https://picsum.photos/seed/orizon-appart/800/600'],
-     'paid', (now() - interval '5 days')::date),
-    (uid_agency, 'Penthouse de luxe Kenscoff', 'Kenscoff, Haiti', 'Penthouse', 'sale', 520000,
-     5, 4, 380, 'Penthouse demo - terrasse 100m2, jacuzzi, vue mer.',
-     'https://picsum.photos/seed/orizon-pent/800/600',
-     ARRAY['https://picsum.photos/seed/orizon-pent/800/600','https://picsum.photos/seed/orizon-pent2/800/600','https://picsum.photos/seed/orizon-pent3/800/600'],
-     'paid', (now() - interval '1 day')::date),
-    (uid_agency, 'Studio Cap-Haitien', 'Cap-Haitien, Haiti', 'Studio', 'rent', 350,
-     1, 1, 32, 'Studio demo - proche universite, ideal etudiant.',
-     'https://picsum.photos/seed/orizon-studio/800/600',
-     ARRAY['https://picsum.photos/seed/orizon-studio/800/600'],
-     'paid', (now() - interval '3 days')::date),
-    (uid_agency, 'Terrain constructible Tabarre', 'Tabarre, Haiti', 'Terrain', 'sale', 75000,
-     0, 0, 1200, 'Terrain demo - viabilise, acces route asphaltee.',
-     'https://picsum.photos/seed/orizon-terrain/800/600',
-     ARRAY['https://picsum.photos/seed/orizon-terrain/800/600'],
-     'paid', (now() - interval '10 days')::date);
+  -- IMPORTANT : plus aucune annonce de demo n'est cree ici.
+  -- Le site doit rester vide en attendant les vraies publications des utilisateurs.
+  -- Les reviewers (Apple/Google) verront la page d'annonces vide ou avec les
+  -- publications reelles des vrais proprietaires - c'est le comportement attendu.
 
-  raise notice 'Seed demo OK - 3 users + 5 properties';
+  raise notice 'Seed demo OK - 3 comptes reviewers crees (aucune annonce seedee).';
 end $$;
