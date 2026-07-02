@@ -1,8 +1,8 @@
 // MainTabs - Navigation par onglets bas Airbnb-style :
 // Explorer / Favoris / [Publier (publishers seulement)] / Messages / Profil
 // Adapte aux barres systeme Android (gesture nav) via useSafeAreaInsets.
-import React from 'react';
-import { Platform, Pressable, View, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { Platform, Pressable, View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,6 +11,7 @@ import FavoritesScreen from '../screens/FavoritesScreen';
 import MessagesScreen from '../screens/MessagesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import { useAuthStore } from '../store/useAuthStore';
+import { useMessages } from '../store/useMessages';
 import { canPublish } from '../services/authService';
 import { C } from '../theme/colors';
 
@@ -39,6 +40,18 @@ export default function MainTabs() {
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
   const isPublisher = canPublish(user);
+  const unreadTotal = useMessages((s) => s.unreadTotal);
+  const refreshMsgs = useMessages((s) => s.refresh);
+  const subscribeMsgs = useMessages((s) => s.subscribe);
+  const unsubscribeMsgs = useMessages((s) => s.unsubscribe);
+
+  // Charge le compteur unread + subscribe realtime quand l'utilisateur est connecte
+  useEffect(() => {
+    if (!user?.id) return undefined;
+    refreshMsgs();
+    subscribeMsgs();
+    return () => { unsubscribeMsgs(); };
+  }, [user?.id, refreshMsgs, subscribeMsgs, unsubscribeMsgs]);
   // Web : pas de safe-area native, on garde une hauteur compacte mais suffisante pour labels.
   // Mobile natif : ajoute l'inset bottom (home indicator iOS / gesture bar Android).
   const isWeb = Platform.OS === 'web';
@@ -80,7 +93,22 @@ export default function MainTabs() {
             Messages: focused ? 'chatbubbles' : 'chatbubbles-outline',
             ProfileTab: focused ? 'person-circle' : 'person-circle-outline',
           };
-          return <Ionicons name={icons[route.name] || 'ellipse'} size={22} color={color} />;
+          const iconName = icons[route.name] || 'ellipse';
+          if (route.name === 'Messages' && unreadTotal > 0) {
+            return (
+              <View style={styles.iconBadgeWrap}>
+                <Ionicons name={iconName} size={22} color={color} />
+                <View style={styles.redDot}>
+                  {unreadTotal > 9 ? (
+                    <Text style={styles.redDotTxt}>9+</Text>
+                  ) : unreadTotal > 1 ? (
+                    <Text style={styles.redDotTxt}>{unreadTotal}</Text>
+                  ) : null}
+                </View>
+              </View>
+            );
+          }
+          return <Ionicons name={iconName} size={22} color={color} />;
         },
       })}
     >
@@ -150,5 +178,31 @@ const styles = StyleSheet.create({
     elevation: 6,
     borderWidth: 3,
     borderColor: '#fff',
+  },
+  iconBadgeWrap: {
+    width: 26,
+    height: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  redDot: {
+    position: 'absolute',
+    top: -2,
+    right: -6,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#DC2626',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  redDotTxt: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '800',
+    lineHeight: 12,
   },
 });

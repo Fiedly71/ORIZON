@@ -57,6 +57,7 @@ export default function MessagesScreen({ navigation }) {
           conversationId: item.id,
           title: displayName,
           role,
+          verified: !!item.otherVerified,
         })}
       >
         {item.otherAvatar ? (
@@ -68,10 +69,10 @@ export default function MessagesScreen({ navigation }) {
         )}
         <View style={{ flex: 1 }}>
           <View style={styles.rowTop}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1 }}>
+            <View style={styles.nameLine}>
               <Text style={styles.rowName} numberOfLines={1}>{displayName}</Text>
               {item.otherVerified ? (
-                <Ionicons name="checkmark-circle" size={14} color="#1D4ED8" />
+                <Ionicons name="checkmark-circle" size={15} color="#1D4ED8" style={styles.verifiedIcon} />
               ) : null}
             </View>
             <Text style={styles.rowTime}>{timeAgo(item.lastMessageAt)}</Text>
@@ -145,7 +146,9 @@ const styles = StyleSheet.create({
   },
   avatarTxt: { color: C.primary, fontWeight: '800', fontSize: 18 },
   rowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  rowName: { fontSize: 15, fontWeight: '700', color: C.text, flex: 1 },
+  nameLine: { flexDirection: 'row', alignItems: 'center', flexShrink: 1, minWidth: 0 },
+  rowName: { fontSize: 15, fontWeight: '700', color: C.text, flexShrink: 1 },
+  verifiedIcon: { marginLeft: 4 },
   rowTime: { fontSize: 12, color: C.muted, marginLeft: spacing.md },
   rowProp: { fontSize: 11, color: C.primary, marginTop: 1, fontWeight: '600' },
   rowMsg: { fontSize: 13.5, color: C.muted, marginTop: 2 },

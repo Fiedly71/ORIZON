@@ -103,7 +103,40 @@ const HEAD_INJECTION = `
       html, body, #root { width: 100%; min-height: 100vh; min-height: 100svh; }
       body { margin: 0; background: #F8FAFC; }
       #root { display: flex; flex-direction: column; }
-    </style>`;
+
+      /* Anti-download / anti-drag pour toutes les images (photos de biens) */
+      img {
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
+        user-drag: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+    </style>
+    <script id="orizon-antidownload">
+      (function(){
+        try {
+          // Bloque le clic droit sur toutes les images (Save image as, Copy image)
+          document.addEventListener('contextmenu', function(e){
+            var t = e.target;
+            if (t && (t.tagName === 'IMG' || (t.closest && t.closest('img')))) {
+              e.preventDefault();
+              return false;
+            }
+          }, { capture: true });
+          // Bloque le drag natif
+          document.addEventListener('dragstart', function(e){
+            var t = e.target;
+            if (t && t.tagName === 'IMG') { e.preventDefault(); return false; }
+          }, { capture: true });
+        } catch(_) {}
+      })();
+    </script>`;
 
 const expoResetRegex = /<style id="expo-reset">[\s\S]*?<\/style>/;
 if (expoResetRegex.test(html)) {

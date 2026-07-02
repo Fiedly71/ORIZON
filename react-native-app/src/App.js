@@ -19,6 +19,7 @@ import AppErrorBoundary from './components/AppErrorBoundary';
 import { ToastProvider } from './components/Toast';
 import InstallPromptModal from './components/InstallPromptModal';
 import UpdateBanner from './components/UpdateBanner';
+import AlertHost from './components/AlertHost';
 import { registerPWA } from './utils/registerPWA';
 
 export default function App() {
@@ -53,6 +54,7 @@ export default function App() {
               <RootNavigator />
               <InstallPromptModal />
               <UpdateBanner />
+              <AlertHost />
             </AppErrorBoundary>
           </ToastProvider>
         </BottomSheetModalProvider>

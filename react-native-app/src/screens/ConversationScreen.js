@@ -13,7 +13,7 @@ import {
 import { useAuthStore } from '../store/useAuthStore';
 
 export default function ConversationScreen({ navigation, route }) {
-  const { conversationId, title, role } = route.params || {};
+  const { conversationId, title, role, verified } = route.params || {};
   const myId = useAuthStore((s) => s.user?.id);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -63,7 +63,12 @@ export default function ConversationScreen({ navigation, route }) {
         <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
           <Ionicons name="chevron-back" size={24} color={C.text} />
         </Pressable>
-        <Text style={styles.headerTitle} numberOfLines={1}>{title || 'Conversation'}</Text>
+        <View style={styles.headerTitleWrap}>
+          <Text style={styles.headerTitle} numberOfLines={1}>{title || 'Conversation'}</Text>
+          {verified ? (
+            <Ionicons name="checkmark-circle" size={15} color="#1D4ED8" style={{ marginLeft: 4 }} />
+          ) : null}
+        </View>
         <View style={{ width: 24 }} />
       </View>
 
@@ -129,7 +134,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xxl, paddingVertical: spacing.lg,
     borderBottomWidth: 1, borderBottomColor: C.border,
   },
-  headerTitle: { fontSize: 16, fontWeight: '700', color: C.text, flex: 1, textAlign: 'center' },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: C.text, textAlign: 'center' },
+  headerTitleWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   bubbleRow: { flexDirection: 'row' },
   bubbleRowMine: { justifyContent: 'flex-end' },

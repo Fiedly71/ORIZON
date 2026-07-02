@@ -56,6 +56,9 @@ export default function PropertyDetailScreen({ navigation, route }) {
   const { width: W } = useWindowDimensions();
   // Cap hero pour desktop : on prefere 500px max pour ne pas dominer l'ecran.
   const HERO_H = Math.min(Math.round(W * 0.75), r.isDesktop ? 520 : 600);
+  // Largeur reelle du carousel (calculee via onLayout) - sur web la fenetre
+  // peut differer de la zone rendue (container centre / scrollbar / zoom).
+  const [carouselW, setCarouselW] = useState(0);
   // Source 1: item complet passe en navigation. Source 2: id (deep-link, my-listings, etc.)
   const initialItem = params.item || (params.id ? { id: params.id } : {});
   const [item, setItem] = useState(initialItem);
@@ -165,26 +168,48 @@ export default function PropertyDetailScreen({ navigation, route }) {
         contentContainerStyle={{ paddingBottom: 120 }}
       >
         {/* Hero gallery */}
-        <View style={styles.heroWrap}>
-          {hasPhotos ? (
+        <View
+          style={styles.heroWrap}
+          onLayout={(e) => setCarouselW(e.nativeEvent.layout.width)}
+        >
+          {hasPhotos && carouselW > 0 ? (
             <FlatList
               data={photos}
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
               keyExtractor={(_, i) => String(i)}
+              scrollEventThrottle={16}
+              onScroll={(e) => {
+                if (!carouselW) return;
+                const idx = Math.round(e.nativeEvent.contentOffset.x / carouselW);
+                if (idx !== activeImg && idx >= 0 && idx < photos.length) {
+                  setActiveImg(idx);
+                }
+              }}
               onMomentumScrollEnd={(e) => {
-                const idx = Math.round(e.nativeEvent.contentOffset.x / W);
+                if (!carouselW) return;
+                const idx = Math.round(e.nativeEvent.contentOffset.x / carouselW);
                 setActiveImg(idx);
               }}
               renderItem={({ item: uri, index }) => (
                 <Pressable onPress={() => { setActiveImg(index); setViewerOpen(true); }}>
-                  <Image source={{ uri }} style={[styles.hero, { width: W, height: HERO_H }]} resizeMode="cover" />
+                  <Image
+                    source={{ uri }}
+                    style={[styles.hero, { width: carouselW, height: HERO_H }]}
+                    resizeMode="cover"
+                    draggable={false}
+                    {...(Platform.OS === 'web' ? {
+                      onContextMenu: (e) => e.preventDefault?.(),
+                    } : {})}
+                  />
                 </Pressable>
               )}
             />
+          ) : hasPhotos ? (
+            <View style={[styles.hero, { width: '100%', height: HERO_H, backgroundColor: '#F1F5F9' }]} />
           ) : (
-            <View style={[styles.hero, styles.heroPlaceholder, { width: W, height: HERO_H }]}>
+            <View style={[styles.hero, styles.heroPlaceholder, { width: '100%', height: HERO_H }]}>
               <Ionicons name="image-outline" size={64} color="#9CA3AF" />
               <Text style={styles.heroPlaceholderTxt}>Pas de photo disponible</Text>
             </View>
