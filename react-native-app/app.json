@@ -2,12 +2,12 @@
   "expo": {
     "name": "ORIZON Mobile",
     "slug": "orizon-mobile",
-    "version": "1.0.0",
+    "version": "1.0.13",
     "scheme": "orizon",
     "icon": "./assets/icon.png",
     "android": {
       "package": "com.orizon.mobile",
-      "versionCode": 1,
+      "versionCode": 13,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#004c3f"
@@ -34,7 +34,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.orizon.mobile",
-      "buildNumber": "1",
+      "buildNumber": "13",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "ORIZON utilise votre position pour afficher les biens proches.",
         "NSPhotoLibraryUsageDescription": "ORIZON a besoin d'acceder a vos photos pour publier vos annonces.",
