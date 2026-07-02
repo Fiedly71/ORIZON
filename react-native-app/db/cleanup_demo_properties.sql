@@ -1,29 +1,23 @@
 -- ORIZON - Nettoyage des annonces de demo / test AI.
--- A executer une seule fois dans Supabase Dashboard > SQL Editor
--- (utilise le role service_role du SQL Editor, donc bypass RLS).
---
+-- A executer dans Supabase Dashboard > SQL Editor.
 -- Conserve uniquement la propriete de pierrea503@gmail.com (Pierre Alex).
--- Supprime tous les autres seeds + tests + demo_proprio + demo_agence.
 --
--- BACKUP: le SQL Editor de Supabase permet un rollback via transaction.
--- Cette version wrap tout dans une transaction pour valider avant commit.
+-- MODE : par defaut, ce script fait un DRY-RUN (rollback a la fin).
+-- Il affiche la liste des annonces qui seraient supprimees + celles gardees.
+-- Pour valider : change la derniere ligne "rollback;" en "commit;" et re-run.
 
 begin;
 
--- 1) Recuperer l'UUID a garder (Pierre Alex - pierrea503@gmail.com)
---    Modifie l'email si besoin.
 do $$
 declare
   keep_id uuid := (select id from auth.users where lower(email) = 'pierrea503@gmail.com' limit 1);
-  deleted_props int;
-  deleted_media int := 0;
+  deleted_props int := 0;
 begin
   if keep_id is null then
     raise exception 'Utilisateur pierrea503@gmail.com introuvable dans auth.users. Verifie l''email.';
   end if;
 
-  -- 2) Nettoyage cascade : donnees liees aux annonces qu'on va supprimer.
-  --    On isole d'abord les IDs a supprimer.
+  -- IDs a supprimer
   create temp table _to_delete on commit drop as
     select id from public.properties
     where owner_id is distinct from keep_id;
@@ -33,39 +27,43 @@ begin
     select coalesce((select title from public.properties where owner_id = keep_id limit 1), '(aucune)')
   );
 
-  -- Enfants dependants (best-effort - on ignore si la table n'existe pas)
+  -- Cascade : chaque delete est isole - si la table/colonne n'existe pas, on l'ignore.
+  begin execute 'delete from public.property_media  where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip property_media : %', sqlerrm; end;
+  begin execute 'delete from public.reviews         where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip reviews : %', sqlerrm; end;
+  begin execute 'delete from public.favorites       where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip favorites : %', sqlerrm; end;
+  begin execute 'delete from public.visits          where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip visits : %', sqlerrm; end;
+  begin execute 'delete from public.price_history   where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip price_history : %', sqlerrm; end;
+  begin execute 'delete from public.property_views  where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip property_views : %', sqlerrm; end;
+  begin execute 'delete from public.alerts          where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip alerts : %', sqlerrm; end;
+  begin execute 'delete from public.payments        where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip payments : %', sqlerrm; end;
+  begin execute 'delete from public.saved_searches  where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip saved_searches : %', sqlerrm; end;
+
+  -- reports : cle polymorphique (target_type='property', target_id text)
   begin
-    delete from public.property_media where property_id in (select id from _to_delete);
-    get diagnostics deleted_media = row_count;
-  exception when undefined_table then null;
+    execute $q$
+      delete from public.reports
+      where target_type = 'property'
+        and target_id in (select id::text from _to_delete)
+    $q$;
+  exception when others then raise notice 'skip reports : %', sqlerrm;
   end;
 
-  begin delete from public.reviews         where property_id in (select id from _to_delete); exception when undefined_table then null; end;
-  begin delete from public.favorites       where property_id in (select id from _to_delete); exception when undefined_table then null; end;
-  begin delete from public.visits          where property_id in (select id from _to_delete); exception when undefined_table then null; end;
-  begin delete from public.reports         where property_id in (select id from _to_delete); exception when undefined_table then null; end;
-  begin delete from public.price_history   where property_id in (select id from _to_delete); exception when undefined_table then null; end;
-  begin delete from public.property_views  where property_id in (select id from _to_delete); exception when undefined_table then null; end;
-  begin delete from public.messages        where conversation_id in (
-          select id from public.conversations where property_id in (select id from _to_delete)
-        ); exception when undefined_table then null; end;
-  begin delete from public.conversations   where property_id in (select id from _to_delete); exception when undefined_table then null; end;
-  begin delete from public.alerts          where property_id in (select id from _to_delete); exception when undefined_table then null; end;
-  begin delete from public.payments        where property_id in (select id from _to_delete); exception when undefined_table then null; end;
+  -- Messagerie : messages puis conversations liees a une annonce supprimee
+  begin execute 'delete from public.messages      where conversation_id in (select id from public.conversations where property_id in (select id from _to_delete))'; exception when others then raise notice 'skip messages : %', sqlerrm; end;
+  begin execute 'delete from public.conversations where property_id     in (select id from _to_delete)'; exception when others then raise notice 'skip conversations : %', sqlerrm; end;
 
-  -- 3) Suppression des proprietes
+  -- Suppression des annonces elles-memes
   delete from public.properties where id in (select id from _to_delete);
   get diagnostics deleted_props = row_count;
 
-  raise notice 'OK - % annonces supprimees (% medias associes).', deleted_props, deleted_media;
+  raise notice 'OK - % annonces supprimees.', deleted_props;
 end $$;
 
--- 4) Verification finale : lister ce qui reste
+-- Verification finale : ce qui reste
 select id, title, location, owner_name, posted_at, payment_status
 from public.properties
 order by created_at desc;
 
--- Si le resultat est OK (uniquement Pierre Alex), remplace ROLLBACK par COMMIT ci-dessous.
--- Par defaut on ROLLBACK pour dry-run : re-execute le script en changeant la ligne pour valider.
+-- Change "rollback;" en "commit;" et re-execute pour valider.
 rollback;
 -- commit;
