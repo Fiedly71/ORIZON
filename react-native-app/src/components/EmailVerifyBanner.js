@@ -1,11 +1,11 @@
 // EmailVerifyBanner - bandeau global affiché quand l'utilisateur est connecté
 // mais que son email n'est pas encore vérifié. Rappelle et propose de renvoyer
 // le mail de confirmation. Se cache automatiquement dès que l'email est validé.
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Pressable, StyleSheet, Platform, AppState } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuthStore } from '../store/useAuthStore';
-import { resendEmailVerification } from '../services/authService';
+import { resendEmailVerification, refreshCurrentUser } from '../services/authService';
 import { appAlert } from '../utils/appAlert';
 
 export default function EmailVerifyBanner() {
@@ -14,6 +14,39 @@ export default function EmailVerifyBanner() {
   const [dismissed, setDismissed] = useState(false);
 
   const isVerified = !!(user?.emailConfirmedAt || user?.emailVerified);
+
+  // Rafraichit l'utilisateur quand l'app/onglet reprend le focus, pour
+  // detecter la verification email faite dans un autre onglet ou apres
+  // un retour d'arriere-plan. Egalement au montage.
+  useEffect(() => {
+    if (!user || isVerified) return undefined;
+    refreshCurrentUser().catch(() => {});
+
+    if (Platform.OS === 'web') {
+      const onFocus = () => { refreshCurrentUser().catch(() => {}); };
+      const onVis = () => {
+        if (typeof document !== 'undefined' && !document.hidden) {
+          refreshCurrentUser().catch(() => {});
+        }
+      };
+      if (typeof window !== 'undefined') {
+        window.addEventListener('focus', onFocus);
+        window.addEventListener('visibilitychange', onVis);
+      }
+      return () => {
+        if (typeof window !== 'undefined') {
+          window.removeEventListener('focus', onFocus);
+          window.removeEventListener('visibilitychange', onVis);
+        }
+      };
+    }
+
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') refreshCurrentUser().catch(() => {});
+    });
+    return () => { sub.remove(); };
+  }, [user?.id, isVerified]);
+
   if (!user || isVerified || dismissed) return null;
 
   const onResend = async () => {

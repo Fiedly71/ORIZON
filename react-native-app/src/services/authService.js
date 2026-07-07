@@ -201,6 +201,29 @@ export async function restoreSession() {
   });
 }
 
+// Rafraichit l'utilisateur courant depuis Supabase (utile pour detecter la
+// verification email quand elle a lieu dans un autre onglet ou apres un
+// retour d'arriere-plan). Silencieux : n'echoue jamais bruyamment.
+export async function refreshCurrentUser() {
+  if (!isSupabaseConfigured) return { ok: true, mock: true };
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data?.user) return { ok: false, error: error?.message };
+    const current = useAuthStore.getState().user;
+    if (!current) return { ok: false, error: 'no user' };
+    const u = data.user;
+    useAuthStore.getState().setUser({
+      ...current,
+      email: u.email,
+      emailConfirmedAt: u.email_confirmed_at || null,
+    });
+    await hydrateProfile().catch(() => {});
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e?.message };
+  }
+}
+
 export const AUTH_ROLES = ROLES;
 export const PUBLISHER_AUTH_ROLES = PUBLISHER_ROLES;
 
