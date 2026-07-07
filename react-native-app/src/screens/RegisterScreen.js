@@ -30,7 +30,7 @@ import { pickImages, uploadImage } from '../services/storageService';
 import { submitKyc, DOC_TYPES } from '../services/kycService';
 
 const ROLE_BUYER = 'Acheteur / Locataire';
-const ROLE_OWNER = 'Proprietaire';
+const ROLE_OWNER = 'Propriétaire';
 const ROLE_AGENCY = 'Agence';
 
 const DOC_LABELS = {
@@ -109,6 +109,7 @@ export default function RegisterScreen({ navigation }) {
         fullName: form.fullName.trim(),
         phone: form.phone.trim(),
         role,
+        agencyName: role === ROLE_AGENCY ? form.agencyName.trim() : null,
         address: isPublisher
           ? [form.address.trim(), form.city, form.dept].filter(Boolean).join(', ')
           : '',
@@ -283,8 +284,8 @@ export default function RegisterScreen({ navigation }) {
                 onChange={(v) => update('city', v)}
                 disabled={!form.dept}
               />
-              <Text style={styles.label}>ADRESSE COMPLETE *</Text>
-              <TextInput value={form.address} onChangeText={(v) => update('address', v)} placeholder="Rue, quartier, point de repere" placeholderTextColor={C.muted} style={styles.field} />
+              <Text style={styles.label}>ADRESSE COMPLÈTE *</Text>
+              <TextInput value={form.address} onChangeText={(v) => update('address', v)} placeholder="Rue, quartier, point de repère" placeholderTextColor={C.muted} style={styles.field} />
             </>
           )}
 

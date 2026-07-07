@@ -301,7 +301,7 @@ export async function rejectMonCashPayment(paymentId, reason) {
   if (!isSupabaseConfigured) return { ok: true };
   const { error } = await supabase.rpc('reject_payment', {
     p_payment_id: paymentId,
-    p_reason: reason || 'Reference introuvable',
+    p_reason: reason || 'Référence introuvable',
   });
   if (error) return { ok: false, error: error.message };
   return { ok: true };

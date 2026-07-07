@@ -7,8 +7,8 @@ import { useAuthStore } from '../store/useAuthStore';
 import { identify, resetAnalytics, track, EVT } from './analyticsService';
 import { setUserContext } from './errorService';
 
-const ROLES = ['Acheteur / Locataire', 'Proprietaire', 'Agence'];
-const PUBLISHER_ROLES = ['Proprietaire', 'Agence'];
+const ROLES = ['Acheteur / Locataire', 'Propriétaire', 'Agence'];
+const PUBLISHER_ROLES = ['Propriétaire', 'Agence'];
 
 // Normalise une chaine (retire accents + minuscule) pour comparer les roles
 // de facon robuste (la DB peut contenir 'Propriétaire' avec accent, des
@@ -96,11 +96,14 @@ export async function hydrateProfile() {
     avatarUrl: data.avatar_url || user.avatarUrl,
     agencyName: data.agency_name || null,
     address: data.address || null,
+    city: data.city || null,
+    department: data.department || null,
     bio: data.bio || null,
     verified: !!data.verified,
     canPublish: !!data.can_publish,
     publishFree: !!data.publish_free,
     publish_free: !!data.publish_free,
+    emailVerified: !!data.email_verified || !!user.emailConfirmedAt,
     verificationLevel: data.verification_level || (data.verified ? 'basic' : 'none'),
     verifiedAt: data.verified_at || null,
   });
@@ -136,7 +139,7 @@ export async function signInWithPassword({ email, password }) {
   }
 }
 
-export async function signUp({ email, password, fullName, phone, role, address, city, department, referralCode }) {
+export async function signUp({ email, password, fullName, phone, role, agencyName, address, city, department, referralCode }) {
   const { setLoading, setUser } = useAuthStore.getState();
   setLoading(true);
   try {
@@ -144,26 +147,34 @@ export async function signUp({ email, password, fullName, phone, role, address, 
       setUser(mockUser({ email, fullName, phone, role }));
       return { ok: true, mock: true };
     }
+    const metadata = {
+      fullName, phone, role,
+      agencyName: agencyName || null,
+      address: address || null,
+      city: city || null,
+      department: department || null,
+      referralCode: referralCode || null,
+    };
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { fullName, phone, role, address, city, department, referralCode: referralCode || null },
+        data: metadata,
         emailRedirectTo: buildAppRedirect('confirm-email'),
       },
     });
     if (error) return { ok: false, error: error.message };
     setSessionFromSupabase(data);
-    // Met a jour la ligne profiles avec l'adresse + le code parrain. Best-effort.
+    // Filet de sécurité : upsert du profil via RPC (SECURITY DEFINER) pour
+    // garantir que les infos remontent dans public.profiles même si le
+    // trigger n'a pas tourné et même sans session (email non vérifié).
     if (data?.user?.id) {
       try {
-        const patch = {};
-        if (address) patch.address = address;
-        if (referralCode) patch.referral_code = referralCode;
-        if (Object.keys(patch).length > 0) {
-          await supabase.from('profiles').update(patch).eq('id', data.user.id);
-        }
-      } catch {}
+        await supabase.rpc('upsert_profile_bootstrap', {
+          p_user_id: data.user.id,
+          p_data: { ...metadata, email },
+        });
+      } catch (_) {}
     }
     return { ok: true, needsEmailConfirm: !data.session };
   } finally {

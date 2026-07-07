@@ -13,10 +13,20 @@ import { C } from '../theme/colors';
 import {
   LISTING_FEE_HTG,
 } from '../services/paymentsService';
+import { useAuthStore } from '../store/useAuthStore';
+import { requireEmailVerified } from '../utils/emailVerifyGuard';
 
 export default function CheckoutScreen({ navigation, route }) {
   const propertyId = route?.params?.propertyId || null;
   const propertyTitle = route?.params?.propertyTitle || 'Nouvelle annonce';
+  const user = useAuthStore((s) => s.user);
+
+  useEffect(() => {
+    if (user && !(user.emailConfirmedAt || user.emailVerified)) {
+      requireEmailVerified('payer');
+      navigation.goBack();
+    }
+  }, [user, navigation]);
 
   const proceed = () => {
     navigation.replace('MonCashManual', { propertyId, amount: LISTING_FEE_HTG, purpose: 'listing' });
@@ -34,14 +44,14 @@ export default function CheckoutScreen({ navigation, route }) {
 
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14, width: '100%', maxWidth: 720, alignSelf: 'center' }}>
         <View style={styles.summary}>
-          <Text style={styles.sumLabel}>Resume / Rezime</Text>
+          <Text style={styles.sumLabel}>Résumé / Rezime</Text>
           <Text style={styles.sumTitle}>{propertyTitle}</Text>
           <View style={styles.sumRow}>
             <Text style={styles.sumKey}>Frais de publication</Text>
             <Text style={styles.sumVal}>{LISTING_FEE_HTG.toLocaleString('fr-FR')} HTG</Text>
           </View>
           <Text style={styles.sumNote}>
-            Ton annonce sera publiee des que ton paiement sera valide (quelques minutes a quelques heures) et restera visible 60 jours.
+            Ton annonce sera publiée dès que ton paiement sera validé (quelques minutes à quelques heures) et restera visible 60 jours.
           </Text>
           <Text style={[styles.sumNote, { marginTop: 4 }]}>
             Anons ou ap pibliye le yo verifye peman an. Li ap rete vizib pou 60 jou.

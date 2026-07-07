@@ -9,27 +9,27 @@ import { Header } from './MyListingsScreen';
 const FAQ = [
   {
     q: 'Comment publier une annonce ?',
-    a: "Depuis la barre principale, appuie sur 'Vendre'. Le wizard te guide en 3 etapes: infos, photos, tarif.",
+    a: "Depuis la barre principale, appuie sur 'Vendre'. Le wizard te guide en 3 étapes: infos, photos, tarif.",
   },
   {
-    q: 'Comment etre verifie ?',
-    a: "Va dans Profil > Verification KYC. Telecharge un selfie et une piece d'identite (CIN, passeport ou permis). La validation prend 24-48h.",
+    q: 'Comment etre vérifie ?',
+    a: "Va dans Profil > Vérification KYC. Telecharge un selfie et une pièce d'identité (CIN, passeport ou permis). La validation prend 24-48h.",
   },
   {
     q: 'Quels sont les moyens de paiement ?',
-    a: "ORIZON accepte les cartes bancaires (Stripe) et MonCash en Haiti. Aucun frais cache.",
+    a: "ORIZON accepte les cartes bancaires (Stripe) et MonCash en Haïti. Aucun frais cache.",
   },
   {
-    q: 'Comment fonctionne la calculette d hypotheque ?',
+    q: 'Comment fonctionne la calculette d hypothèque ?',
     a: "Entre le prix, l'apport et choisis un produit bancaire. Le tableau d amortissement est calcule en temps reel.",
   },
   {
     q: 'Comment supprimer mon compte ?',
-    a: "Ecris-nous depuis l'option 'Contact' ci-dessous avec ton email. La suppression est traitee sous 7 jours.",
+    a: "Écris-nous depuis l'option 'Contact' ci-dessous avec ton email. La suppression est traitee sous 7 jours.",
   },
   {
-    q: 'Mes donnees sont-elles protegees ?',
-    a: "Oui. Toutes les donnees sont chiffrees au repos via Supabase et en transit (HTTPS). Voir nos CGU pour plus d info.",
+    q: 'Mes données sont-elles protegees ?',
+    a: "Oui. Toutes les données sont chiffrées au repos via Supabase et en transit (HTTPS). Voir nos CGU pour plus d info.",
   },
 ];
 

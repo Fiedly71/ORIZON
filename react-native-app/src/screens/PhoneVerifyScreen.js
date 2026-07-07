@@ -43,7 +43,7 @@ export default function PhoneVerifyScreen({ navigation }) {
     const r = await verifyPhoneOtp(phone, code);
     setLoading(false);
     if (!r.ok) { Alert.alert('Erreur', r.error); return; }
-    Alert.alert('Verifie !', 'Ton numero est confirme.', [
+    Alert.alert('Vérifié !', 'Ton numéro est confirmé.', [
       { text: 'OK', onPress: () => navigation.goBack() },
     ]);
   };
@@ -54,17 +54,17 @@ export default function PhoneVerifyScreen({ navigation }) {
         <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
           <Ionicons name="chevron-back" size={24} color={C.text} />
         </Pressable>
-        <Text style={styles.headerTitle}>Verifier mon telephone</Text>
+        <Text style={styles.headerTitle}>Vérifier mon téléphone</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <View style={styles.body}>
         {step === 1 ? (
           <>
-            <Text style={styles.h2}>Numero de telephone</Text>
-            <Text style={styles.help}>Format : +509 XXXX XXXX (Haiti)</Text>
+            <Text style={styles.h2}>Numéro de téléphone</Text>
+            <Text style={styles.help}>Format : +509 XXXX XXXX (Haïti)</Text>
             <View style={styles.inputRow}>
-              <Text style={styles.prefix}>ðŸ‡­ðŸ‡¹</Text>
+              <Text style={styles.prefix}>🇭🇹</Text>
               <TextInput
                 value={phone} onChangeText={setPhone}
                 placeholder="+509 12 34 56 78"
@@ -82,8 +82,8 @@ export default function PhoneVerifyScreen({ navigation }) {
           </>
         ) : (
           <>
-            <Text style={styles.h2}>Code recu par SMS</Text>
-            <Text style={styles.help}>Envoye a {phone}</Text>
+            <Text style={styles.h2}>Code reçu par SMS</Text>
+            <Text style={styles.help}>Envoyé à {phone}</Text>
             <TextInput
               value={code} onChangeText={setCode}
               placeholder="123456"

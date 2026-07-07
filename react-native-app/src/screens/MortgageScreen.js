@@ -19,7 +19,7 @@ export default function MortgageScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <Header title="Calculateur d'hypotheque" onBack={() => navigation.goBack()} />
+      <Header title="Calculateur d'hypothèque" onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14, width: '100%', maxWidth: 720, alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
         <Field label="PRIX DU BIEN ($)" value={price} onChangeText={setPrice} />
         <Field label="APPORT ($)" value={down} onChangeText={setDown} />
@@ -45,11 +45,11 @@ export default function MortgageScreen({ navigation }) {
 
         {result && (
           <View style={styles.result}>
-            <Text style={styles.resTitle}>Mensualite estimee</Text>
+            <Text style={styles.resTitle}>Mensualité estimée</Text>
             <Text style={styles.resBig}>${Math.round(result.monthly).toLocaleString()}</Text>
-            <Row k="Capital emprunte" v={`$${Math.round(result.principal).toLocaleString()}`} />
-            <Row k="Cout total" v={`$${Math.round(result.totalCost).toLocaleString()}`} />
-            <Row k="Interets totaux" v={`$${Math.round(result.totalInterest).toLocaleString()}`} />
+            <Row k="Capital emprunté" v={`$${Math.round(result.principal).toLocaleString()}`} />
+            <Row k="Coût total" v={`$${Math.round(result.totalCost).toLocaleString()}`} />
+            <Row k="Intérêts totaux" v={`$${Math.round(result.totalInterest).toLocaleString()}`} />
             <Row k="Apport min requis" v={`$${result.minDownRequired.toLocaleString()}`} warn={!result.downPaymentOk} />
             {!result.downPaymentOk && <Text style={styles.warn}>Apport insuffisant pour ce produit.</Text>}
           </View>

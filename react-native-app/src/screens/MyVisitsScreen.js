@@ -53,14 +53,14 @@ export default function MyVisitsScreen({ navigation }) {
         refreshing={loading}
         onRefresh={reload}
         contentContainerStyle={{ padding: 16, gap: 10, width: '100%', maxWidth: 880, alignSelf: 'center' }}
-        ListEmptyComponent={<EmptyState icon="calendar-outline" title={tab === 'visitor' ? 'Aucune visite demandee' : 'Aucune demande recue'} message={tab === 'visitor' ? 'Reserve une visite depuis une annonce.' : 'Tu verras ici les demandes des visiteurs.'} />}
+        ListEmptyComponent={<EmptyState icon="calendar-outline" title={tab === 'visitor' ? 'Aucune visite demandee' : 'Aucune demande reçue'} message={tab === 'visitor' ? 'Reserve une visite depuis une annonce.' : 'Tu verras ici les demandes des visiteurs.'} />}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.title}>Visite #{String(item.id).slice(0, 6)}</Text>
             <Text style={styles.sub}>Prevue le {new Date(item.scheduledAt).toLocaleString('fr-FR')}</Text>
             <Text style={[styles.status, statusColor(item.status)]}>{labelStatus(item.status)}</Text>
             <Pressable style={styles.btnGhost} onPress={() => goChat(item)}>
-              <Text style={styles.btnGhostTxt}>{tab === 'visitor' ? 'Discuter avec le proprietaire' : 'Discuter avec le visiteur'}</Text>
+              <Text style={styles.btnGhostTxt}>{tab === 'visitor' ? 'Discuter avec le propriétaire' : 'Discuter avec le visiteur'}</Text>
             </Pressable>
             {tab === 'visitor' && item.status === 'requested' && (
               <Pressable style={styles.btnGhost} onPress={() => action(cancelVisit, item.id)}>
@@ -85,7 +85,7 @@ export default function MyVisitsScreen({ navigation }) {
 }
 
 function labelStatus(s) {
-  return ({ requested:'En attente', confirmed:'Confirmee', declined:'Refusee', checked_in:'En cours', completed:'Terminee', cancelled:'Annulee', no_show:'Absent' })[s] || s;
+  return ({ requested:'En attente', confirmed:'Confirmée', declined:'Refusee', checked_in:'En cours', completed:'Terminee', cancelled:'Annulée', no_show:'Absent' })[s] || s;
 }
 function statusColor(s) {
   if (s === 'confirmed' || s === 'completed' || s === 'checked_in') return { color: C.success };

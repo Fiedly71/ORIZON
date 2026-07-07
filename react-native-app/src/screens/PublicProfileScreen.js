@@ -77,7 +77,7 @@ export default function PublicProfileScreen({ navigation, route }) {
     const r = await reportTarget({ targetType: 'user', targetId: userId, reason });
     Alert.alert(
       'Signalement',
-      r.ok ? 'Merci, notre equipe va examiner ce profil.' : (r.error || 'Echec.'),
+      r.ok ? 'Merci, notre equipe va examiner ce profil.' : (r.error || 'Échec.'),
     );
   };
 
@@ -123,7 +123,7 @@ export default function PublicProfileScreen({ navigation, route }) {
         <View style={styles.actions}>
           <Pressable style={[styles.btn, styles.btnPrimary]} onPress={onMessage}>
             <Ionicons name="chatbubble-ellipses-outline" size={18} color="#fff" />
-            <Text style={styles.btnPrimaryTxt}>Ecrire</Text>
+            <Text style={styles.btnPrimaryTxt}>Écrire</Text>
           </Pressable>
           <Pressable style={[styles.btn, styles.btnGhost]} onPress={onReport}>
             <Ionicons name="flag-outline" size={18} color={C.danger} />

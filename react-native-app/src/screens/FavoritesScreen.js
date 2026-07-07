@@ -83,7 +83,7 @@ export default function FavoritesScreen({ navigation }) {
           <EmptyState
             icon="heart-outline"
             title="Aucun favori"
-            message="Touche le coeur sur une annonce pour l'enregistrer ici."
+            message="Touche le cœur sur une annonce pour l'enregistrer ici."
           />
         }
         renderItem={({ item }) => (

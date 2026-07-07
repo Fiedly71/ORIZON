@@ -10,7 +10,7 @@ import { Header } from './MyListingsScreen';
 const VERSION = Constants.expoConfig?.version || '1.0.0';
 const COMPANY = {
   name: process.env.EXPO_PUBLIC_COMPANY_NAME || 'ORIZON Immobilier',
-  address: process.env.EXPO_PUBLIC_COMPANY_ADDRESS || 'Cap-Haitien, Departement du Nord, Haiti',
+  address: process.env.EXPO_PUBLIC_COMPANY_ADDRESS || 'Cap-Haïtien, Departement du Nord, Haïti',
   phone: process.env.EXPO_PUBLIC_SUPPORT_PHONE || '+509 42 15 25 69',
   whatsapp: process.env.EXPO_PUBLIC_SUPPORT_WHATSAPP || '50942152569',
   email: process.env.EXPO_PUBLIC_SUPPORT_EMAIL || 'admin@kayorizon.com',
@@ -70,7 +70,7 @@ export default function AboutScreen({ navigation }) {
           </View>
         </Section>
 
-        <Section title="Mentions legales">
+        <Section title="Mentions légales">
           <Pressable style={styles.legalRow} onPress={() => open('https://fiedly71.github.io/ORIZON/terms.html')}>
             <Text style={styles.legalTxt}>Conditions generales d utilisation</Text>
             <Ionicons name="chevron-forward" size={16} color={C.muted} />

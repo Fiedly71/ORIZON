@@ -10,7 +10,7 @@ export const BOOST_PLANS = {
 };
 
 export const AGENCY_PLANS = {
-  agency_basic: { amountUsd: 25, amountHtg: 3200, label: 'Agence Basic',  features: ['10 annonces actives', 'Badge agence'] },
+  agency_basic: { amountUsd: 25, amountHtg: 3200, label: 'Agence Basic',  features: ['10 annonces activées', 'Badge agence'] },
   agency_pro:   { amountUsd: 60, amountHtg: 7600, label: 'Agence Pro',    features: ['Annonces illimitees', 'Badge Pro', 'Stats avancees'] },
 };
 

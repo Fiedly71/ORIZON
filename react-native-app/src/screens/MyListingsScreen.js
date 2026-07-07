@@ -12,7 +12,7 @@ import EmptyState from '../components/EmptyState';
 
 function statusBadge(p) {
   if (p.payment_status !== 'paid') return { label: 'Paiement requis', color: '#92400E', bg: '#FEF3C7' };
-  if (p.moderation_status === 'pending') return { label: 'En moderation', color: '#1E40AF', bg: '#DBEAFE' };
+  if (p.moderation_status === 'pending') return { label: 'En modération', color: '#1E40AF', bg: '#DBEAFE' };
   if (p.moderation_status === 'rejected') return { label: 'Rejetee', color: '#991B1B', bg: '#FEE2E2' };
   if (p.moderation_status === 'approved') return { label: 'En ligne', color: '#15803D', bg: '#DCFCE7' };
   return { label: 'Brouillon', color: '#525252', bg: '#F5F5F5' };
@@ -49,19 +49,19 @@ export default function MyListingsScreen({ navigation }) {
       if (r.ok) {
         setMine((prev) => prev.filter((x) => x.id !== item.id));
       } else {
-        Alert.alert('Suppression impossible', r.error || "Impossible de supprimer l'annonce. Reessaie.");
+        Alert.alert('Suppression impossible', r.error || "Impossible de supprimer l'annonce. Réessaie.");
       }
     };
     if (Platform.OS === 'web') {
       // Alert.alert avec boutons ne fonctionne pas en web -> confirm natif.
-      if (typeof window !== 'undefined' && window.confirm(`Supprimer definitivement "${item.title}" ?`)) {
+      if (typeof window !== 'undefined' && window.confirm(`Supprimer définitivement "${item.title}" ?`)) {
         doDelete();
       }
       return;
     }
     Alert.alert(
       'Supprimer cette annonce ?',
-      `"${item.title}" sera definitivement supprimee. Cette action est irreversible.`,
+      `"${item.title}" sera définitivement supprimée. Cette action est irréversible.`,
       [
         { text: 'Annuler', style: 'cancel' },
         { text: 'Supprimer', style: 'destructive', onPress: doDelete },
@@ -95,7 +95,7 @@ export default function MyListingsScreen({ navigation }) {
           contentContainerStyle={{ padding: 16, gap: 12, width: '100%', maxWidth: 880, alignSelf: 'center' }}
           refreshing={refreshing}
           onRefresh={() => { setRefreshing(true); load(); }}
-          ListEmptyComponent={<EmptyState icon="home-outline" title="Aucune annonce publiee" message="Publie ton premier bien en quelques minutes." ctaLabel="Publier une annonce" onCta={() => navigation.navigate('SellWizard')} />}
+          ListEmptyComponent={<EmptyState icon="home-outline" title="Aucune annonce publiée" message="Publie ton premier bien en quelques minutes." ctaLabel="Publier une annonce" onCta={() => navigation.navigate('SellWizard')} />}
           renderItem={({ item }) => {
             const badge = statusBadge(item);
             return (

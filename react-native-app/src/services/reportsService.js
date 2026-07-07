@@ -9,7 +9,7 @@ export const REPORT_REASONS = [
   { id: 'fake',          label: 'Fausse annonce' },
   { id: 'fraud',         label: 'Tentative de fraude' },
   { id: 'spam',          label: 'Spam ou doublon' },
-  { id: 'inappropriate', label: 'Contenu inapproprie' },
+  { id: 'inappropriate', label: 'Contenu inapproprié' },
   { id: 'other',         label: 'Autre' },
 ];
 

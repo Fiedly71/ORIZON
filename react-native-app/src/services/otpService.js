@@ -15,7 +15,7 @@ export function normalizeHTPhone(raw) {
 export async function sendPhoneOtp(rawPhone) {
   const phone = normalizeHTPhone(rawPhone);
   if (!/^\+\d{10,15}$/.test(phone)) {
-    return { ok: false, error: 'Numero invalide' };
+    return { ok: false, error: 'Numéro invalide' };
   }
   if (!isSupabaseConfigured) {
     if (!__DEV__) return { ok: false, error: 'Service indisponible (configuration manquante).' };

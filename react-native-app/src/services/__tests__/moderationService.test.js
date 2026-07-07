@@ -5,7 +5,7 @@ import {
 
 describe('moderationService.moderateText', () => {
   test('accepte un texte normal', () => {
-    expect(moderateText('Belle propriete bien situee').ok).toBe(true);
+    expect(moderateText('Belle propriété bien situee').ok).toBe(true);
   });
 
   test('rejette les mots interdits', () => {
@@ -21,7 +21,7 @@ describe('moderationService.moderateText', () => {
     expect(r.reason).toBe('trop_court');
   });
 
-  test('rejette si plusieurs telephones detectes', () => {
+  test('rejette si plusieurs téléphones detectes', () => {
     const r = moderateText('contact +509 1111 2222 ou +1 333 444 5555');
     expect(r.ok).toBe(false);
     expect(r.reason).toBe('contacts_externes');

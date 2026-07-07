@@ -6,89 +6,89 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
 
 const TERMS_TEXT = `
-ORIZON - Conditions Generales d'Utilisation
+ORIZON - Conditions Générales d'Utilisation
 Derniere mise a jour: avril 2026
 
 1. OBJET
-ORIZON est une plateforme mobile editee par ORIZON SAS (Haiti) qui met en relation des proprietaires, agences immobilieres et acheteurs/locataires.
+ORIZON est une plateforme mobile éditée par ORIZON SAS (Haïti) qui met en relation des propriétaires, agences immobilières et acheteurs/locataires.
 
 2. INSCRIPTION
-L'inscription est gratuite. Trois roles sont disponibles: Acheteur/Locataire, Proprietaire, Agence. Les comptes Proprietaire et Agence doivent fournir une piece d'identite valide (KYC) et acceptent une verification manuelle avant de pouvoir publier.
+L'inscription est gratuite. Trois roles sont disponibles: Acheteur/Locataire, Propriétaire, Agence. Les comptes Propriétaire et Agence doivent fournir une pièce d'identité valide (KYC) et acceptent une vérification manuelle avant de pouvoir publier.
 
 3. PUBLICATION D'ANNONCES
-La publication est payante: 20 USD ou 2 500 HTG par annonce, payable par carte bancaire (Stripe) ou MonCash. Tout contenu est susceptible de moderation. ORIZON se reserve le droit de retirer toute annonce frauduleuse, dupliquee, ou contraire a la loi haitienne sans remboursement.
+La publication est payante: 20 USD ou 2 500 HTG par annonce, payable par carte bancaire (Stripe) ou MonCash. Tout contenu est susceptible de modération. ORIZON se reserve le droit de retirer toute annonce frauduleuse, dupliquee, ou contraire a la loi haïtienne sans remboursement.
 
 4. CONTENU UTILISATEUR
-Tu garantis avoir les droits sur les photos et descriptions publiees. ORIZON peut signaler aux autorites tout contenu illegal (escroquerie, blanchiment, traite, etc.).
+Tu garantis avoir les droits sur les photos et descriptions publiées. ORIZON peut signaler aux autorites tout contenu illegal (escroquerie, blanchiment, traite, etc.).
 
 5. PAIEMENTS
 Les frais de publication ne sont pas remboursables apres validation. Les transactions reelles entre acheteur et vendeur se font hors plateforme - ORIZON n'est pas partie au contrat de vente/location.
 
 6. RESPONSABILITE
-ORIZON est un intermediaire technique. Nous ne garantissons ni la disponibilite, ni la veracite des annonces. Verifie toujours physiquement un bien et signe un contrat notarie avant tout paiement.
+ORIZON est un intermédiaire technique. Nous ne garantissons ni la disponibilite, ni la véracité des annonces. Vérifie toujours physiquement un bien et signe un contrat notarié avant tout paiement.
 
 7. SUPPRESSION DU COMPTE
-Tu peux supprimer ton compte a tout moment depuis Profil > Supprimer mon compte. Les donnees seront anonymisees immediatement et purgees sous 30 jours.
+Tu peux supprimer ton compte a tout moment depuis Profil > Supprimer mon compte. Les données seront anonymisees immédiatement et purgees sous 30 jours.
 
 8. PROPRIETE INTELLECTUELLE
-La marque ORIZON, le logo, et l'application restent la propriete d'ORIZON SAS.
+La marque ORIZON, le logo, et l'application restent la propriété d'ORIZON SAS.
 
 9. LOI APPLICABLE
-Droit haitien. Tribunal competent: Port-au-Prince.
+Droit haïtien. Tribunal competent: Port-au-Prince.
 
 10. CONTACT
 admin@kayorizon.com
 `;
 
 const PRIVACY_TEXT = `
-ORIZON - Politique de Confidentialite
+ORIZON - Politique de Confidentialité
 Derniere mise a jour: avril 2026
 
 1. DONNEES COLLECTEES
-- Identite: nom, email, telephone, role
-- KYC (Proprio/Agence): photo de selfie, photo recto/verso piece d'identite
+- Identité: nom, email, téléphone, role
+- KYC (Proprio/Agence): photo de selfie, photo recto/verso pièce d'identité
 - Annonces: photos, descriptions, prix, localisation
-- Paiements: historique Stripe/MonCash (montant, date, reference - PAS le numero de carte)
+- Paiements: historique Stripe/MonCash (montant, date, référence - PAS le numéro de carte)
 - Technique: crash logs (Sentry), evenements analytiques (PostHog), tokens push notifications
 
 2. UTILISATION
 - Faire fonctionner l'app et la mise en relation
-- Verifier l'identite des publicateurs (KYC)
+- Vérifier l'identité des publicateurs (KYC)
 - Detecter les fraudes
-- Ameliorer le produit (analytics anonymises)
+- Ameliorer le produit (analytics anonymisés)
 
 3. PARTAGE
 - Supabase (hebergement EU)
 - Stripe / MonCash (traitement paiement)
 - Sentry / PostHog (technique)
-Aucune vente de donnees a des tiers.
+Aucune vente de données a des tiers.
 
 4. CONSERVATION
 - Profil: tant que ton compte est actif, puis 30 jours apres suppression
-- Pieces KYC: 5 ans (obligation legale lutte anti-blanchiment)
+- Pièces KYC: 5 ans (obligation légale lutte anti-blanchiment)
 - Paiements: 10 ans (obligation comptable)
 
-5. TES DROITS (RGPD + loi haitienne)
+5. TES DROITS (RGPD + loi haïtienne)
 - Acces, rectification, suppression: depuis Profil > Modifier ou Profil > Supprimer mon compte
-- Export de tes donnees: ecris a admin@kayorizon.com
-- Opposition au traitement analytics: Reglages > Confidentialite > Refuser le tracking
+- Export de tes données: écris a admin@kayorizon.com
+- Opposition au traitement analytics: Reglages > Confidentialité > Refuser le tracking
 
 6. PERMISSIONS APPAREIL
-- Camera: pour photographier ton bien et ta piece d'identite
-- Galerie photos: pour selectionner des photos existantes
+- Camera: pour photographier ton bien et ta pièce d'identité
+- Galerie photos: pour sélectionner des photos existantes
 - Localisation: pour afficher les biens proches (jamais en arriere-plan)
 - Notifications: pour les alertes de prix, visites confirmees, messages
 
 7. CONTACT DPO
 admin@kayorizon.com
-ORIZON SAS - Cap-Haitien, Departement du Nord, Haiti
+ORIZON SAS - Cap-Haïtien, Departement du Nord, Haïti
 `;
 
 export default function LegalScreen({ route, navigation }) {
   const kind = route?.params?.kind || 'terms';
   const isTerms = kind === 'terms';
   const text = isTerms ? TERMS_TEXT : PRIVACY_TEXT;
-  const title = isTerms ? "Conditions d'utilisation" : 'Politique de confidentialite';
+  const title = isTerms ? "Conditions d'utilisation" : 'Politique de confidentialité';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

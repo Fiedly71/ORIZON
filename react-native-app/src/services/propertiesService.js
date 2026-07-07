@@ -159,10 +159,10 @@ export async function createProperty(p) {
       const msg = String(error.message || '').toLowerCase();
       // Erreurs metiers : pas la peine de retry, on traduit
       if (msg.includes('annonce similaire') || msg.includes('p0002')) {
-        return { ok: false, error: "Une annonce avec exactement le meme titre, lieu et prix existe deja sur la plateforme. Change un detail (titre plus precis, prix legerement different) puis reessaie.", code: 'DUPLICATE' };
+        return { ok: false, error: "Une annonce avec exactement le meme titre, lieu et prix existe déjà sur la plateforme. Change un détail (titre plus précis, prix legerement different) puis réessaie.", code: 'DUPLICATE' };
       }
       if (msg.includes('row-level security') || msg.includes('rls') || msg.includes('permission denied')) {
-        return { ok: false, error: "Ton compte n'a pas l'autorisation de publier. Reconnecte-toi puis reessaie, ou contacte le support.", code: 'RLS' };
+        return { ok: false, error: "Ton compte n'a pas l'autorisation de publier. Reconnecte-toi puis réessaie, ou contacte le support.", code: 'RLS' };
       }
       // Erreurs reseau : on retry
       if (!msg.includes('failed to fetch') && !msg.includes('network') && !msg.includes('timeout')) break;
@@ -174,7 +174,7 @@ export async function createProperty(p) {
   }
   const finalMsg = String(lastErr?.message || lastErr || 'Erreur inconnue').toLowerCase();
   if (finalMsg.includes('failed to fetch') || finalMsg.includes('network')) {
-    return { ok: false, error: "Connexion instable. Verifie ta connexion Internet et reessaie. Tes infos sont sauvegardees, tu peux republier sans tout retaper.", code: 'NETWORK' };
+    return { ok: false, error: "Connexion instable. Vérifie ta connexion Internet et réessaie. Tes infos sont sauvegardees, tu peux republier sans tout retaper.", code: 'NETWORK' };
   }
   return { ok: false, error: lastErr?.message || 'Erreur inconnue', data: null };
 }

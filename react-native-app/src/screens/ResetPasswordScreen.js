@@ -32,7 +32,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
     try {
       const r = await updatePassword(pwd);
       if (!r.ok) {
-        Alert.alert('Erreur', r.error || 'Echec.');
+        Alert.alert('Erreur', r.error || 'Échec.');
         return;
       }
       Alert.alert(
@@ -66,7 +66,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
 
       <View style={styles.body}>
         <Text style={styles.title}>
-          {fromProfile ? 'Definis un nouveau mot de passe' : 'Cree ton nouveau mot de passe'}
+          {fromProfile ? 'Definis un nouveau mot de passe' : 'Crée ton nouveau mot de passe'}
         </Text>
         <Text style={styles.txt}>
           Au moins 8 caracteres. Utilise un melange de lettres, chiffres et symboles.

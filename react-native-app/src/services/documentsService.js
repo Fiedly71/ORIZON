@@ -52,7 +52,7 @@ export function buildPurchaseOfferHtml({ property, buyer, offerAmount, condition
     <h2>Offre</h2>
     ${rows({ Montant_propose: `$${Number(offerAmount).toLocaleString()}`,
              Conditions: conditions || 'Aucune condition particuliere' })}
-    <p>L'acheteur soumet par la presente une offre formelle pour l'acquisition du bien decrit ci-dessus, sous reserve de la verification des titres et de l'inspection du bien.</p>
+    <p>L'acheteur soumet par la presente une offre formelle pour l'acquisition du bien decrit ci-dessus, sous reserve de la vérification des titres et de l'inspection du bien.</p>
     <div class="sign"><div>Acheteur</div><div>Vendeur</div></div>
   `;
   return pageWrapper("Offre d'achat", body);
@@ -66,15 +66,15 @@ export function buildVisitMandateHtml({ property, visitor, scheduledAt }) {
     ${rows({ Nom: visitor.fullName, Telephone: visitor.phone || '-' })}
     <h2>Visite</h2>
     ${rows({ Date_et_heure: new Date(scheduledAt).toLocaleString('fr-FR') })}
-    <p>Le visiteur s'engage a respecter les consignes de visite et a ne prendre aucune photo sans l'accord du proprietaire.</p>
-    <div class="sign"><div>Visiteur</div><div>Agent / Proprietaire</div></div>
+    <p>Le visiteur s'engage a respecter les consignes de visite et a ne prendre aucune photo sans l'accord du propriétaire.</p>
+    <div class="sign"><div>Visiteur</div><div>Agent / Propriétaire</div></div>
   `;
   return pageWrapper('Mandat de visite', body);
 }
 
 export async function generateAndShare(html, { fileName = 'document.pdf' } = {}) {
   const { uri } = await Print.printToFileAsync({ html });
-  if (!uri) return { ok: false, error: 'Echec de generation' };
+  if (!uri) return { ok: false, error: 'Échec de generation' };
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: fileName });
   }

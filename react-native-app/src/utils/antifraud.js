@@ -18,7 +18,7 @@ export function sanitizeMessage(text) {
   if (detectContactInfo(text)) {
     return {
       ok: false,
-      error: 'Echange de coordonnees externes interdit. Utilise la messagerie ORIZON pour ta securite.',
+      error: 'Echange de coordonnées externes interdit. Utilise la messagerie ORIZON pour ta sécurité.',
     };
   }
   return { ok: true, body: String(text || '').trim() };

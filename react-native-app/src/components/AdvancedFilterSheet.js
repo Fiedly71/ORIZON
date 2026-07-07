@@ -107,8 +107,8 @@ export default function AdvancedFilterSheet({ visible, onClose, value, onApply }
               size={22} color={f.superhostOnly ? C.primary : C.muted}
             />
             <View style={{ flex: 1 }}>
-              <Text style={styles.toggleTitle}>Hotes Superhost uniquement</Text>
-              <Text style={styles.toggleSub}>Note â‰¥ 4.7 et profil verifie</Text>
+              <Text style={styles.toggleTitle}>Hôtes Superhost uniquement</Text>
+              <Text style={styles.toggleSub}>Note ≥ 4.7 et profil vérifié</Text>
             </View>
           </Pressable>
         </ScrollView>

@@ -12,6 +12,7 @@ import { pickImages, uploadImages } from '../services/storageService';
 import { useProperty } from '../store/useProperty';
 import { useAuthStore } from '../store/useAuthStore';
 import { canPublish } from '../services/authService';
+import { requireEmailVerified } from '../utils/emailVerifyGuard';
 import { getProperty as getPropertyById, updateProperty as svcUpdate } from '../services/propertiesService';
 import { DEPARTMENTS, CITIES_BY_DEPT, formatLocation, parseLocation } from '../constants/haiti';
 import PickerField from '../components/PickerField';
@@ -30,6 +31,13 @@ export default function SellWizardScreen({ navigation, route }) {
   const [loadingEdit, setLoadingEdit] = useState(!!editId);
   const addProperty = useProperty((s) => s.addProperty);
   const user = useAuthStore((s) => s.user);
+
+  useEffect(() => {
+    if (user && !(user.emailConfirmedAt || user.emailVerified)) {
+      requireEmailVerified('publier une annonce');
+      navigation.goBack();
+    }
+  }, [user, navigation]);
 
   // Garde de role: seuls Proprietaire/Agence peuvent publier.
   if (!canPublish(user?.role)) {
@@ -224,7 +232,7 @@ export default function SellWizardScreen({ navigation, route }) {
     if (step === 1) {
       // Visites: facultatif. Si renseigne, valide format.
       for (const s of (data.visitSlots || [])) {
-        if (!s.date || !s.start || !s.end) return 'Chaque creneau doit avoir une date et des horaires.';
+        if (!s.date || !s.start || !s.end) return 'Chaque créneau doit avoir une date et des horaires.';
       }
     }
     if (step === 2) {
@@ -257,7 +265,7 @@ export default function SellWizardScreen({ navigation, route }) {
     };
     try {
       await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(persistable));
-      Alert.alert('Brouillon enregistre', 'Tu pourras reprendre ton annonce a tout moment depuis cet ecran.');
+      Alert.alert('Brouillon enregistré', 'Tu pourras reprendre ton annonce a tout moment depuis cet écran.');
       navigation.goBack();
     } catch (e) {
       Alert.alert('Brouillon', "Impossible d'enregistrer le brouillon.");
@@ -317,7 +325,7 @@ export default function SellWizardScreen({ navigation, route }) {
       if (editId) {
         const r = await svcUpdate(editId, payload);
         if (!r.ok) { Alert.alert('Modification', r.error || ''); return; }
-        Alert.alert('Annonce mise a jour', 'Tes modifications ont ete enregistrees.');
+        Alert.alert('Annonce mise a jour', 'Tes modifications ont été enregistrees.');
         navigation.goBack();
         return;
       }
@@ -344,10 +352,10 @@ export default function SellWizardScreen({ navigation, route }) {
       const isFreePublisher = !!(user?.publish_free || user?.publishFree);
       if (isFreePublisher || isLaunchFreeActive()) {
         Alert.alert(
-          'Annonce publiee',
+          'Annonce publiée',
           isLaunchFreeActive()
             ? `Ton annonce est en ligne gratuitement (promo de lancement ORIZON jusqu'au ${LAUNCH_FREE_END_LABEL}).`
-            : 'Felicitations ! Ton annonce est en ligne. Tu beneficies de la publication gratuite.',
+            : 'Félicitations ! Ton annonce est en ligne. Tu bénéficies de la publication gratuite.',
           [{ text: 'OK', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'App' }, { name: 'MyListings' }] }) }],
         );
         return;
@@ -391,7 +399,7 @@ export default function SellWizardScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         {step === 0 && (
           <View style={{ gap: 10 }}>
-            <Field label="TITRE" value={data.title} onChangeText={(v) => update('title', v)} placeholder="Belle villa au Cap-Haitien" />
+            <Field label="TITRE" value={data.title} onChangeText={(v) => update('title', v)} placeholder="Belle villa au Cap-Haïtien" />
             <PickerField
               label="DEPARTEMENT"
               value={data.dept}
@@ -587,10 +595,10 @@ function VisitSlotsEditor({ slots, onChange }) {
       <View style={styles.feeBox}>
         <Ionicons name="calendar-outline" size={20} color={C.primary} />
         <View style={{ flex: 1 }}>
-          <Text style={styles.feeTitle}>Tes disponibilites pour les visites</Text>
+          <Text style={styles.feeTitle}>Tes disponibilités pour les visites</Text>
           <Text style={styles.feeTxt}>
-            Ajoute les creneaux ou tu peux recevoir des visiteurs. Ce sont les seuls
-            creneaux que les acheteurs pourront choisir pour demander une visite.
+            Ajoute les créneaux où tu peux recevoir des visiteurs. Ce sont les seuls
+            créneaux que les acheteurs pourront choisir pour demander une visite.
           </Text>
         </View>
       </View>

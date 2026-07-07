@@ -10,17 +10,27 @@ import * as ImagePicker from 'expo-image-picker';
 import { C, radii, spacing } from '../theme/colors';
 import { submitKyc, getMyKycStatus, KYC_STATUS, DOC_TYPES } from '../services/kycService';
 import { useToast } from '../components/Toast';
+import { useAuthStore } from '../store/useAuthStore';
+import { requireEmailVerified } from '../utils/emailVerifyGuard';
 
 const DOC_LABELS = { cin: 'CIN', passport: 'Passeport', driver_license: 'Permis de conduire' };
 
 export default function KycScreen({ navigation }) {
   const toast = useToast();
+  const user = useAuthStore((s) => s.user);
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
     fullName: '', docType: 'cin', docNumber: '', selfieUri: null, docFrontUri: null, docBackUri: null,
   });
+
+  useEffect(() => {
+    if (user && !(user.emailConfirmedAt || user.emailVerified)) {
+      requireEmailVerified('soumettre ta vérification KYC');
+      navigation.goBack();
+    }
+  }, [user, navigation]);
 
   useEffect(() => {
     getMyKycStatus().then((r) => {
@@ -86,13 +96,13 @@ export default function KycScreen({ navigation }) {
 
   const submit = async () => {
     if (!form.fullName || !form.docNumber || !form.selfieUri || !form.docFrontUri) {
-      Alert.alert('ORIZON', 'Nom, numero, selfie et recto requis.'); return;
+      Alert.alert('ORIZON', 'Nom, numéro, selfie et recto requis.'); return;
     }
     setBusy(true);
     const r = await submitKyc(form);
     setBusy(false);
     if (r.ok) {
-      toast.show('Demande envoyee. Verification sous 24-48h.', { type: 'success' });
+      toast.show('Demande envoyée. Vérification sous 24-48h.', { type: 'success' });
       const s = await getMyKycStatus();
       if (s.ok) setStatus(s.data);
     } else Alert.alert('Erreur', r.error);
@@ -112,7 +122,7 @@ export default function KycScreen({ navigation }) {
         <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
           <Ionicons name="chevron-back" size={24} color={C.text} />
         </Pressable>
-        <Text style={styles.title}>Verification (KYC)</Text>
+        <Text style={styles.title}>Vérification (KYC)</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -120,34 +130,34 @@ export default function KycScreen({ navigation }) {
         {status?.status === KYC_STATUS.APPROVED ? (
           <View style={[styles.banner, { backgroundColor: '#D1FAE5' }]}>
             <Ionicons name="shield-checkmark" size={28} color={C.success} />
-            <Text style={[styles.bannerTxt, { color: '#065F46' }]}>Compte verifie</Text>
-            <Text style={styles.bannerSub}>Le badge "Verifie" est visible sur tes annonces.</Text>
+            <Text style={[styles.bannerTxt, { color: '#065F46' }]}>Compte vérifié</Text>
+            <Text style={styles.bannerSub}>Le badge "Vérifié" est visible sur tes annonces.</Text>
           </View>
         ) : status?.status === KYC_STATUS.PENDING ? (
           <View style={[styles.banner, { backgroundColor: '#FEF3C7' }]}>
             <Ionicons name="time-outline" size={28} color="#92400E" />
-            <Text style={[styles.bannerTxt, { color: '#92400E' }]}>Verification en cours</Text>
-            <Text style={styles.bannerSub}>Reponse sous 24-48h ouvrees.</Text>
+            <Text style={[styles.bannerTxt, { color: '#92400E' }]}>Vérification en cours</Text>
+            <Text style={styles.bannerSub}>Réponse sous 24-48h ouvrées.</Text>
           </View>
         ) : status?.status === KYC_STATUS.REJECTED ? (
           <View style={[styles.banner, { backgroundColor: '#FEE2E2' }]}>
             <Ionicons name="close-circle" size={28} color={C.danger} />
-            <Text style={[styles.bannerTxt, { color: '#991B1B' }]}>Demande rejetee</Text>
+            <Text style={[styles.bannerTxt, { color: '#991B1B' }]}>Demande rejetée</Text>
             <Text style={styles.bannerSub}>Tu peux soumettre une nouvelle demande.</Text>
           </View>
         ) : (
           <Text style={styles.intro}>
-            Pour obtenir le badge "Verifie" et rassurer les acheteurs, soumets une piece d'identite + un selfie.
+            Pour obtenir le badge "Vérifié" et rassurer les acheteurs, soumets une pièce d'identité + un selfie.
           </Text>
         )}
 
         {(status?.status !== KYC_STATUS.APPROVED && status?.status !== KYC_STATUS.PENDING) && (
           <>
-            <Text style={styles.label}>Nom complet (comme sur la piece)</Text>
+            <Text style={styles.label}>Nom complet (comme sur la pièce)</Text>
             <TextInput style={styles.input} value={form.fullName}
               onChangeText={(v) => setForm({ ...form, fullName: v })} placeholder="Ex: Jean Pierre" placeholderTextColor={C.muted} />
 
-            <Text style={styles.label}>Type de piece</Text>
+            <Text style={styles.label}>Type de pièce</Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {DOC_TYPES.map((t) => (
                 <Pressable key={t} onPress={() => setForm({ ...form, docType: t })}
@@ -157,14 +167,14 @@ export default function KycScreen({ navigation }) {
               ))}
             </View>
 
-            <Text style={styles.label}>Numero de la piece</Text>
+            <Text style={styles.label}>Numéro de la pièce</Text>
             <TextInput style={styles.input} value={form.docNumber}
               onChangeText={(v) => setForm({ ...form, docNumber: v })} placeholder="Ex: 003-456-789" placeholderTextColor={C.muted} />
 
             <Text style={styles.label}>Selfie (visage clair, sans lunettes)</Text>
             <PhotoBtn uri={form.selfieUri} onPress={() => pick('selfieUri')} icon="person-circle-outline" />
 
-            <Text style={styles.label}>Photo recto de la piece</Text>
+            <Text style={styles.label}>Photo recto de la pièce</Text>
             <PhotoBtn uri={form.docFrontUri} onPress={() => pick('docFrontUri')} icon="card-outline" />
 
             <Text style={styles.label}>Photo verso (si applicable)</Text>

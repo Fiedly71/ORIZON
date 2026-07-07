@@ -20,11 +20,11 @@ export default function BlockedUsersScreen({ navigation }) {
   useEffect(() => { load(); }, [load]);
 
   const onUnblock = (id) => {
-    Alert.alert('Debloquer ?', 'Tu reverras a nouveau les annonces de cet utilisateur.', [
+    Alert.alert('Débloquer ?', 'Tu reverras a nouveau les annonces de cet utilisateur.', [
       { text: 'Annuler', style: 'cancel' },
-      { text: 'Debloquer', onPress: async () => {
+      { text: 'Débloquer', onPress: async () => {
           const r = await unblockUser(id);
-          if (!r.ok) Alert.alert('Erreur', r.error || 'Echec');
+          if (!r.ok) Alert.alert('Erreur', r.error || 'Échec');
           load();
         } },
     ]);
@@ -46,7 +46,7 @@ export default function BlockedUsersScreen({ navigation }) {
         ListEmptyComponent={
           <View style={styles.empty}>
             <Ionicons name="ban-outline" size={42} color={C.muted} />
-            <Text style={styles.emptyTxt}>Aucun utilisateur bloque.</Text>
+            <Text style={styles.emptyTxt}>Aucun utilisateur bloqué.</Text>
           </View>
         }
         contentContainerStyle={{ padding: 16, gap: 8, flexGrow: 1 }}

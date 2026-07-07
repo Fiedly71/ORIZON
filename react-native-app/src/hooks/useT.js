@@ -22,7 +22,7 @@ export function useT() {
 }
 
 export const SUPPORTED_LANGUAGES = [
-  { code: 'fr', label: 'Francais' },
+  { code: 'fr', label: 'Français' },
   { code: 'ht', label: 'Kreyol' },
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Espanol' },

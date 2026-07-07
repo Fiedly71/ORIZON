@@ -38,7 +38,7 @@ export default function VisitBookingSheet({ visible, onClose, property, onBooked
   const submit = async () => {
     const s = slots[selectedIdx];
     if (!s) {
-      Alert.alert('Manquant', 'Choisis un creneau parmi ceux proposes par le proprietaire.');
+      Alert.alert('Manquant', 'Choisis un créneau parmi ceux proposes par le propriétaire.');
       return;
     }
     if (!property?.ownerId) {
@@ -76,8 +76,8 @@ export default function VisitBookingSheet({ visible, onClose, property, onBooked
 
     setSubmitting(false);
     Alert.alert(
-      'Demande envoyee',
-      `Visite demandee pour le ${formatSlotDate(s.date)} a ${s.start}.\nLe proprietaire a recu ton message.`,
+      'Demande envoyée',
+      `Visite demandee pour le ${formatSlotDate(s.date)} a ${s.start}.\nLe propriétaire a reçu ton message.`,
     );
     onBooked?.();
     reset();
@@ -99,15 +99,15 @@ export default function VisitBookingSheet({ visible, onClose, property, onBooked
           {slots.length === 0 ? (
             <View style={styles.emptyWrap}>
               <Ionicons name="calendar-outline" size={48} color={C.muted} />
-              <Text style={styles.emptyTitle}>Aucun creneau propose</Text>
+              <Text style={styles.emptyTitle}>Aucun créneau proposé</Text>
               <Text style={styles.emptyTxt}>
-                Ce vendeur n'a pas encore renseigne ses disponibilites. Tu peux quand
-                meme le contacter pour convenir d'une date.
+                Ce vendeur n'a pas encore renseigné ses disponibilités. Tu peux quand
+                même le contacter pour convenir d'une date.
               </Text>
             </View>
           ) : (
             <>
-              <Text style={styles.h2}>Choisis un creneau propose par le vendeur</Text>
+              <Text style={styles.h2}>Choisis un créneau proposé par le vendeur</Text>
               <View style={{ gap: 10, marginTop: spacing.md }}>
                 {slots.map((s, i) => {
                   const isSel = selectedIdx === i;

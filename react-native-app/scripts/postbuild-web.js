@@ -151,6 +151,19 @@ const HEAD_INJECTION = `
         user-select: none;
         -webkit-touch-callout: none;
       }
+
+      /* Fix iOS Safari : zoom automatique sur input focus quand font-size < 16px.
+         On force 16px min sur tous les champs pour empecher le zoom.
+         Le zoom reste possible en pinch-to-zoom manuel (a11y preservee). */
+      input, textarea, select,
+      input[type="text"], input[type="email"], input[type="password"],
+      input[type="tel"], input[type="number"], input[type="search"],
+      input[type="url"], input[type="date"], input[type="time"] {
+        font-size: 16px !important;
+        touch-action: manipulation;
+      }
+      /* Empeche aussi le double-tap zoom sur les boutons */
+      button, [role="button"], a { touch-action: manipulation; }
     </style>
     <script id="orizon-antidownload">
       (function(){

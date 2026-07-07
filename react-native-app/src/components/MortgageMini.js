@@ -32,10 +32,10 @@ export default function MortgageMini({ price = 0 }) {
       <View style={styles.row}>
         <Field label="Apport (%)" value={downPct} onChange={setDownPct} />
         <Field label="Taux annuel (%)" value={rate} onChange={setRate} />
-        <Field label="Duree (ans)" value={years} onChange={setYears} />
+        <Field label="Durée (ans)" value={years} onChange={setYears} />
       </View>
       <View style={styles.result}>
-        <Text style={styles.resTxt}>Mensualite estimee</Text>
+        <Text style={styles.resTxt}>Mensualité estimée</Text>
         <Text style={styles.resPrice}>${Math.round(calc.monthly).toLocaleString()}</Text>
         <Text style={styles.resSub}>
           Capital emprunte : ${Math.round(calc.principal).toLocaleString()} · Total :

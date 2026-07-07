@@ -1,12 +1,12 @@
 // Catalogue des produits hypothecaires bancaires en Haiti.
 // Taux indicatifs USD/HTG; a ajuster periodiquement ou a charger depuis Supabase.
 export const MORTGAGE_PRODUCTS = [
-  { id: 'unibank-usd',  bank: 'Unibank',  currency: 'USD', annualRate: 0.085, maxYears: 20, minDownPct: 0.20, name: 'Pret Habitat USD' },
-  { id: 'unibank-htg',  bank: 'Unibank',  currency: 'HTG', annualRate: 0.155, maxYears: 15, minDownPct: 0.20, name: 'Pret Habitat HTG' },
+  { id: 'unibank-usd',  bank: 'Unibank',  currency: 'USD', annualRate: 0.085, maxYears: 20, minDownPct: 0.20, name: 'Prêt Habitat USD' },
+  { id: 'unibank-htg',  bank: 'Unibank',  currency: 'HTG', annualRate: 0.155, maxYears: 15, minDownPct: 0.20, name: 'Prêt Habitat HTG' },
   { id: 'sogebank-usd', bank: 'Sogebank', currency: 'USD', annualRate: 0.090, maxYears: 25, minDownPct: 0.25, name: 'Sogimmo USD' },
   { id: 'sogebank-htg', bank: 'Sogebank', currency: 'HTG', annualRate: 0.160, maxYears: 15, minDownPct: 0.25, name: 'Sogimmo HTG' },
   { id: 'capital-usd',  bank: 'Capital Bank', currency: 'USD', annualRate: 0.095, maxYears: 20, minDownPct: 0.20, name: 'Habitat Plus USD' },
-  { id: 'bnc-htg',      bank: 'BNC',      currency: 'HTG', annualRate: 0.140, maxYears: 20, minDownPct: 0.15, name: 'Pret Habitat BNC' },
+  { id: 'bnc-htg',      bank: 'BNC',      currency: 'HTG', annualRate: 0.140, maxYears: 20, minDownPct: 0.15, name: 'Prêt Habitat BNC' },
 ];
 
 // Mensualite d'un pret amortissable.

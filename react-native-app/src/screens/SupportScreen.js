@@ -33,11 +33,11 @@ export default function SupportScreen({ navigation }) {
         });
         if (error) throw error;
       }
-      toast.show('Demande envoyee. Reponse sous 24h.', { type: 'success' });
+      toast.show('Demande envoyée. Réponse sous 24h.', { type: 'success' });
       setSubject(''); setMessage('');
       navigation.goBack();
     } catch (e) {
-      Alert.alert('Echec', e.message);
+      Alert.alert('Échec', e.message);
     } finally { setBusy(false); }
   };
 
@@ -67,7 +67,7 @@ export default function SupportScreen({ navigation }) {
         <Text style={styles.label}>Message</Text>
         <TextInput
           value={message} onChangeText={setMessage}
-          placeholder="Decris ton probleme en detail..." placeholderTextColor={C.muted}
+          placeholder="Decris ton problème en détail..." placeholderTextColor={C.muted}
           multiline style={[styles.input, { minHeight: 140, textAlignVertical: 'top' }]}
         />
 

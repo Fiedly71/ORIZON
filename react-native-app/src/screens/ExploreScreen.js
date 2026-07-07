@@ -252,7 +252,7 @@ export default function ExploreScreen({ navigation }) {
               const criteria = { q: search || undefined, type: category !== 'all' ? category : undefined, status: status !== 'all' ? status : undefined, ...(advFilter || {}) };
               const name = (search || category !== 'all' ? `${search || category}` : 'Mes filtres');
               const r = await saveSearch({ name, criteria, frequency: 'daily' });
-              toast.show(r.ok ? 'Recherche sauvegardee' : (r.error || 'Echec'), { type: r.ok ? 'success' : 'error' });
+              toast.show(r.ok ? 'Recherche sauvegardee' : (r.error || 'Échec'), { type: r.ok ? 'success' : 'error' });
             }}
           >
             <Ionicons name="bookmark-outline" size={14} color={C.primary} />
@@ -372,7 +372,7 @@ export default function ExploreScreen({ navigation }) {
             isFiltering ? (
               <View style={styles.emptyWrap}>
                 <Ionicons name="search-outline" size={48} color={C.muted} />
-                <Text style={styles.emptyTitle}>Aucun bien trouve</Text>
+                <Text style={styles.emptyTitle}>Aucun bien trouvé</Text>
                 <Text style={styles.emptyTxt}>Modifie tes filtres ou ta recherche.</Text>
                 <Pressable
                   style={styles.emptyBtn}
@@ -382,7 +382,7 @@ export default function ExploreScreen({ navigation }) {
                   }}
                 >
                   <Ionicons name="refresh" size={16} color="#fff" />
-                  <Text style={styles.emptyBtnTxt}>Reinitialiser les filtres</Text>
+                  <Text style={styles.emptyBtnTxt}>Réinitialiser les filtres</Text>
                 </Pressable>
               </View>
             ) : (

@@ -110,7 +110,7 @@ export default function PropertyCardAirbnb({
           {item.verified && (
             <View style={[styles.badge, { backgroundColor: C.primary }]}>
               <Ionicons name="shield-checkmark" size={11} color="#fff" />
-              <Text style={styles.badgeTxt}>  Verifie</Text>
+              <Text style={styles.badgeTxt}>  Vérifié</Text>
             </View>
           )}
         </View>

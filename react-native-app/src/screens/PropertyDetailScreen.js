@@ -29,6 +29,7 @@ import PriceHistoryChart from '../components/PriceHistoryChart';
 import ReportSheet from '../components/ReportSheet';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { openConversation } from '../services/messagingService';
+import { requireEmailVerified } from '../utils/emailVerifyGuard';
 import { isSuperhost } from '../utils/superhost';
 import { getProperty, getPublicProfile } from '../services/propertiesService';
 import { useResponsive } from '../hooks/useResponsive';
@@ -40,11 +41,11 @@ const AMENITY_ICONS = {
   'Garage': 'car',
   'Climatisation': 'snow',
   'Wifi': 'wifi',
-  'Securite': 'shield-checkmark',
+  'Sécurité': 'shield-checkmark',
   'Vue mer': 'eye',
   'Vue': 'eye',
   'Cuisine equipee': 'restaurant',
-  'Meuble': 'bed',
+  'Meublé': 'bed',
   'Balcon': 'home',
   'Terrasse': 'sunny',
   'Parking': 'car',
@@ -78,7 +79,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
       const r = await getProperty(params.id);
       if (!alive) return;
       if (r.ok && r.data) setItem(r.data);
-      else Alert.alert('Annonce introuvable', r.error || "Cette annonce n'existe plus ou a ete supprimee.", [
+      else Alert.alert('Annonce introuvable', r.error || "Cette annonce n'existe plus ou a été supprimée.", [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
       setLoading(false);
@@ -128,9 +129,13 @@ export default function PropertyDetailScreen({ navigation, route }) {
     }
   };
 
-  const onVisit = () => setBookingOpen(true);
+  const onVisit = () => {
+    if (!requireEmailVerified('demander une visite')) return;
+    setBookingOpen(true);
+  };
 
   const onContact = async () => {
+    if (!requireEmailVerified('contacter un vendeur')) return;
     if (!item.ownerId) {
       Alert.alert(
         'Contact indisponible',
@@ -146,7 +151,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
     if (r.ok) {
       navigation.navigate('Conversation', {
         conversationId: r.data.id,
-        title: item.ownerName || 'Proprietaire',
+        title: item.ownerName || 'Propriétaire',
         role: 'buyer',
       });
     } else {
@@ -270,7 +275,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
                 <>
                   <Text style={styles.dot}> · </Text>
                   <Ionicons name="shield-checkmark" size={13} color={C.primary} />
-                  <Text style={[styles.rating, { color: C.primary, marginLeft: 4 }]}>Verifie</Text>
+                  <Text style={[styles.rating, { color: C.primary, marginLeft: 4 }]}>Vérifié</Text>
                 </>
               )}
             </View>
@@ -284,7 +289,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
             {item.bedrooms > 0 && <SpecCell icon="bed-outline" label={`${item.bedrooms} ch.`} />}
             {item.bathrooms > 0 && <SpecCell icon="water-outline" label={`${item.bathrooms} sdb`} />}
             {item.area > 0 && <SpecCell icon="resize-outline" label={`${item.area} m²`} />}
-            {item.floors > 0 && <SpecCell icon="layers-outline" label={`${item.floors} etages`} />}
+            {item.floors > 0 && <SpecCell icon="layers-outline" label={`${item.floors} étages`} />}
             {item.yearBuilt && <SpecCell icon="calendar-outline" label={`${item.yearBuilt}`} />}
           </View>
 
@@ -307,12 +312,12 @@ export default function PropertyDetailScreen({ navigation, route }) {
             )}
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={styles.hostTitle}>Propose par {item.ownerName || 'le proprietaire'}</Text>
+                <Text style={styles.hostTitle}>Propose par {item.ownerName || 'le propriétaire'}</Text>
                 {(item.verified || ownerProfile?.verified) && (
                   <Ionicons name="checkmark-circle" size={14} color="#1D4ED8" />
                 )}
               </View>
-              <Text style={styles.hostSub}>{item.ownerType || 'Proprietaire individuel'}</Text>
+              <Text style={styles.hostSub}>{item.ownerType || 'Propriétaire individuel'}</Text>
             </View>
             <Pressable style={styles.contactBtn} onPress={onContact}>
               <Ionicons name="chatbubble-ellipses-outline" size={16} color={C.primary} />
@@ -374,7 +379,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
               </MapView>
               <View style={styles.miniMapBadge}>
                 <Ionicons name="expand" size={14} color="#fff" />
-                <Text style={styles.miniMapBadgeTxt}>Plein ecran</Text>
+                <Text style={styles.miniMapBadgeTxt}>Plein écran</Text>
               </View>
             </Pressable>
           ) : (

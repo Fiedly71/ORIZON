@@ -38,17 +38,17 @@ const GROUPS = [
     ],
   },
   {
-    title: 'Verification & Securite',
+    title: 'Vérification & Sécurité',
     items: [
-      { key: 'Kyc',          icon: 'shield-checkmark-outline', label: "Verification d'identite (KYC)", publisherOnly: true },
-      { key: 'BlockedUsers', icon: 'ban-outline',              label: 'Utilisateurs bloques' },
+      { key: 'Kyc',          icon: 'shield-checkmark-outline', label: "Vérification d'identité (KYC)", publisherOnly: true },
+      { key: 'BlockedUsers', icon: 'ban-outline',              label: 'Utilisateurs bloqués' },
     ],
   },
   {
     title: 'Outils',
     items: [
       { key: 'Payments',  icon: 'card-outline',       label: 'Historique paiements' },
-      { key: 'Mortgage',  icon: 'calculator-outline', label: "Calculateur d'hypotheque" },
+      { key: 'Mortgage',  icon: 'calculator-outline', label: "Calculateur d'hypothèque" },
     ],
   },
   {
@@ -60,10 +60,10 @@ const GROUPS = [
     ],
   },
   {
-    title: 'Legal',
+    title: 'Légal',
     items: [
       { key: 'Terms',    icon: 'document-text-outline', label: "Conditions d'utilisation" },
-      { key: 'Privacy',  icon: 'lock-closed-outline',   label: 'Politique de confidentialite' },
+      { key: 'Privacy',  icon: 'lock-closed-outline',   label: 'Politique de confidentialité' },
     ],
   },
 ];
@@ -87,8 +87,8 @@ export default function ProfileScreen({ navigation }) {
   const onResend = async () => {
     const r = await resendEmailVerification();
     Alert.alert(
-      'Email de verification',
-      r.ok ? 'Email renvoye. Verifie ta boite de reception.' : (r.error || 'Echec'),
+      'Email de vérification',
+      r.ok ? 'Email renvoyé. Vérifie ta boîte de reception.' : (r.error || 'Échec'),
     );
   };
 
@@ -118,8 +118,8 @@ export default function ProfileScreen({ navigation }) {
           <Pressable style={styles.warningBanner} onPress={onResend}>
             <Ionicons name="mail-unread-outline" size={18} color={M.text} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.warningTitle}>Verifie ton email</Text>
-              <Text style={styles.warningTxt}>Touche pour renvoyer le mail de verification.</Text>
+              <Text style={styles.warningTitle}>Vérifie ton email</Text>
+              <Text style={styles.warningTxt}>Touche pour renvoyer le mail de vérification.</Text>
             </View>
             <Ionicons name="chevron-forward" size={16} color={M.text} />
           </Pressable>
@@ -207,7 +207,7 @@ export default function ProfileScreen({ navigation }) {
           onPress={() => {
             Alert.alert(
               'Supprimer mon compte ?',
-              'Cette action est irreversible. Ton profil sera anonymise, tes annonces archivees, et ton compte definitivement supprime sous 30 jours conformement au RGPD.',
+              'Cette action est irréversible. Ton profil sera anonymisé, tes annonces archivées, et ton compte définitivement supprime sous 30 jours conformement au RGPD.',
               [
                 { text: 'Annuler', style: 'cancel' },
                 {
@@ -215,7 +215,7 @@ export default function ProfileScreen({ navigation }) {
                   style: 'destructive',
                   onPress: async () => {
                     const r = await deleteMyAccount();
-                    if (!r.ok) Alert.alert('Erreur', r.error || 'Echec de la suppression');
+                    if (!r.ok) Alert.alert('Erreur', r.error || 'Échec de la suppression');
                   },
                 },
               ],

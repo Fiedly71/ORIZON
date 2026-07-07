@@ -113,9 +113,9 @@ export default function InstallPromptModal() {
             <View style={s.iconWrap}>
               <Ionicons name="phone-portrait-outline" size={36} color={C.primary} />
             </View>
-            <Text style={s.title}>Installe ORIZON sur ton telephone</Text>
+            <Text style={s.title}>Installe ORIZON sur ton téléphone</Text>
             <Text style={s.subtitle}>
-              Acces direct depuis ton ecran d'accueil, plus rapide, fonctionne meme avec une connexion faible.
+              Accès direct depuis ton écran d'accueil, plus rapide, fonctionne même avec une connexion faible.
             </Text>
 
             {platform === 'android' && (
@@ -126,7 +126,7 @@ export default function InstallPromptModal() {
                   <Feature icon="wifi-outline" txt="Hors-ligne" />
                 </View>
                 <Text style={s.helpAndroid}>
-                  C'est une application web installable: pas besoin de passer par le Play Store, aucun espace de stockage utilise pour le telechargement. Tu retrouves ORIZON comme une vraie app sur ton ecran d'accueil.
+                  C'est une application web installable: pas besoin de passer par le Play Store, aucun espace de stockage utilise pour le telechargement. Tu retrouves ORIZON comme une vraie app sur ton écran d'accueil.
                 </Text>
                 {deferred ? (
                   <Pressable style={s.primaryBtn} onPress={onInstall}>
@@ -137,8 +137,8 @@ export default function InstallPromptModal() {
                   <View style={s.steps}>
                     <Text style={s.stepsTitle}>Ouvre le menu du navigateur</Text>
                     <Step n="1" txt={'Touche les 3 points en haut a droite (\u22EE).'} />
-                    <Step n="2" txt={'Choisis "Installer l\'application" ou "Ajouter a l\'ecran d\'accueil".'} />
-                    <Step n="3" txt="Confirme. ORIZON apparait sur ton ecran d'accueil." />
+                    <Step n="2" txt={'Choisis "Installer l\'application" ou "Ajouter a l\'écran d\'accueil".'} />
+                    <Step n="3" txt="Confirme. ORIZON apparait sur ton écran d'accueil." />
                   </View>
                 )}
               </>
@@ -148,11 +148,11 @@ export default function InstallPromptModal() {
               <>
                 <View style={s.featuresRow}>
                   <Feature icon="flash-outline" txt="Plus rapide" />
-                  <Feature icon="home-outline" txt="Ecran accueil" />
+                  <Feature icon="home-outline" txt="Écran accueil" />
                   <Feature icon="wifi-outline" txt="Hors-ligne" />
                 </View>
                 <Text style={s.helpIos}>
-                  Sur iPhone, l'installation se fait depuis Safari en 3 etapes. Pas besoin d'App Store, c'est gratuit et instantane.
+                  Sur iPhone, l'installation se fait depuis Safari en 3 étapes. Pas besoin d'App Store, c'est gratuit et instantane.
                 </Text>
                 <View style={s.steps}>
                   <Text style={s.stepsTitle}>Etapes pour iPhone (Safari)</Text>
@@ -163,12 +163,12 @@ export default function InstallPromptModal() {
                   />
                   <Step
                     n="2"
-                    txt={'Fais defiler et choisis "Sur l\'ecran d\'accueil".'}
+                    txt={'Fais defiler et choisis "Sur l\'écran d\'accueil".'}
                     icon="add-circle-outline"
                   />
                   <Step
                     n="3"
-                    txt={'Touche "Ajouter" en haut a droite. ORIZON apparait sur ton ecran d\'accueil.'}
+                    txt={'Touche "Ajouter" en haut a droite. ORIZON apparait sur ton écran d\'accueil.'}
                     icon="checkmark-circle-outline"
                   />
                 </View>

@@ -31,7 +31,7 @@ export default class AppErrorBoundary extends React.Component {
             </Text>
           </ScrollView>
           <Pressable style={styles.btn} onPress={this.reset}>
-            <Text style={styles.btnTxt}>Reessayer</Text>
+            <Text style={styles.btnTxt}>Réessayer</Text>
           </Pressable>
         </View>
       );

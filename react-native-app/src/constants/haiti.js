@@ -23,7 +23,7 @@ export const CITIES_BY_DEPT = {
     'Anse-a-Galets', 'Pointe-a-Raquette', 'Ganthier', 'Fonds-Verrettes',
   ],
   'Nord': [
-    'Cap-Haitien', 'Limonade', 'Quartier-Morin', 'Plaine-du-Nord', 'Milot',
+    'Cap-Haïtien', 'Limonade', 'Quartier-Morin', 'Plaine-du-Nord', 'Milot',
     'Grande-Riviere-du-Nord', 'Bahon', 'Acul-du-Nord', 'Plaisance',
     'Pilate', 'Borgne', 'Port-Margot', 'Limbe', 'Bas-Limbe',
     'Saint-Raphael', 'Dondon', 'Ranquitte', 'La Victoire', 'Pignon',

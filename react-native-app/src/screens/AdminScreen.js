@@ -115,8 +115,8 @@ export default function AdminScreen({ navigation }) {
         </View>
         <View style={styles.center}>
           <Ionicons name="lock-closed-outline" size={48} color={M.muted} />
-          <Text style={styles.deniedTxt}>Acces refuse</Text>
-          <Text style={styles.deniedSub}>Reserve aux administrateurs.</Text>
+          <Text style={styles.deniedTxt}>Accès refusé</Text>
+          <Text style={styles.deniedSub}>Réservé aux administrateurs.</Text>
         </View>
       </SafeAreaView>
     );
@@ -202,7 +202,7 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
         </View>
         <View style={styles.gridRow}>
           <StatCard label="Acheteurs / Locataires" value={stats.users.buyers} small />
-          <StatCard label="Proprietaires" value={stats.users.owners} small />
+          <StatCard label="Propriétaires" value={stats.users.owners} small />
         </View>
         <View style={styles.gridRow}>
           <StatCard label="Agences" value={stats.users.agencies} small />
@@ -216,7 +216,7 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
           <StatCard label="En attente" value={stats.properties.pending} icon="hourglass-outline" />
         </View>
         <View style={styles.gridRow}>
-          <StatCard label="Rejetees" value={stats.properties.rejected} small />
+          <StatCard label="Rejetées" value={stats.properties.rejected} small />
           <StatCard label="Vendues" value={stats.properties.sold} small />
         </View>
         <View style={styles.gridRow}>
@@ -227,22 +227,22 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
 
       <Section title="Revenus" icon="cash">
         <View style={styles.gridRow}>
-          <StatCard label="Total cumule" value={fmt(stats.revenue.total)} highlight icon="wallet-outline" />
+          <StatCard label="Total cumulé" value={fmt(stats.revenue.total)} highlight icon="wallet-outline" />
           <StatCard label="Ce mois" value={fmt(stats.revenue.thisMonth)} icon="calendar-outline" />
         </View>
         <View style={styles.gridRow}>
           <StatCard label="Aujourd'hui" value={fmt(stats.revenue.today)} small />
-          <StatCard label="Rembourses" value={fmt(stats.revenue.refunded)} small danger />
+          <StatCard label="Remboursés" value={fmt(stats.revenue.refunded)} small danger />
         </View>
       </Section>
 
       <Section title="KYC Agences" icon="shield-checkmark">
         <View style={styles.gridRow}>
           <StatCard label="En attente" value={stats.kyc.pending} highlight icon="hourglass-outline" />
-          <StatCard label="Approuves" value={stats.kyc.approved} icon="checkmark-done-outline" />
+          <StatCard label="Approuvés" value={stats.kyc.approved} icon="checkmark-done-outline" />
         </View>
         <View style={styles.gridRow}>
-          <StatCard label="Rejetes" value={stats.kyc.rejected} small danger />
+          <StatCard label="Rejetés" value={stats.kyc.rejected} small danger />
           <View style={{ flex: 1 }} />
         </View>
       </Section>
@@ -250,7 +250,7 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
       <Section title="Signalements" icon="alert-circle">
         <View style={styles.gridRow}>
           <StatCard label="Ouverts" value={stats.reports.open} danger icon="warning-outline" />
-          <StatCard label="Resolus" value={stats.reports.resolved} small icon="checkmark-outline" />
+          <StatCard label="Résolus" value={stats.reports.resolved} small icon="checkmark-outline" />
         </View>
       </Section>
     </ScrollView>
@@ -314,7 +314,7 @@ function ListView({ tab, data, loading, refreshing, onRefresh, reload }) {
     return (
       <View style={styles.center}>
         <Ionicons name="checkmark-circle-outline" size={36} color={M.muted} />
-        <Text style={styles.empty}>Rien a afficher</Text>
+        <Text style={styles.empty}>Rien à afficher</Text>
       </View>
     );
   }
@@ -340,7 +340,7 @@ function ListView({ tab, data, loading, refreshing, onRefresh, reload }) {
 
 function UserRow({ item, reload }) {
   const onBan = () => {
-    Alert.alert(item.banned ? 'Debannir' : 'Bannir', `${item.full_name || item.email} ?`, [
+    Alert.alert(item.banned ? 'Débannir' : 'Bannir', `${item.full_name || item.email} ?`, [
       { text: 'Annuler', style: 'cancel' },
       {
         text: 'OK',
@@ -354,7 +354,7 @@ function UserRow({ item, reload }) {
     Alert.alert(
       next ? 'Publication gratuite' : 'Retirer publication gratuite',
       next
-        ? `Autoriser ${item.full_name || item.email} a publier sans payer ?`
+        ? `Autoriser ${item.full_name || item.email} à publier sans payer ?`
         : `Retirer l'exemption de paiement pour ${item.full_name || item.email} ?`,
       [
         { text: 'Annuler', style: 'cancel' },
@@ -376,7 +376,7 @@ function UserRow({ item, reload }) {
         <Text style={styles.rowSub}>{item.email}</Text>
         <View style={styles.tagsRow}>
           <Tag>{item.role || 'Utilisateur'}</Tag>
-          {item.verified ? <Tag dark>Verifie</Tag> : null}
+          {item.verified ? <Tag dark>Vérifié</Tag> : null}
           {item.publish_free ? <Tag dark>Gratuit</Tag> : null}
           {item.banned ? <Tag danger>Banni</Tag> : null}
         </View>
@@ -429,7 +429,7 @@ function PendingRow({ item, reload }) {
         </Text>
       </View>
       {decided === 'approved' ? (
-        <DecisionBadge kind="ok" label="Approuve" />
+        <DecisionBadge kind="ok" label="Approuvé" />
       ) : decided === 'rejected' ? (
         <DecisionBadge kind="danger" label="Rejete" />
       ) : (
@@ -450,7 +450,7 @@ function PhotoRow({ item, reload }) {
   const [decided, setDecided] = useState(null);
   // Annonces deja live — admin peut SEULEMENT rejeter (cache l'annonce)
   const reject = () => {
-    Alert.alert('Rejeter cette annonce', `Les photos de "${item.title}" sont inappropriees ?`, [
+    Alert.alert('Rejeter cette annonce', `Les photos de "${item.title}" sont inappropriées ?`, [
       { text: 'Annuler', style: 'cancel' },
       {
         text: 'Rejeter',
@@ -525,7 +525,7 @@ function MonCashPendingRow({ item, reload }) {
   const approve = () => {
     Alert.alert(
       'Approuver ce paiement',
-      `Verifie sur ton telephone que tu as bien recu ${fmt(item.amount)} avec la reference ${item.moncash_reference} de ${item.moncash_phone || '?'}.\n\nApprouver active immediatement le service du client.`,
+      `Vérifie sur ton téléphone que tu as bien reçu ${fmt(item.amount)} avec la référence ${item.moncash_reference} de ${item.moncash_phone || '?'}.\n\nApprouver active immédiatement le service du client.`,
       [
         { text: 'Annuler', style: 'cancel' },
         {
@@ -551,7 +551,7 @@ function MonCashPendingRow({ item, reload }) {
           style: 'destructive',
           onPress: async () => {
             setDecided('rejected');
-            const r = await rejectMonCashPayment(item.id, 'Reference introuvable sur MonCash');
+            const r = await rejectMonCashPayment(item.id, 'Référence introuvable sur MonCash');
             if (!r.ok) { setDecided(null); Alert.alert('Erreur', r.error); }
             reload();
           },
@@ -582,7 +582,7 @@ function MonCashPendingRow({ item, reload }) {
         </View>
       </View>
       {decided === 'approved' ? (
-        <DecisionBadge kind="ok" label="Approuve" />
+        <DecisionBadge kind="ok" label="Approuvé" />
       ) : decided === 'rejected' ? (
         <DecisionBadge kind="danger" label="Rejete" />
       ) : (
@@ -607,7 +607,7 @@ function KycRow({ item, reload }) {
       action === 'approved' ? 'Approuver KYC' : 'Rejeter KYC',
       action === 'rejected'
         ? 'L\'utilisateur pourra re-soumettre ses documents.'
-        : 'L\'agence sera verifiee et pourra publier.',
+        : 'L\'agence sera vérifiée et pourra publier.',
       [
         { text: 'Annuler', style: 'cancel' },
         { text: 'OK', onPress: async () => {
@@ -630,7 +630,7 @@ function KycRow({ item, reload }) {
         ) : null}
       </View>
       {decided === 'approved' ? (
-        <DecisionBadge kind="ok" label="Approuve" />
+        <DecisionBadge kind="ok" label="Approuvé" />
       ) : decided === 'rejected' ? (
         <DecisionBadge kind="danger" label="Rejete" />
       ) : (

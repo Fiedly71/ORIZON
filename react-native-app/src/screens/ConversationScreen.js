@@ -109,7 +109,7 @@ export default function ConversationScreen({ navigation, route }) {
           <TextInput
             value={input}
             onChangeText={setInput}
-            placeholder="Ecris un message..."
+            placeholder="Écris un message..."
             placeholderTextColor={C.muted}
             style={styles.input}
             multiline

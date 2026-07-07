@@ -9,7 +9,7 @@ export const SECTIONS = [
   {
     id: 'featured',
     label: 'A la une',
-    subtitle: 'Coups de coeur ORIZON',
+    subtitle: 'Coups de cœur ORIZON',
     icon: 'star',
     color: '#F5B301',
     predicate: (p) => p.featured || p.isPremium || p.is_premium,
@@ -27,7 +27,7 @@ export const SECTIONS = [
   },
   {
     id: 'recent',
-    label: 'Nouveautes',
+    label: 'Nouveautés',
     subtitle: 'Publies recemment',
     icon: 'time',
     color: '#10B981',
@@ -94,7 +94,7 @@ export const SECTIONS = [
   },
   {
     id: 'verified',
-    label: 'Vendeurs verifies',
+    label: 'Vendeurs vérifiés',
     subtitle: 'Annonces de confiance',
     icon: 'shield-checkmark',
     color: '#059669',

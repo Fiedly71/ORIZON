@@ -10,9 +10,11 @@ import ExploreScreen from '../screens/ExploreScreen';
 import FavoritesScreen from '../screens/FavoritesScreen';
 import MessagesScreen from '../screens/MessagesScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import EmailVerifyBanner from '../components/EmailVerifyBanner';
 import { useAuthStore } from '../store/useAuthStore';
 import { useMessages } from '../store/useMessages';
 import { canPublish } from '../services/authService';
+import { requireEmailVerified } from '../utils/emailVerifyGuard';
 import { C } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -60,7 +62,9 @@ export default function MainTabs() {
   const tabHeight = isWeb ? 92 : 56 + bottomPad;
 
   return (
-    <Tab.Navigator
+    <View style={{ flex: 1 }}>
+      <EmailVerifyBanner />
+      <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: C.primary,
@@ -131,13 +135,17 @@ export default function MainTabs() {
             tabBarLabel: () => null,
             tabBarButton: (props) => (
               <PublishButton
-                onPress={() => navigation.getParent()?.navigate('SellWizard')}
+                onPress={() => {
+                  if (!requireEmailVerified('publier une annonce')) return;
+                  navigation.getParent()?.navigate('SellWizard');
+                }}
               />
             ),
           })}
           listeners={({ navigation }) => ({
             tabPress: (e) => {
               e.preventDefault();
+              if (!requireEmailVerified('publier une annonce')) return;
               navigation.getParent()?.navigate('SellWizard');
             },
           })}
@@ -154,6 +162,7 @@ export default function MainTabs() {
         options={{ title: 'Profil' }}
       />
     </Tab.Navigator>
+    </View>
   );
 }
 

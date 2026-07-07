@@ -2,9 +2,9 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 
 export const BOOST_PLANS = [
-  { id: 'b7',  days: 7,  price: 9.99,  label: '1 semaine', desc: 'Top des resultats 7 jours' },
-  { id: 'b30', days: 30, price: 29.99, label: '1 mois',    desc: 'Top des resultats 30 jours' },
-  { id: 'b90', days: 90, price: 79.99, label: '3 mois',    desc: 'Top des resultats 90 jours' },
+  { id: 'b7',  days: 7,  price: 9.99,  label: '1 semaine', desc: 'Top des résultats 7 jours' },
+  { id: 'b30', days: 30, price: 29.99, label: '1 mois',    desc: 'Top des résultats 30 jours' },
+  { id: 'b90', days: 90, price: 79.99, label: '3 mois',    desc: 'Top des résultats 90 jours' },
 ];
 
 // Active le boost premium (apres paiement confirme cote backend).

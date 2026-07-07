@@ -42,7 +42,7 @@ export default function AgencyManageScreen({ navigation }) {
     if (!form.name) { Alert.alert('ORIZON', 'Nom de l\'agence requis.'); return; }
     const r = await createAgency(form);
     if (r.ok) {
-      toast.show('Agence creee', { type: 'success' });
+      toast.show('Agence créée', { type: 'success' });
       setCreateOpen(false); setForm({ name: '', description: '', phone: '', email: '', address: '' });
       load();
     } else Alert.alert('Erreur', r.error);
@@ -52,7 +52,7 @@ export default function AgencyManageScreen({ navigation }) {
     if (!inviteEmail || !active) return;
     const r = await inviteAgent(active.id, inviteEmail);
     if (r.ok) {
-      toast.show('Invitation envoyee', { type: 'success' });
+      toast.show('Invitation envoyée', { type: 'success' });
       setInviteOpen(false); setInviteEmail('');
       listAgents(active.id).then((x) => x.ok && setAgents(x.data));
     } else Alert.alert('Erreur', r.error);
@@ -90,7 +90,7 @@ export default function AgencyManageScreen({ navigation }) {
             et inviter des agents.
           </Text>
           <Pressable style={styles.cta} onPress={() => setCreateOpen(true)}>
-            <Text style={styles.ctaTxt}>Creer mon agence</Text>
+            <Text style={styles.ctaTxt}>Créer mon agence</Text>
           </Pressable>
         </View>
       ) : (
@@ -119,7 +119,7 @@ export default function AgencyManageScreen({ navigation }) {
               </View>
 
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Equipe ({agents.length})</Text>
+                <Text style={styles.sectionTitle}>Équipe ({agents.length})</Text>
                 <Pressable onPress={() => setInviteOpen(true)}>
                   <Ionicons name="person-add" size={22} color={C.primary} />
                 </Pressable>
@@ -147,7 +147,7 @@ export default function AgencyManageScreen({ navigation }) {
       <Modal visible={createOpen} animationType="slide" transparent>
         <View style={styles.modalBg}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Creer une agence</Text>
+            <Text style={styles.modalTitle}>Créer une agence</Text>
             {['name','description','phone','email','address'].map((f) => (
               <TextInput key={f} value={form[f]} onChangeText={(v) => setForm({ ...form, [f]: v })}
                 placeholder={f.charAt(0).toUpperCase() + f.slice(1)} placeholderTextColor={C.muted}
@@ -158,7 +158,7 @@ export default function AgencyManageScreen({ navigation }) {
                 <Text style={{ color: C.text, fontWeight: '600' }}>Annuler</Text>
               </Pressable>
               <Pressable style={[styles.modalBtn, { backgroundColor: C.primary }]} onPress={onCreate}>
-                <Text style={{ color: '#fff', fontWeight: '700' }}>Creer</Text>
+                <Text style={{ color: '#fff', fontWeight: '700' }}>Créer</Text>
               </Pressable>
             </View>
           </View>

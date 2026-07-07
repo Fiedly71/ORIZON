@@ -10,13 +10,13 @@ import { useAuthStore } from '../store/useAuthStore';
 
 // Traduit en francais les messages d'erreur courants de Supabase Auth.
 function translateAuthError(msg) {
-  if (!msg) return 'Echec de la connexion.';
+  if (!msg) return 'Échec de la connexion.';
   const m = String(msg).toLowerCase();
-  if (m.includes('email not confirmed')) return 'Ton email n\'a pas encore ete confirme. Verifie ta boite mail (et les spams).';
+  if (m.includes('email not confirmed')) return 'Ton email n\'a pas encore été confirmé. Vérifie ta boîte mail (et les spams).';
   if (m.includes('invalid login') || m.includes('invalid_credentials')) return 'Email ou mot de passe incorrect.';
   if (m.includes('user not found')) return 'Aucun compte avec cet email.';
-  if (m.includes('rate limit') || m.includes('too many')) return 'Trop de tentatives. Reessaye dans quelques minutes.';
-  if (m.includes('network')) return 'Probleme de connexion internet. Reessaye.';
+  if (m.includes('rate limit') || m.includes('too many')) return 'Trop de tentatives. Réessaye dans quelques minutes.';
+  if (m.includes('network')) return 'Problème de connexion internet. Réessaye.';
   return msg;
 }
 
@@ -62,9 +62,9 @@ export default function LoginScreen({ navigation }) {
         setErrorMsg('');
         setNeedsConfirm(false);
         if (typeof window !== 'undefined' && window.alert) {
-          window.alert('Email de confirmation renvoye. Verifie ta boite mail.');
+          window.alert('Email de confirmation renvoyé. Vérifie ta boîte mail.');
         } else {
-          Alert.alert('Email envoye', 'Verifie ta boite mail.');
+          Alert.alert('Email envoyé', 'Vérifie ta boîte mail.');
         }
       }
     } finally {

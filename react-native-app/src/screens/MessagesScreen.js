@@ -48,7 +48,7 @@ export default function MessagesScreen({ navigation }) {
   const renderItem = ({ item }) => {
     const role = item.buyerId === myId ? 'buyer' : 'owner';
     const unread = role === 'buyer' ? item.unreadBuyer : item.unreadOwner;
-    const displayName = item.otherName || (role === 'buyer' ? 'Proprietaire' : 'Acheteur');
+    const displayName = item.otherName || (role === 'buyer' ? 'Propriétaire' : 'Acheteur');
     const initial = displayName.slice(0, 1).toUpperCase();
     return (
       <Pressable

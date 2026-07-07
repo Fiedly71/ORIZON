@@ -27,7 +27,7 @@ export default function ForgotPasswordScreen({ navigation, route }) {
     try {
       const r = await requestPasswordReset(e);
       if (!r.ok) {
-        Alert.alert('Erreur', r.error || 'Echec.');
+        Alert.alert('Erreur', r.error || 'Échec.');
         return;
       }
       setSent(true);
@@ -42,7 +42,7 @@ export default function ForgotPasswordScreen({ navigation, route }) {
         <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
           <Ionicons name="chevron-back" size={22} color={C.text} />
         </Pressable>
-        <Text style={styles.headerTxt}>{fromProfile ? 'Changer mot de passe' : 'Mot de passe oublie'}</Text>
+        <Text style={styles.headerTxt}>{fromProfile ? 'Changer mot de passe' : 'Mot de passe oublié'}</Text>
         <View style={{ width: 22 }} />
       </View>
 
@@ -52,22 +52,22 @@ export default function ForgotPasswordScreen({ navigation, route }) {
             <View style={styles.successIcon}>
               <Ionicons name="mail-outline" size={36} color={C.primary} />
             </View>
-            <Text style={styles.title}>Email envoye</Text>
+            <Text style={styles.title}>Email envoyé</Text>
             <Text style={styles.txt}>
-              On a envoye un lien de reinitialisation a{'\n'}
+              On a envoyé un lien de réinitialisation à{'\n'}
               <Text style={{ fontWeight: '700', color: C.text }}>{email}</Text>
-              {'\n\n'}Ouvre l'email puis touche le lien pour definir un nouveau mot de passe.
+              {'\n\n'}Ouvre l'email puis touche le lien pour définir un nouveau mot de passe.
             </Text>
             <Pressable style={styles.cta} onPress={() => navigation.goBack()}>
-              <Text style={styles.ctaTxt}>Retour a la connexion</Text>
+              <Text style={styles.ctaTxt}>Retour à la connexion</Text>
             </Pressable>
           </View>
         ) : (
           <>
-            <Text style={styles.title}>Reinitialiser ton mot de passe</Text>
+            <Text style={styles.title}>Réinitialiser ton mot de passe</Text>
             <Text style={styles.txt}>
-              Entre l'email associe a ton compte ORIZON. On t'envoie un lien
-              securise pour creer un nouveau mot de passe.
+              Entre l'email associé à ton compte ORIZON. On t'envoie un lien
+              sécurisé pour créer un nouveau mot de passe.
             </Text>
 
             <View style={{ gap: 6, marginTop: 16 }}>

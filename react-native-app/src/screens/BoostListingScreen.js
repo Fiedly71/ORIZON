@@ -126,7 +126,7 @@ export default function BoostListingScreen({ route, navigation }) {
         <View style={styles.benefits}>
           <Text style={styles.benefitsTitle}>Avantages</Text>
           {[
-            'Apparait en haut des resultats',
+            'Apparait en haut des résultats',
             'Badge "Premium" visible',
             'Plus de contacts (+3x en moyenne)',
             'Statistiques detaillees',

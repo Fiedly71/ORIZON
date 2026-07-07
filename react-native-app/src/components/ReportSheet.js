@@ -25,7 +25,7 @@ export default function ReportSheet({ visible, onClose, targetType, targetId, ta
     const r = await reportTarget({ targetType, targetId, reason, details });
     setBusy(false);
     if (r.ok) setDone(true);
-    else alert?.(r.error || 'Echec du signalement');
+    else alert?.(r.error || 'Échec du signalement');
   };
 
   return (
@@ -37,7 +37,7 @@ export default function ReportSheet({ visible, onClose, targetType, targetId, ta
           <View style={{ alignItems: 'center', paddingVertical: 24, gap: 12 }}>
             <Ionicons name="checkmark-circle" size={56} color="#16A34A" />
             <Text style={styles.title}>Merci !</Text>
-            <Text style={styles.sub}>Ton signalement a ete envoye a notre equipe. Nous l'examinons sous 24-48h.</Text>
+            <Text style={styles.sub}>Ton signalement a été envoyé à notre équipe. Nous l'examinons sous 24-48h.</Text>
             <Pressable style={styles.cta} onPress={close}><Text style={styles.ctaTxt}>Fermer</Text></Pressable>
           </View>
         ) : (
@@ -56,11 +56,11 @@ export default function ReportSheet({ visible, onClose, targetType, targetId, ta
                 </Pressable>
               ))}
             </View>
-            <Text style={styles.section}>DETAILS (OPTIONNEL)</Text>
+            <Text style={styles.section}>DÉTAILS (OPTIONNEL)</Text>
             <TextInput
               value={details}
               onChangeText={setDetails}
-              placeholder="Decris brievement le probleme..."
+              placeholder="Décris brièvement le problème..."
               placeholderTextColor={C.muted}
               multiline
               style={styles.textarea}

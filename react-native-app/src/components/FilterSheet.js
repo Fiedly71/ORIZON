@@ -39,7 +39,7 @@ const FilterSheet = forwardRef(function FilterSheet(_, ref) {
         <View style={styles.headerRow}>
           <Text style={styles.h}>Filtres</Text>
           <Pressable onPress={resetFilters} hitSlop={6}>
-            <Text style={styles.reset}>Reinitialiser</Text>
+            <Text style={styles.reset}>Réinitialiser</Text>
           </Pressable>
         </View>
         <ScrollView contentContainerStyle={{ paddingBottom: 16, gap: 14 }}>

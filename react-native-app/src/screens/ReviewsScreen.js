@@ -52,7 +52,7 @@ export default function ReviewsScreen({ route, navigation }) {
     });
     setSubmitting(false);
     if (r.ok) {
-      toast.show('Avis envoye pour moderation', { type: 'success' });
+      toast.show('Avis envoyé pour modération', { type: 'success' });
       setForm({ rating: 5, comment: '' });
       setShowForm(false);
       loadReviews();

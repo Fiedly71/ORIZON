@@ -49,32 +49,32 @@ export default function MonCashManualScreen({ navigation, route }) {
     // Ouvre l'app MonCash si installee, sinon le code USSD
     if (Platform.OS === 'android') {
       Linking.openURL(`tel:*202%23`).catch(() => {
-        Alert.alert('MonCash', 'Compose *202# depuis ton telephone pour acceder a MonCash.');
+        Alert.alert('MonCash', 'Compose *202# depuis ton téléphone pour acceder a MonCash.');
       });
     } else {
-      Alert.alert('MonCash', 'Compose *202# depuis ton telephone pour acceder a MonCash.');
+      Alert.alert('MonCash', 'Compose *202# depuis ton téléphone pour acceder a MonCash.');
     }
   };
 
   const submit = async () => {
     if (!reference.trim()) {
-      Alert.alert('Reference', 'Entre la reference MonCash recue par SMS.');
+      Alert.alert('Référence', 'Entre la référence MonCash reçue par SMS.');
       return;
     }
     if (!phone.trim()) {
-      Alert.alert('Telephone', 'Entre le numero MonCash que tu as utilise pour payer.');
+      Alert.alert('Téléphone', 'Entre le numéro MonCash que tu as utilise pour payer.');
       return;
     }
     setBusy(true);
     try {
       const r = await submitMonCashManual({ propertyId, reference, phone, amount, purpose });
       if (!r.ok) {
-        Alert.alert('Paiement', r.error || 'Echec de la soumission.');
+        Alert.alert('Paiement', r.error || 'Échec de la soumission.');
         return;
       }
       Alert.alert(
         'Paiement soumis',
-        r.message || 'Un admin va valider ta reference sous peu.',
+        r.message || 'Un admin va valider ta référence sous peu.',
         [{ text: 'OK', onPress: () => navigation.goBack() }],
       );
     } finally {
@@ -101,7 +101,7 @@ export default function MonCashManualScreen({ navigation, route }) {
 
         {/* Numero receveur */}
         <View style={styles.receiverCard}>
-          <Text style={styles.receiverLabel}>Numero MonCash de paiement</Text>
+          <Text style={styles.receiverLabel}>Numéro MonCash de paiement</Text>
           <Text style={styles.receiverName}>{MONCASH_RECEIVER_NAME}</Text>
           <View style={styles.numberRow}>
             <Text style={styles.receiverNumber}>{MONCASH_RECEIVER_NUMBER}</Text>
@@ -130,9 +130,9 @@ export default function MonCashManualScreen({ navigation, route }) {
         </Pressable>
 
         {/* Formulaire de soumission */}
-        <Text style={styles.sectionTitle}>Apres avoir paye, soumets ta preuve</Text>
+        <Text style={styles.sectionTitle}>Après avoir payé, soumets ta preuve</Text>
 
-        <Text style={styles.fieldLabel}>Reference MonCash (recue par SMS)</Text>
+        <Text style={styles.fieldLabel}>Référence MonCash (reçue par SMS)</Text>
         <TextInput
           value={reference}
           onChangeText={setReference}
@@ -142,7 +142,7 @@ export default function MonCashManualScreen({ navigation, route }) {
           style={styles.input}
         />
 
-        <Text style={styles.fieldLabel}>Ton numero de telephone MonCash</Text>
+        <Text style={styles.fieldLabel}>Ton numéro de téléphone MonCash</Text>
         <TextInput
           value={phone}
           onChangeText={setPhone}

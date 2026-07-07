@@ -14,19 +14,19 @@ const SLIDES = [
   {
     id: '1',
     title: 'Trouve ton chez-toi',
-    sub: "Parcoure des centaines d'annonces verifiees a travers Haiti, du Cap a Jacmel.",
+    sub: "Parcoure des centaines d'annonces vérifiées a travers Haïti, du Cap a Jacmel.",
     img: require('../../assets/a.webp'),
   },
   {
     id: '2',
     title: 'Visite et negocie en confiance',
-    sub: 'Reserve une visite en deux clics. Suivi rappel, check-in et avis verifies.',
+    sub: 'Reserve une visite en deux clics. Suivi rappel, check-in et avis vérifiés.',
     img: require('../../assets/b.webp'),
   },
   {
     id: '3',
-    title: 'Vends sans intermediaire',
-    sub: 'Publie ton bien en 3 etapes, recois des demandes serieuses de toute Haiti.',
+    title: 'Vends sans intermédiaire',
+    sub: 'Publie ton bien en 3 étapes, recois des demandes sérieuses de toute Haïti.',
     img: require('../../assets/c.webp'),
   },
 ];

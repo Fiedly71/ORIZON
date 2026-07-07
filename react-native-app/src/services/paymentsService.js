@@ -195,7 +195,7 @@ export async function payListingWithMonCash({ propertyId, phone, label = 'ORIZON
       const res = await WB.openAuthSessionAsync(redirectUrl, 'orizon://payment-return');
       if (res?.type !== 'success' && res?.type !== 'dismiss') {
         track(EVT.paymentFail, { provider: 'moncash', step: 'browser', type: res?.type });
-        return { ok: false, error: 'paiement annule' };
+        return { ok: false, error: 'paiement annulé' };
       }
       // Verifie le paiement cote serveur
       const verify = await supabase.functions.invoke('moncash-verify', { body: { orderId } });
@@ -273,10 +273,10 @@ export async function listMyPayments() {
 
 export async function submitMonCashManual({ propertyId, reference, phone, amount, currency = 'HTG', purpose = 'listing' }) {
   if (!reference || reference.trim().length < 4) {
-    return { ok: false, error: 'Reference MonCash invalide (4 caracteres minimum)' };
+    return { ok: false, error: 'Référence MonCash invalide (4 caracteres minimum)' };
   }
   if (!phone || phone.replace(/\D/g, '').length < 8) {
-    return { ok: false, error: 'Numero de telephone invalide' };
+    return { ok: false, error: 'Numéro de téléphone invalide' };
   }
 
   const fee = amount || LISTING_FEE_HTG;
@@ -288,7 +288,7 @@ export async function submitMonCashManual({ propertyId, reference, phone, amount
       ok: true,
       mock: true,
       paymentId: `mock-${Date.now()}`,
-      message: 'Paiement enregistre (mode demo). Un admin va valider sous peu.',
+      message: 'Paiement enregistré (mode demo). Un admin va valider sous peu.',
     };
   }
 
@@ -308,7 +308,7 @@ export async function submitMonCashManual({ propertyId, reference, phone, amount
     return {
       ok: true,
       paymentId: data,
-      message: 'Paiement soumis. Un admin va verifier ta reference et activer ta publication sous peu (quelques minutes a quelques heures).',
+      message: 'Paiement soumis. Un admin va vérifier ta référence et activer ta publication sous peu (quelques minutes a quelques heures).',
     };
   } catch (e) {
     captureException(e, { provider: 'moncash_manual' });
@@ -330,12 +330,12 @@ export function getMonCashInstructions(amount = LISTING_FEE_HTG) {
       `W ap resevwa yon SMS ak yon nimewo referans - tounen sou ORIZON pou antre li`,
     ],
     fr: [
-      `Ouvre l'application MonCash ou compose *202# sur ton telephone`,
+      `Ouvre l'application MonCash ou compose *202# sur ton téléphone`,
       `Choisis "Transferer de l'argent" -> "Envoyer a quelqu'un"`,
-      `Entre ce numero: ${MONCASH_RECEIVER_NUMBER} (${MONCASH_RECEIVER_NAME})`,
+      `Entre ce numéro: ${MONCASH_RECEIVER_NUMBER} (${MONCASH_RECEIVER_NAME})`,
       `Entre le montant: ${amount} HTG`,
       `Valide avec ton code secret MonCash`,
-      `Tu vas recevoir un SMS avec un numero de reference - reviens sur ORIZON pour l'entrer`,
+      `Tu vas recevoir un SMS avec un numéro de référence - reviens sur ORIZON pour l'entrer`,
     ],
   };
 }

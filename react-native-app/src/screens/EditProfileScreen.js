@@ -77,7 +77,7 @@ export default function EditProfileScreen({ navigation }) {
   const onPickFromGallery = async () => {
     const r = await pickImages({ multi: false });
     if (!r.ok) {
-      if (!r.canceled) Alert.alert('Photo', r.error || 'Selection annulee');
+      if (!r.canceled) Alert.alert('Photo', r.error || 'Sélection annulée');
       return;
     }
     const asset = r.assets?.[0];
@@ -93,7 +93,7 @@ export default function EditProfileScreen({ navigation }) {
         folder: 'avatars', mime: asset.mime, compress: 0.6, generateThumb: false,
       });
       if (!up.ok) {
-        Alert.alert('Upload photo', `Echec: ${up.error || 'erreur inconnue'}.\n\nSi le bucket "property-images" n'existe pas sur Supabase, l'admin doit executer db/storage.sql.`);
+        Alert.alert('Upload photo', `Échec: ${up.error || 'erreur inconnue'}.\n\nSi le bucket "property-images" n'existe pas sur Supabase, l'admin doit executer db/storage.sql.`);
         return;
       }
       update('avatarUrl', up.url || asset.uri);
@@ -114,17 +114,17 @@ export default function EditProfileScreen({ navigation }) {
       return;
     }
     if (form.phone && form.phone.trim().length < 8) {
-      Alert.alert('Profil', 'Numero de telephone invalide.');
+      Alert.alert('Profil', 'Numéro de téléphone invalide.');
       return;
     }
     setBusy(true);
     try {
       const r = await updateProfile(form);
       if (!r.ok) {
-        Alert.alert('Profil', r.error || 'Echec de la mise a jour.');
+        Alert.alert('Profil', r.error || 'Échec de la mise a jour.');
         return;
       }
-      Alert.alert('Profil', 'Tes informations ont ete mises a jour.', [
+      Alert.alert('Profil', 'Tes informations ont été mises a jour.', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } finally {
@@ -173,7 +173,7 @@ export default function EditProfileScreen({ navigation }) {
         )}
 
         <Field
-          label="TELEPHONE"
+          label="TÉLÉPHONE"
           value={form.phone}
           onChangeText={(v) => update('phone', v)}
           placeholder="+509 XX XX XX XX"

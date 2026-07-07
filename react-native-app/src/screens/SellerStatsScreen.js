@@ -31,7 +31,7 @@ export default function SellerStatsScreen({ navigation }) {
   const askBoost = (item) => {
     Alert.alert(
       'Booster ' + item.title,
-      'Choisis la duree du boost premium (top de liste).',
+      'Choisis la durée du boost premium (top de liste).',
       [
         { text: 'Annuler', style: 'cancel' },
         ...Object.entries(BOOST_PLANS).map(([key, plan]) => ({
@@ -44,7 +44,7 @@ export default function SellerStatsScreen({ navigation }) {
               Alert.alert('ORIZON', `Boost active pour ${r.days} jours.`);
               load();
             } else {
-              Alert.alert('Erreur', r.error || 'Echec boost');
+              Alert.alert('Erreur', r.error || 'Échec boost');
             }
           },
         })),

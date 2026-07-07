@@ -38,8 +38,8 @@ export default function ConfirmEmailScreen({ navigation }) {
       } else {
         // pas de session -> renvoyer sur Login avec un message
         Alert.alert(
-          'Email confirme',
-          'Ton email est confirme. Connecte-toi pour acceder a ton compte.',
+          'Email confirmé',
+          'Ton email est confirmé. Connecte-toi pour accéder à ton compte.',
         );
         navigation.reset({ index: 0, routes: [{ name: 'Auth' }] });
       }

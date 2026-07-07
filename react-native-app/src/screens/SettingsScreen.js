@@ -11,7 +11,7 @@ import { useUI } from '../store/useUI';
 import { useToast } from '../components/Toast';
 
 const LANGS = [
-  { id: 'fr', label: 'Francais' },
+  { id: 'fr', label: 'Français' },
   { id: 'ht', label: 'Kreyol Ayisyen' },
   { id: 'en', label: 'English' },
 ];
@@ -27,7 +27,7 @@ export default function SettingsScreen({ navigation }) {
   const isWeb = Platform.OS === 'web';
 
   const clearCache = async () => {
-    Alert.alert('Vider le cache', 'Supprime les donnees locales (favoris locaux, recherches, prefs).', [
+    Alert.alert('Vider le cache', 'Supprime les données locales (favoris locaux, recherches, prefs).', [
       { text: 'Annuler', style: 'cancel' },
       { text: 'Vider', style: 'destructive', onPress: async () => {
         setBusy(true);
@@ -50,7 +50,7 @@ export default function SettingsScreen({ navigation }) {
         <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
           <Ionicons name="chevron-back" size={24} color={C.text} />
         </Pressable>
-        <Text style={styles.title}>Parametres</Text>
+        <Text style={styles.title}>Paramètres</Text>
         <View style={{ width: 24 }} />
       </View>
 

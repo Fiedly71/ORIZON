@@ -8,8 +8,8 @@ Alert.alert = function orizonAlert(title, message, buttons) {
   // Detecte le tone selon le contenu du titre pour choisir l'icone/couleur
   const t = (title || '').toLowerCase();
   let tone = 'info';
-  if (t.includes('erreur') || t.includes('echec') || t.includes('impossible')) tone = 'error';
-  else if (t.includes('succes') || t.includes('confirm') || t.includes('envoye') || t.includes('valid')) tone = 'success';
+  if (t.includes('erreur') || t.includes('échec') || t.includes('impossible')) tone = 'error';
+  else if (t.includes('succès') || t.includes('confirm') || t.includes('envoyé') || t.includes('valid')) tone = 'success';
   else if (t.includes('attention') || t.includes('avertiss')) tone = 'warning';
 
   showAlert({

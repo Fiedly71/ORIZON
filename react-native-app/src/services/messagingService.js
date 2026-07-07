@@ -116,7 +116,7 @@ export async function listConversations() {
     const prop = propsById[c.propertyId] || {};
     return {
       ...c,
-      otherName: prof.agency_name || prof.full_name || (c.buyerId === uid ? 'Proprietaire' : 'Acheteur'),
+      otherName: prof.agency_name || prof.full_name || (c.buyerId === uid ? 'Propriétaire' : 'Acheteur'),
       otherAvatar: prof.avatar_url || '',
       otherVerified: !!prof.verified,
       propertyTitle: prop.title || '',
