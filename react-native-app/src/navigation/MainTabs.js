@@ -15,7 +15,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useMessages } from '../store/useMessages';
 import { canPublish } from '../services/authService';
 import { requireEmailVerified } from '../utils/emailVerifyGuard';
-import { requireAuth } from '../utils/requireAuth';
+import { requireAuth, redirectToAuth } from '../utils/requireAuth';
 import { C } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -134,7 +134,7 @@ export default function MainTabs() {
           tabPress: (e) => {
             if (!isAuthed) {
               e.preventDefault();
-              requireAuth(navigation, 'voir tes favoris');
+              redirectToAuth(navigation, 'Login');
             }
           },
         })}
@@ -181,7 +181,7 @@ export default function MainTabs() {
           tabPress: (e) => {
             if (!isAuthed) {
               e.preventDefault();
-              requireAuth(navigation, 'consulter tes messages');
+              redirectToAuth(navigation, 'Login');
             }
           },
         })}
@@ -194,7 +194,7 @@ export default function MainTabs() {
           tabPress: (e) => {
             if (!isAuthed) {
               e.preventDefault();
-              requireAuth(navigation, 'accéder à ton profil');
+              redirectToAuth(navigation, 'Login');
             }
           },
         })}

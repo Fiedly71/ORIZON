@@ -231,7 +231,15 @@ export default function ProfileScreen({ navigation }) {
           );
         })}
 
-        <Pressable style={styles.signOut} onPress={signOut}>
+        <Pressable style={styles.signOut} onPress={async () => {
+          await signOut();
+          // Retour à Explorer après déconnexion
+          try {
+            let nav = navigation;
+            while (nav?.getParent?.()) nav = nav.getParent();
+            nav?.navigate?.('App', { screen: 'Explore' });
+          } catch {}
+        }}>
           <Ionicons name="log-out-outline" size={18} color={M.text} />
           <Text style={styles.signOutTxt}>Se deconnecter</Text>
         </Pressable>

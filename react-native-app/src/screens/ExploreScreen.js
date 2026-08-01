@@ -5,6 +5,7 @@
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   FlatList,
   Image,
   Pressable,
@@ -32,7 +33,7 @@ import { isSuperhost } from '../utils/superhost';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { useResponsive } from '../hooks/useResponsive';
 import { useAuthStore } from '../store/useAuthStore';
-import { requireAuth } from '../utils/requireAuth';
+import { requireAuth, redirectToAuth } from '../utils/requireAuth';
 import Container from '../components/Container';
 
 const CATEGORIES = [
@@ -59,6 +60,38 @@ const SORTS = [
   { key: 'price_desc', label: 'Prix decroissant', icon: 'arrow-down' },
   { key: 'near', label: 'Pres de moi', icon: 'navigate' },
 ];
+
+const TICKER_TEXT = '  Crée ton compte gratuit · Découvres les meilleures offres immobilières en Haïti · Contacte les propriétaires directement  ·  ';
+
+function GuestTicker({ onPress }) {
+  const x = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const anim = Animated.loop(
+      Animated.timing(x, {
+        toValue: -700,
+        duration: 16000,
+        useNativeDriver: true,
+      })
+    );
+    anim.start();
+    return () => anim.stop();
+  }, []);
+  return (
+    <View style={styles.guestTicker}>
+      <View style={{ flex: 1, overflow: 'hidden' }}>
+        <Animated.Text
+          style={[styles.guestTickerTxt, { transform: [{ translateX: x }] }]}
+          numberOfLines={1}
+        >
+          {TICKER_TEXT + TICKER_TEXT}
+        </Animated.Text>
+      </View>
+      <Pressable onPress={onPress} style={styles.guestTickerCta}>
+        <Text style={styles.guestTickerCtaTxt}>S'inscrire</Text>
+      </Pressable>
+    </View>
+  );
+}
 
 export default function ExploreScreen({ navigation }) {
   const toast = useToast();
@@ -198,10 +231,9 @@ export default function ExploreScreen({ navigation }) {
 
   const renderHeader = () => (
     <View style={styles.headerWrap}>
-      {/* Bandeau invité : incite à créer un compte pour interagir */}
+      {/* Bandeau ticker invité : défile sur une ligne, tap -> inscription */}
       {!isAuthed && (
-        <Pressable
-          style={styles.guestBanner}
+        <GuestTicker
           onPress={() => {
             try {
               let nav = navigation;
@@ -209,13 +241,7 @@ export default function ExploreScreen({ navigation }) {
               nav?.navigate?.('Auth', { screen: 'Register' });
             } catch {}
           }}
-        >
-          <Ionicons name="sparkles" size={16} color="#fff" />
-          <Text style={styles.guestBannerTxt}>
-            Crée ton compte gratuit pour voir les biens et contacter les propriétaires
-          </Text>
-          <Ionicons name="chevron-forward" size={16} color="#fff" />
-        </Pressable>
+        />
       )}
       {/* Logo ORIZON + Search bar ronde */}
       <View style={styles.searchRow}>
@@ -247,7 +273,7 @@ export default function ExploreScreen({ navigation }) {
           <Pressable
             style={styles.filterBtn}
             onPress={() => {
-              if (!requireAuth(navigation, 'utiliser les filtres avancés')) return;
+              if (!redirectToAuth(navigation)) return;
               setFilterOpen(true);
             }}
             hitSlop={8}
@@ -275,7 +301,7 @@ export default function ExploreScreen({ navigation }) {
           <Pressable
             style={styles.saveSearchBtn}
             onPress={async () => {
-              if (!requireAuth(navigation, 'sauvegarder cette recherche')) return;
+              if (!redirectToAuth(navigation)) return;
               const criteria = { q: search || undefined, type: category !== 'all' ? category : undefined, status: status !== 'all' ? status : undefined, ...(advFilter || {}) };
               const name = (search || category !== 'all' ? `${search || category}` : 'Mes filtres');
               const r = await saveSearch({ name, criteria, frequency: 'daily' });
@@ -360,14 +386,14 @@ export default function ExploreScreen({ navigation }) {
                 items={item.items}
                 isFavorite={(id) => favIds.includes(id)}
                 onFavorite={(id) => toggleFav(id)}
-                onItemPress={(it) => {
-                  if (!requireAuth(navigation, 'voir cette annonce')) return;
-                  navigation.navigate('PropertyDetail', { id: it.id, item: it });
-                }}
-                onSeeAll={() => {
-                  if (!requireAuth(navigation, 'voir toutes les annonces de cette section')) return;
-                  navigation.navigate('SectionDetail', { sectionId: item.section.id });
-                }}
+                onPress={() => {
+              if (!requireAuth(navigation, 'voir cette annonce')) return;
+              navigation.navigate('PropertyDetail', { id: it.id, item: it });
+            }}
+            onSeeAll={() => {
+              if (!redirectToAuth(navigation)) return;
+              navigation.navigate('SectionDetail', { sectionId: item.section.id });
+            }}
               />
             </Container>
           )}
@@ -397,7 +423,7 @@ export default function ExploreScreen({ navigation }) {
                 width={r.columns > 1 ? r.cardWidth : undefined}
                 isFavorite={favIds.includes(item.id)}
                 onFavorite={(id) => {
-                  if (!requireAuth(navigation, 'ajouter en favoris')) return;
+                  if (!redirectToAuth(navigation)) return;
                   toggleFav(id);
                 }}
                 onOpen={(it) => {
@@ -490,24 +516,30 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: C.border,
   },
-  guestBanner: {
+  guestTicker: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginHorizontal: spacing.md,
-    marginBottom: spacing.md,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: radii.pill,
-    backgroundColor: C.primary,
+    overflow: 'hidden',
+    backgroundColor: C.primarySoft,
+    borderBottomWidth: 1,
+    borderBottomColor: C.border,
+    paddingVertical: 7,
   },
-  guestBannerTxt: {
-    flex: 1,
-    color: '#fff',
-    fontSize: 12.5,
+  guestTickerTxt: {
+    color: C.primary,
+    fontSize: 12,
     fontWeight: '700',
-    lineHeight: 16,
+    paddingLeft: 14,
   },
+  guestTickerCta: {
+    backgroundColor: C.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 999,
+    marginRight: 10,
+    marginLeft: 8,
+  },
+  guestTickerCtaTxt: { color: '#fff', fontSize: 11, fontWeight: '800' },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
