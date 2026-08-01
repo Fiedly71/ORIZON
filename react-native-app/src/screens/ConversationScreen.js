@@ -70,7 +70,9 @@ export default function ConversationScreen({ navigation, route }) {
             <Ionicons name="checkmark-circle" size={15} color="#1D4ED8" style={{ marginLeft: 4 }} />
           ) : null}
         </View>
-        <View style={{ width: 24 }} />
+        <Pressable onPress={() => { setRefreshing(true); load().finally(() => setRefreshing(false)); }} hitSlop={10} disabled={refreshing}>
+          <Ionicons name="refresh-outline" size={20} color={C.muted} />
+        </Pressable>
       </View>
 
       <KeyboardAvoidingView

@@ -255,6 +255,9 @@ export default function PropertyDetailScreen({ navigation, route }) {
               <Ionicons name="chevron-back" size={22} color={C.text} />
             </Pressable>
             <View style={styles.topRight}>
+              <Pressable style={styles.iconBtn} onPress={async () => { setRefreshing(true); if (params.id || item.id) { const r2 = await getProperty(params.id || item.id); if (r2.ok && r2.data) setItem(r2.data); } setRefreshing(false); }} disabled={refreshing}>
+                <Ionicons name="refresh-outline" size={20} color={C.text} />
+              </Pressable>
               <Pressable style={styles.iconBtn} onPress={onShare}>
                 <Ionicons name="share-outline" size={20} color={C.text} />
               </Pressable>

@@ -66,11 +66,16 @@ export default function FavoritesScreen({ navigation }) {
           <Ionicons name="chevron-back" size={22} color={C.text} />
         </Pressable>
         <Text style={styles.title}>Mes favoris</Text>
-        {items.length >= 2 ? (
-          <Pressable onPress={() => navigation.navigate('Compare', { ids: items.slice(0, 3).map((it) => it.id) })} hitSlop={8}>
-            <Ionicons name="git-compare-outline" size={22} color={C.primary} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Pressable onPress={onRefresh} hitSlop={8} disabled={refreshing}>
+            <Ionicons name="refresh-outline" size={20} color={C.muted} />
           </Pressable>
-        ) : <View style={{ width: 22 }} />}
+          {items.length >= 2 ? (
+            <Pressable onPress={() => navigation.navigate('Compare', { ids: items.slice(0, 3).map((it) => it.id) })} hitSlop={8}>
+              <Ionicons name="git-compare-outline" size={22} color={C.primary} />
+            </Pressable>
+          ) : <View style={{ width: 22 }} />}
+        </View>
       </View>
 
       <FlatList

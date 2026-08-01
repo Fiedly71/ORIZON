@@ -146,13 +146,18 @@ export default function ProfileScreen({ navigation }) {
       <ScrollView
         contentContainerStyle={styles.body}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[C.primary]} tintColor={C.primary} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#004c3f']} tintColor="#004c3f" />}
       >
         <View style={styles.topBar}>
           <Text style={styles.topTitle}>Profil</Text>
-          <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={10}>
-            <Ionicons name="settings-outline" size={22} color={M.text} />
-          </Pressable>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Pressable onPress={onRefresh} hitSlop={10} disabled={refreshing}>
+              <Ionicons name={refreshing ? 'refresh' : 'refresh-outline'} size={20} color={M.text} />
+            </Pressable>
+            <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={10}>
+              <Ionicons name="settings-outline" size={22} color={M.text} />
+            </Pressable>
+          </View>
         </View>
 
         {showEmailWarning && (

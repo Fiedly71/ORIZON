@@ -82,9 +82,14 @@ export default function MyListingsScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Header title="Mes annonces" onBack={() => navigation.goBack()} right={
-        <Pressable onPress={() => navigation.navigate('SellWizard')} hitSlop={8}>
-          <Ionicons name="add" size={22} color={C.primary} />
-        </Pressable>
+        <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+          <Pressable onPress={() => { setRefreshing(true); load(); }} hitSlop={8} disabled={refreshing}>
+            <Ionicons name="refresh-outline" size={20} color={C.muted} />
+          </Pressable>
+          <Pressable onPress={() => navigation.navigate('SellWizard')} hitSlop={8}>
+            <Ionicons name="add" size={22} color={C.primary} />
+          </Pressable>
+        </View>
       } />
       {loading ? (
         <View style={{ paddingTop: 60 }}><ActivityIndicator color={C.primary} /></View>

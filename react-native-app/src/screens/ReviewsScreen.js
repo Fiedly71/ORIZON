@@ -77,7 +77,9 @@ export default function ReviewsScreen({ route, navigation }) {
           <Ionicons name="chevron-back" size={24} color={C.text} />
         </Pressable>
         <Text style={styles.title}>Avis</Text>
-        <View style={{ width: 24 }} />
+        <Pressable onPress={() => { setRefreshing(true); loadReviews().finally(() => setRefreshing(false)); }} hitSlop={10} disabled={refreshing}>
+          <Ionicons name="refresh-outline" size={20} color={C.muted} />
+        </Pressable>
       </View>
 
       <ScrollView

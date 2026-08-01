@@ -97,6 +97,9 @@ export default function MessagesScreen({ navigation }) {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.h1}>Messages</Text>
+        <Pressable onPress={() => { setRefreshing(true); load(); }} hitSlop={10} disabled={refreshing}>
+          <Ionicons name="refresh-outline" size={20} color={C.muted} />
+        </Pressable>
       </View>
 
       {loading && items.length === 0 ? (

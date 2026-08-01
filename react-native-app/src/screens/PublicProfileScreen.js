@@ -101,7 +101,7 @@ export default function PublicProfileScreen({ navigation, route }) {
   if (loading) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
-        <Header title="Profil" onBack={() => navigation.goBack()} />
+        <Header title="Profil" onBack={() => navigation.goBack()} onRefresh={onRefresh} refreshing={refreshing} />
         <View style={styles.loadingWrap}>
           <ActivityIndicator color={C.primary} />
         </View>
@@ -117,7 +117,7 @@ export default function PublicProfileScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <Header title="Profil" onBack={() => navigation.goBack()} onReport={onReport} />
+      <Header title="Profil" onBack={() => navigation.goBack()} onReport={onReport} onRefresh={onRefresh} refreshing={refreshing} />
       <ScrollView
         contentContainerStyle={{ paddingBottom: 32, width: '100%', maxWidth: 880, alignSelf: 'center' }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[C.primary]} tintColor={C.primary} />}
@@ -212,18 +212,23 @@ export default function PublicProfileScreen({ navigation, route }) {
   );
 }
 
-function Header({ title, onBack, onReport }) {
+function Header({ title, onBack, onReport, onRefresh, refreshing }) {
   return (
     <View style={styles.header}>
       <Pressable onPress={onBack} hitSlop={10}>
         <Ionicons name="chevron-back" size={24} color={C.text} />
       </Pressable>
       <Text style={styles.headerTitle}>{title}</Text>
-      {onReport ? (
-        <Pressable onPress={onReport} hitSlop={10}>
-          <Ionicons name="flag-outline" size={20} color={C.text} />
+      <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+        <Pressable onPress={onRefresh} hitSlop={10} disabled={refreshing}>
+          <Ionicons name="refresh-outline" size={20} color={C.muted} />
         </Pressable>
-      ) : <View style={{ width: 24 }} />}
+        {onReport ? (
+          <Pressable onPress={onReport} hitSlop={10}>
+            <Ionicons name="flag-outline" size={20} color={C.text} />
+          </Pressable>
+        ) : <View style={{ width: 20 }} />}
+      </View>
     </View>
   );
 }
