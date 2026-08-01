@@ -221,72 +221,84 @@ function OwnerDashboard({ user, listings, navigation }) {
   const daysLeft = daysUntilExpiry(user?.planExpiresAt);
   const planExpiringSoon = typeof daysLeft === 'number' && daysLeft >= 0 && daysLeft <= RENEWAL_REMINDER_DAYS;
   const planExpired = typeof daysLeft === 'number' && daysLeft < 0;
-  const liveListing = listings.filter((l) => l.paymentStatus === 'paid' || freeActive);
+  const activeListings = listings.filter((l) => l.paymentStatus === 'paid' || freeActive);
 
   return (
-    <View style={styles.section}>
-      <Text style={[styles.sectionTitle, { marginBottom: 12 }]}>Gérer mon compte</Text>
+    <View style={styles.dashSection}>
+      {/* Bandeau titre dashboard */}
+      <View style={styles.dashHeader}>
+        <Ionicons name="grid-outline" size={16} color="#fff" />
+        <Text style={styles.dashHeaderTxt}>Mon espace</Text>
+      </View>
 
-      {/* Plan actif / gratuit */}
+      {/* Bloc plan actif */}
       {freeActive ? (
         <View style={styles.dashPlanBox}>
-          <Ionicons name="gift" size={18} color="#047857" />
+          <View style={[styles.dashPlanIcon, { backgroundColor: '#ECFDF5' }]}>
+            <Ionicons name="gift" size={18} color="#059669" />
+          </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.dashPlanTitle}>Publication gratuite active</Text>
             <Text style={styles.dashPlanSub}>Jusqu'au {LAUNCH_FREE_END_LABEL} — profites-en !</Text>
           </View>
+          <View style={styles.dashPlanBadge}>
+            <Text style={styles.dashPlanBadgeTxt}>GRATUIT</Text>
+          </View>
         </View>
       ) : user?.currentPlanId ? (
         <View style={[styles.dashPlanBox, (planExpiringSoon || planExpired) && styles.dashPlanBoxWarn]}>
-          <Ionicons
-            name={planExpired ? 'close-circle' : planExpiringSoon ? 'alert-circle' : 'checkmark-circle'}
-            size={18}
-            color={planExpired ? '#DC2626' : planExpiringSoon ? '#D97706' : '#16A34A'}
-          />
+          <View style={[styles.dashPlanIcon, {
+            backgroundColor: planExpired ? '#FEF2F2' : planExpiringSoon ? '#FFFBEB' : C.primarySoft,
+          }]}>
+            <Ionicons
+              name={planExpired ? 'close-circle' : planExpiringSoon ? 'alert-circle' : 'checkmark-circle'}
+              size={18}
+              color={planExpired ? C.danger : planExpiringSoon ? '#D97706' : C.primary}
+            />
+          </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.dashPlanTitle}>
-              Plan {user.currentPlanId}
-              {planExpired ? ' — expiré' : ''}
-            </Text>
+            <Text style={styles.dashPlanTitle}>Plan {user.currentPlanId}{planExpired ? ' — expiré' : ''}</Text>
             <Text style={styles.dashPlanSub}>
-              {planExpired
-                ? 'Renouvelle pour continuer à publier.'
-                : `Expire le ${formatExpiry(user.planExpiresAt)}`}
+              {planExpired ? 'Renouvelle pour continuer à publier.' : `Expire le ${formatExpiry(user.planExpiresAt)}`}
             </Text>
           </View>
-          <Pressable onPress={() => navigation.navigate('Plans')} style={styles.dashPlanBtn}>
-            <Text style={styles.dashPlanBtnTxt}>{planExpired ? 'Renouveler' : 'Gérer'}</Text>
+          <Pressable onPress={() => navigation.navigate('Plans')} style={styles.dashPlanCta}>
+            <Text style={styles.dashPlanCtaTxt}>{planExpired ? 'Renouveler' : 'Gérer'}</Text>
           </Pressable>
         </View>
       ) : (
         <Pressable style={styles.dashPlanBox} onPress={() => navigation.navigate('Plans')}>
-          <Ionicons name="diamond-outline" size={18} color={C.primary} />
+          <View style={[styles.dashPlanIcon, { backgroundColor: C.primarySoft }]}>
+            <Ionicons name="diamond-outline" size={18} color={C.primary} />
+          </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.dashPlanTitle}>Aucun plan actif</Text>
-            <Text style={styles.dashPlanSub}>Découvrir les plans ORIZON</Text>
+            <Text style={styles.dashPlanSub}>Voir les plans ORIZON</Text>
           </View>
-          <Ionicons name="chevron-forward" size={14} color={C.muted} />
+          <Ionicons name="chevron-forward" size={16} color={C.muted} />
         </Pressable>
       )}
 
-      {/* Actions rapides */}
+      {/* Grille d'actions rapides */}
       <View style={styles.dashGrid}>
-        <DashAction icon="home-outline"        label="Mes annonces"  count={liveListing.length}  onPress={() => navigation.navigate('MyListings')} />
-        <DashAction icon="stats-chart-outline" label="Statistiques"  onPress={() => navigation.navigate('SellerStats')} />
-        <DashAction icon="chatbubbles-outline" label="Messages"      onPress={() => navigation.navigate('Messages')} />
-        <DashAction icon="create-outline"      label="Modifier profil" onPress={() => navigation.navigate('EditProfile')} />
+        <DashAction icon="home-outline"        label="Mes annonces"   count={activeListings.length}  color={C.primary}        onPress={() => navigation.navigate('MyListings')} />
+        <DashAction icon="stats-chart-outline" label="Statistiques"   color="#7C3AED"                onPress={() => navigation.navigate('SellerStats')} />
+        <DashAction icon="chatbubbles-outline" label="Messages"       color={C.accent}               onPress={() => navigation.navigate('Messages')} />
+        <DashAction icon="create-outline"      label="Modifier profil" color="#0891B2"               onPress={() => navigation.navigate('EditProfile')} />
       </View>
     </View>
   );
 }
 
-function DashAction({ icon, label, count, onPress }) {
+function DashAction({ icon, label, count, color, onPress }) {
   return (
     <Pressable style={styles.dashAction} onPress={onPress}>
-      <Ionicons name={icon} size={22} color={C.primary} />
+      <View style={[styles.dashActionIcon, { backgroundColor: color + '18' }]}>
+        <Ionicons name={icon} size={20} color={color} />
+      </View>
       <Text style={styles.dashActionLbl}>{label}</Text>
       {typeof count === 'number' && (
-        <Text style={styles.dashActionCount}>{count}</Text>
+        <Text style={[styles.dashActionCount, { color }]}>{count}</Text>
       )}
     </Pressable>
   );
@@ -333,27 +345,42 @@ const styles = StyleSheet.create({
   cardSub: { fontSize: 12, color: C.muted },
   cardPrice: { fontSize: 13, fontWeight: '700', color: C.primary, marginTop: 4 },
 
-  // Mini-dashboard propriétaire
-  dashPlanBox: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    padding: 14, borderRadius: 12, backgroundColor: '#F0FDF4',
-    borderWidth: 1, borderColor: '#BBF7D0', marginBottom: 12,
+  // ── Mini-dashboard propriétaire (refonte ORIZON) ──
+  dashSection: {
+    marginHorizontal: 16, marginBottom: 12,
+    borderRadius: 20, overflow: 'hidden',
+    borderWidth: 1, borderColor: C.border,
   },
-  dashPlanBoxWarn: { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' },
+  dashHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: C.primary, paddingHorizontal: 18, paddingVertical: 14,
+  },
+  dashHeaderTxt: { color: '#fff', fontSize: 14, fontWeight: '800', letterSpacing: -0.2 },
+  dashPlanBox: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    padding: 16, backgroundColor: '#fff',
+    borderBottomWidth: 1, borderBottomColor: C.border,
+  },
+  dashPlanBoxWarn: { backgroundColor: '#FFFBEB' },
+  dashPlanIcon: { width: 38, height: 38, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   dashPlanTitle: { fontSize: 13, fontWeight: '700', color: C.text },
   dashPlanSub: { fontSize: 11, color: C.muted, marginTop: 2 },
-  dashPlanBtn: {
+  dashPlanBadge: { backgroundColor: '#ECFDF5', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
+  dashPlanBadgeTxt: { color: '#059669', fontSize: 9, fontWeight: '900', letterSpacing: 0.8 },
+  dashPlanCta: {
     backgroundColor: C.primary, borderRadius: 8,
-    paddingHorizontal: 10, paddingVertical: 6,
+    paddingHorizontal: 12, paddingVertical: 7,
   },
-  dashPlanBtnTxt: { color: '#fff', fontWeight: '700', fontSize: 11 },
-  dashGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  dashPlanCtaTxt: { color: '#fff', fontWeight: '700', fontSize: 11 },
+  dashGrid: {
+    flexDirection: 'row', flexWrap: 'wrap',
+    backgroundColor: '#fff', padding: 12, gap: 10,
+  },
   dashAction: {
-    width: '47%', padding: 14, borderRadius: 12, alignItems: 'center', gap: 6,
-    backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0',
+    width: '47%', padding: 14, borderRadius: 14, alignItems: 'flex-start', gap: 8,
+    backgroundColor: C.surface, borderWidth: 1, borderColor: C.border,
   },
-  dashActionLbl: { fontSize: 11, fontWeight: '700', color: C.text, textAlign: 'center' },
-  dashActionCount: {
-    fontSize: 20, fontWeight: '800', color: C.primary, lineHeight: 24,
-  },
+  dashActionIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  dashActionLbl: { fontSize: 11, fontWeight: '700', color: C.text },
+  dashActionCount: { fontSize: 22, fontWeight: '900', lineHeight: 26 },
 });

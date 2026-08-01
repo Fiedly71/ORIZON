@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   View, Text, StyleSheet, FlatList, RefreshControl, Pressable, Alert,
-  ActivityIndicator, ScrollView, Image, Linking,
+  ActivityIndicator, ScrollView, Image, Linking, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -21,19 +21,26 @@ import {
   toCsv, downloadCsv,
 } from '../services/adminService';
 
-// Palette monochrome (alignee avec ProfileScreen)
+// Design tokens alignés sur la palette ORIZON (C de theme/colors)
 const M = {
-  bg: '#FFFFFF',
-  surface: '#FAFAFA',
-  card: '#F5F5F5',
-  border: '#E5E5E5',
-  borderStrong: '#D4D4D4',
-  text: '#0A0A0A',
-  textSoft: '#525252',
-  muted: '#737373',
-  danger: '#DC2626',
-  ok: '#16A34A',
-  accent: '#004c3f',
+  bg:          '#F8FAFC',
+  surface:     '#F1F5F9',
+  card:        '#FFFFFF',
+  border:      '#E2E8F0',
+  borderSoft:  '#F1F5F9',
+  text:        '#0F172A',
+  textSoft:    '#334155',
+  muted:       '#64748B',
+  danger:      '#EF4444',
+  dangerSoft:  '#FEF2F2',
+  ok:          '#16A34A',
+  okSoft:      '#DCFCE7',
+  primary:     '#004c3f',
+  primaryDark: '#003329',
+  primarySoft: '#d6efe9',
+  accent:      '#fe5e00',
+  accentSoft:  '#FFF0E8',
+  gold:        '#feac00',
 };
 
 const TABS = [
@@ -126,7 +133,7 @@ export default function AdminScreen({ navigation }) {
   if (admin === null) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
-        <ActivityIndicator color={M.text} style={{ marginTop: 40 }} />
+        <ActivityIndicator color={M.primary} style={{ marginTop: 40 }} />
       </SafeAreaView>
     );
   }
@@ -156,14 +163,17 @@ export default function AdminScreen({ navigation }) {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} hitSlop={10} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color={M.text} />
+          <Ionicons name="chevron-back" size={22} color="#fff" />
         </Pressable>
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={styles.title}>Dashboard administratif</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={styles.headerBrand}><Text style={styles.headerBrandTxt}>ORIZON</Text></View>
+            <Text style={styles.title}>Admin</Text>
+          </View>
           <Text style={styles.subtitle}>{activeTab?.label || ''}</Text>
         </View>
         <Pressable onPress={() => loadTab(tab, true)} hitSlop={10} style={styles.iconBtn}>
-          <Ionicons name="refresh" size={20} color={M.text} />
+          <Ionicons name="refresh" size={20} color="#fff" />
         </Pressable>
       </View>
 
@@ -182,7 +192,7 @@ export default function AdminScreen({ navigation }) {
                 onPress={() => setTab(t.key)}
                 style={[styles.tab, active && styles.tabActive]}
               >
-                <Ionicons name={t.icon} size={14} color={active ? '#fff' : M.textSoft} />
+                <Ionicons name={t.icon} size={14} color={active ? M.primary : 'rgba(255,255,255,0.85)'} />
                 <Text style={[styles.tabTxt, active && styles.tabTxtActive]}>{t.label}</Text>
               </Pressable>
             );
@@ -313,7 +323,7 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
   if (loading || !stats) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color={M.text} />
+        <ActivityIndicator color={M.primary} />
       </View>
     );
   }
@@ -386,9 +396,13 @@ function Overview({ stats, loading, onRefresh, refreshing }) {
 
 function Section({ title, icon, children }) {
   return (
-    <View style={{ marginBottom: 22 }}>
+    <View style={{ marginBottom: 24 }}>
       <View style={styles.sectionHeader}>
-        {icon && <Ionicons name={icon} size={14} color={M.muted} style={{ marginRight: 6 }} />}
+        {icon && (
+          <View style={styles.sectionIconWrap}>
+            <Ionicons name={icon} size={14} color={M.primary} />
+          </View>
+        )}
         <Text style={styles.sectionTitle}>{title}</Text>
       </View>
       {children}
@@ -404,23 +418,26 @@ function StatCard({ label, value, highlight, danger, small, icon }) {
       small && styles.statCardSmall,
       danger && !highlight && styles.statCardDanger,
     ]}>
-      {icon && (
-        <Ionicons
-          name={icon}
-          size={small ? 14 : 16}
-          color={highlight ? '#FFFFFF' : (danger ? M.danger : M.muted)}
-          style={{ marginBottom: 6 }}
-        />
+      {icon && !highlight && (
+        <View style={[
+          styles.statIconWrap,
+          { backgroundColor: danger ? '#FEE2E2' : M.primarySoft },
+        ]}>
+          <Ionicons name={icon} size={13} color={danger ? M.danger : M.primary} />
+        </View>
+      )}
+      {icon && highlight && (
+        <Ionicons name={icon} size={16} color="rgba(255,255,255,0.75)" style={{ marginBottom: 6 }} />
       )}
       <Text style={[
         styles.statVal,
-        small && { fontSize: 18 },
+        small && { fontSize: 20 },
         highlight && { color: '#fff' },
         danger && !highlight && { color: M.danger },
       ]} numberOfLines={1}>{value}</Text>
       <Text style={[
         styles.statLbl,
-        highlight && { color: '#D4D4D4' },
+        highlight && { color: 'rgba(255,255,255,0.7)' },
       ]} numberOfLines={2}>{label}</Text>
     </View>
   );
@@ -435,7 +452,7 @@ function fmt(n) {
 // ============================================
 function ListView({ tab, data, loading, refreshing, onRefresh, reload }) {
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator color={M.text} /></View>;
+    return <View style={styles.center}><ActivityIndicator color={M.primary} /></View>;
   }
   if (!data?.length) {
     return (
@@ -913,16 +930,17 @@ function AlertRow({ item, reload }) {
   );
 }
 
-function Tag({ children, dark, danger }) {
+function Tag({ children, dark, danger, accent }) {
   return (
     <View style={[
       styles.tag,
-      dark && { backgroundColor: M.text, borderColor: M.text },
+      dark && { backgroundColor: M.primary, borderColor: M.primary },
       danger && { backgroundColor: M.danger, borderColor: M.danger },
+      accent && { backgroundColor: M.accent, borderColor: M.accent },
     ]}>
       <Text style={[
         styles.tagTxt,
-        (dark || danger) && { color: '#fff' },
+        (dark || danger || accent) && { color: '#fff' },
       ]}>{children}</Text>
     </View>
   );
@@ -947,114 +965,153 @@ function DecisionBadge({ kind, label }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: M.bg },
+
+  // ── Header vert ORIZON ──
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 12,
-    borderBottomWidth: 1, borderBottomColor: M.border,
+    paddingHorizontal: 16, paddingVertical: 14,
+    backgroundColor: M.primary,
+    ...Platform.select({ web: { boxShadow: '0 2px 8px rgba(0,76,63,0.25)' } }),
   },
-  title: { fontSize: 17, fontWeight: '800', color: M.text, letterSpacing: -0.3 },
-  subtitle: { fontSize: 11, color: M.muted, marginTop: 2, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
-  iconBtn: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: M.surface, borderWidth: 1, borderColor: M.border },
-  tabsWrap: { backgroundColor: M.bg, borderBottomWidth: 1, borderBottomColor: M.border },
-  tabsRow: { paddingHorizontal: 12, paddingVertical: 10, gap: 6 },
+  headerBrand: {
+    backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 6,
+    paddingHorizontal: 7, paddingVertical: 3,
+  },
+  headerBrandTxt: { color: '#fff', fontSize: 9, fontWeight: '900', letterSpacing: 1.5, textTransform: 'uppercase' },
+  title: { fontSize: 16, fontWeight: '800', color: '#fff', letterSpacing: -0.3 },
+  subtitle: { fontSize: 10, color: 'rgba(255,255,255,0.72)', marginTop: 2, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8 },
+  iconBtn: {
+    width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+
+  // ── Onglets (fond vert, pilules blanches) ──
+  tabsWrap: { backgroundColor: M.primary, paddingBottom: 4 },
+  tabsRow: { paddingHorizontal: 12, paddingVertical: 8, gap: 6 },
   tab: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 14, paddingVertical: 8,
-    borderRadius: 999, borderWidth: 1, borderColor: M.border, backgroundColor: M.bg,
+    paddingHorizontal: 14, paddingVertical: 7,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
-  tabActive: { backgroundColor: M.text, borderColor: M.text },
-  tabTxt: { fontSize: 12.5, fontWeight: '600', color: M.textSoft },
-  tabTxtActive: { color: '#fff', fontWeight: '700' },
+  tabActive: { backgroundColor: '#fff' },
+  tabTxt: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.85)' },
+  tabTxtActive: { color: M.primary, fontWeight: '800' },
+
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   deniedTxt: { fontSize: 16, fontWeight: '600', color: M.text, marginTop: 12 },
   deniedSub: { fontSize: 13, color: M.muted, marginTop: 4 },
   empty: { color: M.muted, marginTop: 8, fontSize: 13 },
 
-  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10, marginLeft: 2 },
-  sectionTitle: { fontSize: 12, fontWeight: '800', color: M.textSoft, textTransform: 'uppercase', letterSpacing: 0.8 },
+  // ── Sections stats ──
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 10 },
+  sectionIconWrap: {
+    width: 30, height: 30, borderRadius: 8,
+    backgroundColor: M.primarySoft, alignItems: 'center', justifyContent: 'center',
+  },
+  sectionTitle: { fontSize: 13, fontWeight: '800', color: M.text, letterSpacing: -0.2 },
   gridRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
   statCard: {
-    flex: 1, backgroundColor: '#fff', borderWidth: 1, borderColor: M.border,
-    borderRadius: 14, padding: 16,
+    flex: 1, backgroundColor: M.card, borderWidth: 1, borderColor: M.border,
+    borderRadius: 16, padding: 16, gap: 6,
+    ...Platform.select({ web: { boxShadow: '0 1px 4px rgba(0,0,0,0.06)' } }),
   },
-  statCardHi: { backgroundColor: M.text, borderColor: M.text },
-  statCardSmall: { padding: 14 },
-  statCardDanger: { borderColor: '#FCA5A5', backgroundColor: '#FEF2F2' },
-  statVal: { fontSize: 24, fontWeight: '800', color: M.text, letterSpacing: -0.5 },
-  statLbl: { fontSize: 11, color: M.muted, marginTop: 4, fontWeight: '600', lineHeight: 14 },
+  statCardHi: { backgroundColor: M.primary, borderColor: M.primary },
+  statCardSmall: { padding: 13 },
+  statCardDanger: { backgroundColor: M.dangerSoft, borderColor: '#FCA5A5' },
+  statIconWrap: {
+    width: 26, height: 26, borderRadius: 7, alignItems: 'center', justifyContent: 'center',
+    marginBottom: 6,
+  },
+  statVal: { fontSize: 26, fontWeight: '800', color: M.text, letterSpacing: -0.5 },
+  statLbl: { fontSize: 10, color: M.muted, fontWeight: '600', lineHeight: 14, textTransform: 'uppercase', letterSpacing: 0.3 },
 
+  // ── Lignes de liste (cartes blanches avec bordure gauche colorée) ──
   row: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: M.surface, borderWidth: 1, borderColor: M.border,
-    borderRadius: 12, padding: 12, marginBottom: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: M.card, borderWidth: 1, borderColor: M.border,
+    borderRadius: 14, padding: 14, marginBottom: 10,
+    ...Platform.select({ web: { boxShadow: '0 1px 4px rgba(0,0,0,0.05)' } }),
   },
-  thumb: { width: 56, height: 56, borderRadius: 8, backgroundColor: M.card },
+  thumb: { width: 60, height: 60, borderRadius: 10, backgroundColor: M.surface },
   rowTitle: { fontSize: 14, fontWeight: '700', color: M.text },
-  rowSub: { fontSize: 12, color: M.muted, marginTop: 2 },
-  link: { fontSize: 12, color: M.text, textDecorationLine: 'underline', marginTop: 4 },
+  rowSub: { fontSize: 12, color: M.muted, marginTop: 2, lineHeight: 17 },
+  link: { fontSize: 12, color: M.primary, textDecorationLine: 'underline', marginTop: 4 },
 
-  btn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, minWidth: 80, alignItems: 'center' },
-  btnOk: { backgroundColor: M.text },
+  // ── Boutons d'action ──
+  btn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
+    paddingHorizontal: 14, paddingVertical: 9, borderRadius: 10, minWidth: 88,
+  },
+  btnOk: { backgroundColor: M.primary },
   btnDanger: { backgroundColor: M.danger },
+  btnAccent: { backgroundColor: M.accent },
   btnTxt: { color: '#fff', fontWeight: '700', fontSize: 12 },
 
-  tagsRow: { flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' },
-  tag: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 4, borderWidth: 1, borderColor: M.border, backgroundColor: M.bg },
-  tagTxt: { fontSize: 10, fontWeight: '700', color: M.text },
+  // ── Tags / chips ──
+  tagsRow: { flexDirection: 'row', gap: 6, marginTop: 8, flexWrap: 'wrap' },
+  tag: {
+    paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6,
+    borderWidth: 1, borderColor: M.border, backgroundColor: M.surface,
+  },
+  tagTxt: { fontSize: 10, fontWeight: '700', color: M.textSoft },
+
+  // ── Badge de décision ──
   decision: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 10, paddingVertical: 8, borderRadius: 10,
+    paddingHorizontal: 12, paddingVertical: 7, borderRadius: 10,
     borderWidth: 1, alignSelf: 'flex-start',
   },
-  decisionTxt: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
+  decisionTxt: { fontSize: 11, fontWeight: '800', letterSpacing: 0.3, textTransform: 'uppercase' },
 
-  // ── Barre de filtres date + statut + export CSV ──
+  // ── Barre de filtres ──
   filterBar: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 8,
-    paddingHorizontal: 12, paddingVertical: 10,
+    paddingHorizontal: 14, paddingVertical: 10,
     borderBottomWidth: 1, borderBottomColor: M.border,
-    backgroundColor: M.surface,
+    backgroundColor: M.card,
   },
   filterLbl: { fontSize: 11, fontWeight: '700', color: M.muted, alignSelf: 'center' },
   filterVal: { fontSize: 12, color: M.text, alignSelf: 'center' },
   filterCount: { fontSize: 11, color: M.muted, alignSelf: 'center', marginLeft: 6 },
   statusChip: {
-    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999,
     borderWidth: 1, borderColor: M.border, backgroundColor: M.bg,
   },
-  statusChipOn: { backgroundColor: M.text, borderColor: M.text },
-  statusChipTxt: { fontSize: 11, fontWeight: '700', color: M.text },
+  statusChipOn: { backgroundColor: M.primary, borderColor: M.primary },
+  statusChipTxt: { fontSize: 11, fontWeight: '700', color: M.textSoft },
   exportBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 10, paddingVertical: 8,
-    borderRadius: 8, backgroundColor: M.accent,
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: 12, paddingVertical: 9,
+    borderRadius: 10, backgroundColor: M.accent,
   },
   exportTxt: { color: '#fff', fontWeight: '800', fontSize: 11 },
 
-  // ── KYC card enrichie ──
+  // ── KYC card ──
   kycCard: {
-    backgroundColor: '#fff', borderWidth: 1, borderColor: M.border,
-    borderRadius: 14, padding: 14, marginBottom: 12, gap: 10,
+    backgroundColor: M.card, borderWidth: 1, borderColor: M.border,
+    borderRadius: 16, padding: 16, marginBottom: 12, gap: 12,
+    ...Platform.select({ web: { boxShadow: '0 1px 6px rgba(0,0,0,0.06)' } }),
   },
-  kycAvatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: M.card },
+  kycAvatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: M.primarySoft },
   kycName: { fontSize: 15, fontWeight: '800', color: M.text },
-  kycSub: { fontSize: 11, color: M.muted, marginTop: 1 },
+  kycSub: { fontSize: 11, color: M.muted, marginTop: 2, lineHeight: 16 },
   kycDocsRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
-  kycDocThumb: { flex: 1, alignItems: 'center', gap: 4 },
-  kycDocImg: { width: '100%', height: 80, borderRadius: 8, backgroundColor: M.card },
+  kycDocThumb: { flex: 1, alignItems: 'center', gap: 6 },
+  kycDocImg: { width: '100%', height: 90, borderRadius: 10, backgroundColor: M.surface },
   kycDocLbl: { fontSize: 9, color: M.muted, textAlign: 'center', lineHeight: 13 },
-  kycNoDoc: { flexDirection: 'row', gap: 6, alignItems: 'center', padding: 8, borderRadius: 8, backgroundColor: '#FEF2F2' },
+  kycNoDoc: { flexDirection: 'row', gap: 8, alignItems: 'center', padding: 10, borderRadius: 10, backgroundColor: M.dangerSoft },
   kycActions: { flexDirection: 'row', gap: 10, marginTop: 4 },
 
   // ── Viewer plein-écran (document KYC) ──
   viewerOverlay: {
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.92)', zIndex: 999,
+    backgroundColor: 'rgba(0,0,0,0.93)', zIndex: 999,
     alignItems: 'center', justifyContent: 'center',
   },
   viewerImg: { width: '100%', height: '85%' },
   viewerClose: {
-    position: 'absolute', top: 12, right: 12,
-    backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 20, padding: 6,
+    position: 'absolute', top: 14, right: 14,
+    backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 22, padding: 8,
   },
 });
