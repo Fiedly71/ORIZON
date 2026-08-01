@@ -38,7 +38,7 @@ import ReviewsScreen from '../screens/ReviewsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import SectionDetailScreen from '../screens/SectionDetailScreen';
 import MonCashManualScreen from '../screens/MonCashManualScreen';
-import { useAuthStore } from '../store/useAuthStore';
+import PlansScreen from '../screens/PlansScreen';
 import { restoreSession } from '../services/authService';
 import { usePushSetup } from '../hooks/usePushSetup';
 
@@ -76,6 +76,7 @@ const linking = {
       Alerts: 'alerts',
       SellerStats: 'stats',
       BoostListing: 'boost/:id',
+      Plans: 'plans',
       Terms: 'légal/terms',
       Privacy: 'légal/privacy',
       ResetPassword: 'reset-password',
@@ -86,7 +87,6 @@ const linking = {
 };
 
 export default function RootNavigator() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const navigationRef = useRef(null);
   usePushSetup(navigationRef);
 
@@ -96,56 +96,56 @@ export default function RootNavigator() {
 
   return (
     <NavigationContainer ref={navigationRef} linking={linking}>
+      {/*
+        Mode invité (browse-as-guest) : MainTabs est TOUJOURS monté.
+        Un visiteur non-connecté peut scroller ExploreScreen. Toute action
+        réelle (voir un bien, rechercher, favoris, messages, publier, profil,
+        etc.) est interceptée par requireAuth() qui redirige vers l'Auth stack.
+        L'Auth stack (Login/Register/Onboarding/ForgotPassword) reste
+        accessible via `navigation.navigate('Auth', { screen: 'Login' })`.
+      */}
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <>
-            <Stack.Screen name="App" component={MainTabs} />
-            <Stack.Screen
-              name="PropertyDetail"
-              component={PropertyDetailScreen}
-              options={{ animation: 'slide_from_bottom' }}
-            />
-            <Stack.Screen name="Map" component={MapScreen} />
-            <Stack.Screen name="SellWizard" component={SellWizardScreen} />
-            <Stack.Screen name="Checkout" component={CheckoutScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-            <Stack.Screen name="MyListings" component={MyListingsScreen} />
-            <Stack.Screen name="MyVisits" component={MyVisitsScreen} />
-            <Stack.Screen name="Payments" component={PaymentsScreen} />
-            <Stack.Screen name="Mortgage" component={MortgageScreen} />
-            <Stack.Screen name="Favorites" component={FavoritesScreen} />
-            <Stack.Screen name="SellerStats" component={SellerStatsScreen} />
-            <Stack.Screen name="Alerts" component={SavedSearchesScreen} />
-            <Stack.Screen name="Kyc" component={KycScreen} />
-            <Stack.Screen name="Reviews" component={ReviewsScreen} />
-            <Stack.Screen name="Settings" component={SettingsScreen} />
-            <Stack.Screen name="SectionDetail" component={SectionDetailScreen} />
-            <Stack.Screen name="Help" component={HelpScreen} />
-            <Stack.Screen name="About" component={AboutScreen} />
-            <Stack.Screen name="Terms" component={LegalScreen} initialParams={{ kind: 'terms' }} />
-            <Stack.Screen name="Privacy" component={LegalScreen} initialParams={{ kind: 'privacy' }} />
-            <Stack.Screen name="BlockedUsers" component={BlockedUsersScreen} />
-            <Stack.Screen name="Conversation" component={ConversationScreen} />
-            <Stack.Screen name="PhoneVerify" component={PhoneVerifyScreen} />
-            <Stack.Screen name="Admin" component={AdminScreen} />
-            <Stack.Screen name="MonCashManual" component={MonCashManualScreen} />
-            <Stack.Screen name="Support" component={SupportScreen} />
-            <Stack.Screen name="BoostListing" component={BoostListingScreen} />
-            <Stack.Screen name="Compare" component={CompareScreen} />
-            <Stack.Screen name="AgencyManage" component={AgencyManageScreen} />
-            <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} />
-            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-            <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="Auth" component={AuthNavigator} />
-            <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} />
-            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-          </>
-        )}
+        <Stack.Screen name="App" component={MainTabs} />
+        <Stack.Screen name="Auth" component={AuthNavigator} options={{ animation: 'slide_from_bottom' }} />
+        <Stack.Screen
+          name="PropertyDetail"
+          component={PropertyDetailScreen}
+          options={{ animation: 'slide_from_bottom' }}
+        />
+        <Stack.Screen name="Map" component={MapScreen} />
+        <Stack.Screen name="SellWizard" component={SellWizardScreen} />
+        <Stack.Screen name="Checkout" component={CheckoutScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+        <Stack.Screen name="MyListings" component={MyListingsScreen} />
+        <Stack.Screen name="MyVisits" component={MyVisitsScreen} />
+        <Stack.Screen name="Payments" component={PaymentsScreen} />
+        <Stack.Screen name="Mortgage" component={MortgageScreen} />
+        <Stack.Screen name="Favorites" component={FavoritesScreen} />
+        <Stack.Screen name="SellerStats" component={SellerStatsScreen} />
+        <Stack.Screen name="Alerts" component={SavedSearchesScreen} />
+        <Stack.Screen name="Kyc" component={KycScreen} />
+        <Stack.Screen name="Reviews" component={ReviewsScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="SectionDetail" component={SectionDetailScreen} />
+        <Stack.Screen name="Help" component={HelpScreen} />
+        <Stack.Screen name="About" component={AboutScreen} />
+        <Stack.Screen name="Terms" component={LegalScreen} initialParams={{ kind: 'terms' }} />
+        <Stack.Screen name="Privacy" component={LegalScreen} initialParams={{ kind: 'privacy' }} />
+        <Stack.Screen name="BlockedUsers" component={BlockedUsersScreen} />
+        <Stack.Screen name="Conversation" component={ConversationScreen} />
+        <Stack.Screen name="PhoneVerify" component={PhoneVerifyScreen} />
+        <Stack.Screen name="Admin" component={AdminScreen} />
+        <Stack.Screen name="MonCashManual" component={MonCashManualScreen} />
+        <Stack.Screen name="Support" component={SupportScreen} />
+        <Stack.Screen name="Plans" component={PlansScreen} />
+        <Stack.Screen name="BoostListing" component={BoostListingScreen} />
+        <Stack.Screen name="Compare" component={CompareScreen} />
+        <Stack.Screen name="AgencyManage" component={AgencyManageScreen} />
+        <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+        <Stack.Screen name="PublicProfile" component={PublicProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

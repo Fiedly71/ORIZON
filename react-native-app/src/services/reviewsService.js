@@ -60,7 +60,25 @@ export async function listReviewsForProperty(propertyId) {
     .from(TABLE).select('*').eq('property_id', propertyId).eq('status', 'approved')
     .order('created_at', { ascending: false });
   if (error) return { ok: false, error: error.message };
-  return { ok: true, data: (data || []).map(fromRow) };
+  const reviews = (data || []).map(fromRow);
+  // Best-effort : hydrate le nom/avatar de l'auteur (une seule requête).
+  const authorIds = Array.from(new Set(reviews.map((r) => r.authorId).filter(Boolean)));
+  if (authorIds.length > 0) {
+    const { data: profs } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .in('id', authorIds);
+    const map = new Map((profs || []).map((p) => [p.id, p]));
+    for (const r of reviews) {
+      const p = map.get(r.authorId);
+      r.reviewer = {
+        id: r.authorId,
+        fullName: p?.full_name || 'Utilisateur',
+        avatarUrl: p?.avatar_url || null,
+      };
+    }
+  }
+  return { ok: true, data: reviews };
 }
 
 export async function deleteReview(id) {

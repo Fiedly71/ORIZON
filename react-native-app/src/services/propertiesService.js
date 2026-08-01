@@ -47,6 +47,10 @@ function fromRow(r) {
     publishedAt: r.published_at || null,
     visitSlots: Array.isArray(r.visit_slots) ? r.visit_slots : [],
     ownerVerified: !!r.owner_verified,
+    // Période tarifaire : 'total' | 'per_night' | 'per_day' | 'per_month' | 'per_year'.
+    // Choix libre du proprio dans SellWizard étape 3. Défaut = 'total'
+    // (vente) ou 'per_month' (location) selon status côté UI.
+    pricePeriod: r.price_period || null,
   };
 }
 
@@ -79,6 +83,7 @@ function toRow(p) {
     lng: p.lng ?? null,
     payment_status: p.paymentStatus || 'unpaid',
     visit_slots: Array.isArray(p.visitSlots) ? p.visitSlots : [],
+    price_period: p.pricePeriod || null,
   };
 }
 
@@ -185,7 +190,7 @@ export async function updateProperty(id, patch) {
   // On ne renvoie que les colonnes effectivement modifiees.
   const full = toRow(patch);
   const row = {};
-  const allowed = ['title','location','price','type','bedrooms','bathrooms','area','status','rating','reviews','amenities','description','image','images','owner_name','owner_type','agent_id','featured','verified','posted_at','year_built','floors','lat','lng'];
+  const allowed = ['title','location','price','type','bedrooms','bathrooms','area','status','rating','reviews','amenities','description','image','images','owner_name','owner_type','agent_id','featured','verified','posted_at','year_built','floors','lat','lng','price_period'];
   for (const k of allowed) {
     const v = full[k];
     if (v === undefined) continue;
@@ -266,7 +271,7 @@ export async function getPublicProfile(userId) {
   }
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, role, agency_name, avatar_url, bio, address, verified, verification_level, verified_at, created_at')
+    .select('id, full_name, role, agency_name, avatar_url, bio, address, phone, whatsapp_link, website, verified, verification_level, verified_at, created_at')
     .eq('id', userId)
     .maybeSingle();
   if (error) return { ok: false, error: error.message };
@@ -281,6 +286,9 @@ export async function getPublicProfile(userId) {
       avatarUrl: data.avatar_url || null,
       bio: data.bio || null,
       address: data.address || null,
+      phone: data.phone || null,
+      whatsappLink: data.whatsapp_link || null,
+      website: data.website || null,
       verified: !!data.verified,
       verificationLevel: data.verification_level || (data.verified ? 'basic' : 'none'),
       verifiedAt: data.verified_at || null,

@@ -7,6 +7,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuthStore } from '../store/useAuthStore';
 import { signOut, hydrateProfile, resendEmailVerification, canPublish } from '../services/authService';
 import { deleteMyAccount } from '../services/accountService';
+import { daysUntilExpiry, formatExpiry, RENEWAL_REMINDER_DAYS } from '../constants/plans';
 
 const M = {
   bg: '#FFFFFF',
@@ -47,6 +48,7 @@ const GROUPS = [
   {
     title: 'Outils',
     items: [
+      { key: 'Plans',     icon: 'diamond-outline',    label: 'Plans & Badge vérifié', publisherOnly: true },
       { key: 'Payments',  icon: 'card-outline',       label: 'Historique paiements' },
       { key: 'Mortgage',  icon: 'calculator-outline', label: "Calculateur d'hypothèque" },
     ],
@@ -74,6 +76,34 @@ function KycBadge({ user }) {
   if (!user || !user.verified) return null;
   return (
     <Ionicons name="checkmark-circle" size={16} color="#1D4ED8" />
+  );
+}
+
+// Bandeau rouge de rappel de renouvellement affiché sur le profil
+// quand le plan expire dans <= RENEWAL_REMINDER_DAYS jours (3 par défaut).
+// Cliquable → navigue vers PlansScreen pour renouveler.
+function PlanRenewalBanner({ user, onPress }) {
+  if (!user?.currentPlanId || !user?.planExpiresAt) return null;
+  const days = daysUntilExpiry(user.planExpiresAt);
+  if (typeof days !== 'number' || days > RENEWAL_REMINDER_DAYS) return null;
+  const expired = days < 0;
+  return (
+    <Pressable style={styles.renewBanner} onPress={onPress}>
+      <Ionicons name="alert-circle" size={20} color="#fff" />
+      <View style={{ flex: 1 }}>
+        <Text style={styles.renewTitle}>
+          {expired
+            ? 'Ton plan est expiré'
+            : `Ton plan expire dans ${days} jour${days > 1 ? 's' : ''}`}
+        </Text>
+        <Text style={styles.renewTxt}>
+          {expired
+            ? 'Renouvelle maintenant pour republier tes annonces.'
+            : `Renouvelle avant le ${formatExpiry(user.planExpiresAt)} pour ne pas perdre la publication.`}
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={16} color="#fff" />
+    </Pressable>
   );
 }
 
@@ -124,6 +154,10 @@ export default function ProfileScreen({ navigation }) {
             <Ionicons name="chevron-forward" size={16} color={M.text} />
           </Pressable>
         )}
+
+        {/* Bandeau rouge : rappel renouvellement (3 jours avant expiration).
+            Cliquable → PlansScreen pour renouveler. */}
+        <PlanRenewalBanner user={user} onPress={() => navigation.navigate('Plans')} />
 
         <View style={styles.headerCard}>
           <Pressable
@@ -249,6 +283,15 @@ const styles = StyleSheet.create({
   },
   warningTitle: { fontSize: 13, fontWeight: '700', color: M.text },
   warningTxt: { fontSize: 11, color: M.textSoft, marginTop: 2 },
+
+  // Bannière rouge de rappel de renouvellement de plan (3 jours avant expiration).
+  renewBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#DC2626', padding: 12, borderRadius: 10,
+    marginBottom: 4,
+  },
+  renewTitle: { fontSize: 13, fontWeight: '800', color: '#fff' },
+  renewTxt: { fontSize: 11, color: '#fff', marginTop: 2, opacity: 0.95 },
 
   headerCard: {
     flexDirection: 'row', alignItems: 'center', gap: 14,

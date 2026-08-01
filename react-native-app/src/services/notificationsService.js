@@ -61,7 +61,42 @@ export async function notifyLocal({ title, body, data }) {
   });
 }
 
-// Verifie si un nouveau bien matche les criteres d'alerte de l'utilisateur.
+// Envoie une notification push à un ou plusieurs utilisateurs Supabase
+// via la fonction Edge 'send-push' (Expo Push API côté serveur).
+// recipients: string | string[]  → user_id(s)
+// Silently fails if not configured or off-device.
+export async function sendPushToUsers({ recipients, title, body, data = {}, screen = null }) {
+  if (!isSupabaseConfigured) return { ok: false };
+  const ids = Array.isArray(recipients) ? recipients : [recipients];
+  if (!ids.length) return { ok: false };
+  try {
+    const { error } = await supabase.functions.invoke('send-push', {
+      body: { user_ids: ids, title, body, data: { ...data, screen } },
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+// Notifie les admins (rôle 'admin') via la même Edge Function.
+export async function sendPushToAdmins({ title, body, data = {}, screen = null }) {
+  if (!isSupabaseConfigured) return { ok: false };
+  try {
+    // Récupère tous les user_id ayant le rôle admin.
+    const { data: admins } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('role', 'admin');
+    if (!admins?.length) return { ok: false };
+    return sendPushToUsers({ recipients: admins.map((a) => a.id), title, body, data, screen });
+  } catch {
+    return { ok: false };
+  }
+}
+
+// Vérifie si un nouveau bien matche les critères d'alerte de l'utilisateur.
 // criteria: { type, status, minPrice, maxPrice, bedrooms }
 export function matchesCriteria(property, criteria) {
   if (!property || !criteria) return false;

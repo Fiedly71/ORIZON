@@ -31,6 +31,8 @@ import { useFavorites } from '../store/useFavorites';
 import { isSuperhost } from '../utils/superhost';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { useResponsive } from '../hooks/useResponsive';
+import { useAuthStore } from '../store/useAuthStore';
+import { requireAuth } from '../utils/requireAuth';
 import Container from '../components/Container';
 
 const CATEGORIES = [
@@ -40,6 +42,7 @@ const CATEGORIES = [
   { key: 'Maison',     label: 'Maisons',     icon: 'home' },
   { key: 'Penthouse',  label: 'Penthouses',  icon: 'star-outline' },
   { key: 'Studio',     label: 'Studios',     icon: 'bed-outline' },
+  { key: 'Hôtel',      label: 'Hôtels',      icon: 'bed' },
   { key: 'Terrain',    label: 'Terrains',    icon: 'leaf-outline' },
   { key: 'Commercial', label: 'Commercial',  icon: 'storefront-outline' },
 ];
@@ -60,6 +63,7 @@ const SORTS = [
 export default function ExploreScreen({ navigation }) {
   const toast = useToast();
   const r = useResponsive();
+  const isAuthed = useAuthStore((s) => s.isAuthenticated);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -194,6 +198,25 @@ export default function ExploreScreen({ navigation }) {
 
   const renderHeader = () => (
     <View style={styles.headerWrap}>
+      {/* Bandeau invité : incite à créer un compte pour interagir */}
+      {!isAuthed && (
+        <Pressable
+          style={styles.guestBanner}
+          onPress={() => {
+            try {
+              let nav = navigation;
+              while (nav?.getParent && nav.getParent()) nav = nav.getParent();
+              nav?.navigate?.('Auth', { screen: 'Register' });
+            } catch {}
+          }}
+        >
+          <Ionicons name="sparkles" size={16} color="#fff" />
+          <Text style={styles.guestBannerTxt}>
+            Crée ton compte gratuit pour voir les biens et contacter les propriétaires
+          </Text>
+          <Ionicons name="chevron-forward" size={16} color="#fff" />
+        </Pressable>
+      )}
       {/* Logo ORIZON + Search bar ronde */}
       <View style={styles.searchRow}>
         <View style={styles.logoBadge}>
@@ -223,7 +246,10 @@ export default function ExploreScreen({ navigation }) {
           )}
           <Pressable
             style={styles.filterBtn}
-            onPress={() => setFilterOpen(true)}
+            onPress={() => {
+              if (!requireAuth(navigation, 'utiliser les filtres avancés')) return;
+              setFilterOpen(true);
+            }}
             hitSlop={8}
           >
             <Ionicons name="options-outline" size={18} color={C.text} />
@@ -249,6 +275,7 @@ export default function ExploreScreen({ navigation }) {
           <Pressable
             style={styles.saveSearchBtn}
             onPress={async () => {
+              if (!requireAuth(navigation, 'sauvegarder cette recherche')) return;
               const criteria = { q: search || undefined, type: category !== 'all' ? category : undefined, status: status !== 'all' ? status : undefined, ...(advFilter || {}) };
               const name = (search || category !== 'all' ? `${search || category}` : 'Mes filtres');
               const r = await saveSearch({ name, criteria, frequency: 'daily' });
@@ -333,8 +360,14 @@ export default function ExploreScreen({ navigation }) {
                 items={item.items}
                 isFavorite={(id) => favIds.includes(id)}
                 onFavorite={(id) => toggleFav(id)}
-                onItemPress={(it) => navigation.navigate('PropertyDetail', { id: it.id, item: it })}
-                onSeeAll={() => navigation.navigate('SectionDetail', { sectionId: item.section.id })}
+                onItemPress={(it) => {
+                  if (!requireAuth(navigation, 'voir cette annonce')) return;
+                  navigation.navigate('PropertyDetail', { id: it.id, item: it });
+                }}
+                onSeeAll={() => {
+                  if (!requireAuth(navigation, 'voir toutes les annonces de cette section')) return;
+                  navigation.navigate('SectionDetail', { sectionId: item.section.id });
+                }}
               />
             </Container>
           )}
@@ -363,8 +396,14 @@ export default function ExploreScreen({ navigation }) {
                 item={item}
                 width={r.columns > 1 ? r.cardWidth : undefined}
                 isFavorite={favIds.includes(item.id)}
-                onFavorite={(id) => toggleFav(id)}
-                onOpen={(it) => navigation.navigate('PropertyDetail', { id: it.id, item: it })}
+                onFavorite={(id) => {
+                  if (!requireAuth(navigation, 'ajouter en favoris')) return;
+                  toggleFav(id);
+                }}
+                onOpen={(it) => {
+                  if (!requireAuth(navigation, 'voir cette annonce')) return;
+                  navigation.navigate('PropertyDetail', { id: it.id, item: it });
+                }}
               />
             </View>
           )}
@@ -394,7 +433,10 @@ export default function ExploreScreen({ navigation }) {
                 </Text>
                 <Pressable
                   style={styles.emptyBtn}
-                  onPress={() => navigation.navigate('SellWizard')}
+                  onPress={() => {
+                    if (!requireAuth(navigation, 'publier une annonce')) return;
+                    navigation.navigate('SellWizard');
+                  }}
                 >
                   <Ionicons name="add-circle" size={18} color="#fff" />
                   <Text style={styles.emptyBtnTxt}>Publier mon annonce</Text>
@@ -447,6 +489,24 @@ const styles = StyleSheet.create({
     backgroundColor: C.bg,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: C.border,
+  },
+  guestBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.md,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: radii.pill,
+    backgroundColor: C.primary,
+  },
+  guestBannerTxt: {
+    flex: 1,
+    color: '#fff',
+    fontSize: 12.5,
+    fontWeight: '700',
+    lineHeight: 16,
   },
   searchRow: {
     flexDirection: 'row',

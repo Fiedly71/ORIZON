@@ -24,6 +24,18 @@ const STATUSES = ['A vendre', 'A louer'];
 const PUBLICATION_FEE_USD = 20;
 const PUBLICATION_FEE_HTG = 2500;
 
+// Périodes tarifaires disponibles. Le proprio choisit ce qui colle à son offre.
+// Ex : location courte durée touristique => 'per_night', mensuel => 'per_month',
+// vente => 'total'. Les 4 périodes ne sont pas exclusives à un statut : un hôtel
+// peut être en 'A louer' + 'per_night', un studio 'A louer' + 'per_month', etc.
+const PRICE_PERIODS = [
+  { key: 'total',     label: 'Prix total',    suffix: '' },
+  { key: 'per_night', label: 'Par nuit',      suffix: '/ nuit' },
+  { key: 'per_day',   label: 'Par jour',      suffix: '/ jour' },
+  { key: 'per_month', label: 'Par mois',      suffix: '/ mois' },
+  { key: 'per_year',  label: 'Par année',     suffix: '/ an' },
+];
+
 export default function SellWizardScreen({ navigation, route }) {
   const editId = route?.params?.editId || null;
   const [step, setStep] = useState(0);
@@ -137,6 +149,9 @@ export default function SellWizardScreen({ navigation, route }) {
     amenities: [],
     images: [],          // [{ uri, mime, name }]  + existing urls as { uri, existing: true }
     price: '',
+    // Période tarifaire au choix du proprio (voir PRICE_PERIODS ci-dessous).
+    // Vente => 'total' par défaut. Location => 'per_month' par défaut.
+    pricePeriod: 'total',
     status: 'A vendre',
     visitSlots: [],      // [{ date, start, end }]
   });
@@ -163,6 +178,7 @@ export default function SellWizardScreen({ navigation, route }) {
           amenities: Array.isArray(p.amenities) ? p.amenities : [],
           images: (p.images || (p.image ? [p.image] : [])).map((url) => ({ uri: url, existing: true })),
           price: String(p.price || ''),
+          pricePeriod: p.pricePeriod || 'total',
           status: p.status || 'A vendre',
           visitSlots: Array.isArray(p.visitSlots) ? p.visitSlots : [],
         });
@@ -308,6 +324,7 @@ export default function SellWizardScreen({ navigation, route }) {
         type: data.type,
         status: data.status,
         price: Number(data.price) || 0,
+        pricePeriod: data.pricePeriod || 'total',
         bedrooms: Number(data.bedrooms) || 0,
         bathrooms: Number(data.bathrooms) || 0,
         area: Number(data.area) || 0,
@@ -476,10 +493,42 @@ export default function SellWizardScreen({ navigation, route }) {
             <Text style={styles.label}>STATUT</Text>
             <View style={styles.chipRow}>
               {STATUSES.map((s) => (
-                <Chip key={s} label={s} on={data.status === s} onPress={() => update('status', s)} />
+                <Chip
+                  key={s}
+                  label={s}
+                  on={data.status === s}
+                  onPress={() => {
+                    // Auto-ajuste la période par défaut selon le statut si l'utilisateur
+                    // n'a pas déjà fait un choix explicite non-total (respect du choix).
+                    setData((d) => ({
+                      ...d,
+                      status: s,
+                      pricePeriod:
+                        d.pricePeriod && d.pricePeriod !== 'total'
+                          ? d.pricePeriod
+                          : (s === 'A louer' ? 'per_month' : 'total'),
+                    }));
+                  }}
+                />
               ))}
             </View>
             <Field label="PRIX (USD)" value={data.price} onChangeText={(v) => update('price', v)} keyboardType="number-pad" placeholder="ex: 95000" />
+
+            <Text style={styles.label}>PÉRIODE TARIFAIRE</Text>
+            <Text style={{ fontSize: 12, color: C.muted, lineHeight: 17 }}>
+              Comment appliques-tu ce prix ? Tu choisis librement selon ton offre
+              (hôtel = par nuit, colocation = par mois, vente = prix total, etc.).
+            </Text>
+            <View style={styles.chipRow}>
+              {PRICE_PERIODS.map((p) => (
+                <Chip
+                  key={p.key}
+                  label={p.label}
+                  on={(data.pricePeriod || 'total') === p.key}
+                  onPress={() => update('pricePeriod', p.key)}
+                />
+              ))}
+            </View>
 
             {!editId && isLaunchFreeActive() && (
               <View style={[styles.feeBox, { backgroundColor: '#DCFCE7', borderColor: '#16A34A', borderWidth: 1 }]}>

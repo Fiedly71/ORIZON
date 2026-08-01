@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 
-const TYPES = ['Villa','Appartement','Maison','Penthouse','Studio','Terrain','Commercial'];
+const TYPES = ['Villa','Appartement','Maison','Penthouse','Studio','Hôtel','Terrain','Commercial'];
 
 export default function AdvancedFilterSheet({ visible, onClose, value, onApply }) {
   const [f, setF] = useState(value || {

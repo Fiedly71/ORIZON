@@ -63,6 +63,9 @@ export default function RegisterScreen({ navigation }) {
     docFront: null,
     docBack: null,
     referralCode: '',
+    // Canaux de contact optionnels (Propriétaire / Agence uniquement).
+    whatsappLink: '',
+    website: '',
   });
 
   const update = (k, v) => setForm((p) => ({ ...p, [k]: v }));
@@ -116,6 +119,8 @@ export default function RegisterScreen({ navigation }) {
         city: isPublisher ? form.city : '',
         department: isPublisher ? form.dept : '',
         referralCode: form.referralCode.trim() || null,
+        whatsappLink: isPublisher ? (form.whatsappLink.trim() || null) : null,
+        website: isPublisher ? (form.website.trim() || null) : null,
       });
       if (!res.ok) {
         appAlert('Inscription', res.error || 'Échec de la création du compte.');
@@ -380,6 +385,36 @@ export default function RegisterScreen({ navigation }) {
                 placeholderTextColor={C.muted}
                 style={styles.field}
                 autoCapitalize="characters"
+              />
+
+              <View style={styles.divider} />
+              <Text style={styles.sectionLabel}>Canaux de contact (optionnels)</Text>
+              <Text style={styles.helpTxt}>
+                Ajoute ton lien WhatsApp et/ou ton site web. Ils apparaîtront comme boutons de contact
+                direct sur tes annonces. Si tu ne les mets pas, les acheteurs ne pourront te contacter
+                que via la messagerie ORIZON et les demandes de réservation.
+              </Text>
+
+              <Text style={styles.label}>LIEN WHATSAPP (OPTIONNEL)</Text>
+              <TextInput
+                value={form.whatsappLink}
+                onChangeText={(v) => update('whatsappLink', v)}
+                placeholder="https://wa.me/50942152569"
+                placeholderTextColor={C.muted}
+                style={styles.field}
+                autoCapitalize="none"
+                keyboardType="url"
+              />
+
+              <Text style={styles.label}>SITE WEB (OPTIONNEL)</Text>
+              <TextInput
+                value={form.website}
+                onChangeText={(v) => update('website', v)}
+                placeholder="https://ton-agence.com"
+                placeholderTextColor={C.muted}
+                style={styles.field}
+                autoCapitalize="none"
+                keyboardType="url"
               />
             </>
           )}

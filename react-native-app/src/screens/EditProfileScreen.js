@@ -24,6 +24,8 @@ export default function EditProfileScreen({ navigation }) {
     address: user?.address || '',
     bio: user?.bio || '',
     avatarUrl: user?.avatarUrl || null,
+    whatsappLink: user?.whatsappLink || '',
+    website: user?.website || '',
   });
 
   const isAgency = user?.role === 'Agence';
@@ -196,6 +198,34 @@ export default function EditProfileScreen({ navigation }) {
             multiline
             inputStyle={{ minHeight: 90, textAlignVertical: 'top', paddingTop: 12 }}
           />
+        )}
+
+        {isPublisher && (
+          <>
+            <View style={styles.infoBox}>
+              <Ionicons name="chatbubbles-outline" size={16} color={C.muted} />
+              <Text style={styles.infoTxt}>
+                Canaux de contact (optionnels). S'ils sont vides, les acheteurs ne pourront te
+                contacter que via la messagerie ORIZON et les demandes de réservation.
+              </Text>
+            </View>
+            <Field
+              label="LIEN WHATSAPP (OPTIONNEL)"
+              value={form.whatsappLink}
+              onChangeText={(v) => update('whatsappLink', v)}
+              placeholder="https://wa.me/50942152569"
+              autoCapitalize="none"
+              keyboardType="url"
+            />
+            <Field
+              label="SITE WEB (OPTIONNEL)"
+              value={form.website}
+              onChangeText={(v) => update('website', v)}
+              placeholder="https://ton-agence.com"
+              autoCapitalize="none"
+              keyboardType="url"
+            />
+          </>
         )}
 
         <View style={styles.infoBox}>

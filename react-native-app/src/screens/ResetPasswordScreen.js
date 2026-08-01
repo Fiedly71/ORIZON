@@ -21,7 +21,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
 
   const onSubmit = async () => {
     if (pwd.length < 8) {
-      Alert.alert('Mot de passe', 'Au moins 8 caracteres.');
+      Alert.alert('Mot de passe', 'Au moins 8 caractères.');
       return;
     }
     if (pwd !== pwd2) {
@@ -32,18 +32,28 @@ export default function ResetPasswordScreen({ navigation, route }) {
     try {
       const r = await updatePassword(pwd);
       if (!r.ok) {
-        Alert.alert('Erreur', r.error || 'Échec.');
+        // Traduit les erreurs Supabase les plus fréquentes en messages lisibles.
+        let msg = r.error || 'Échec.';
+        if (/same password|same as/i.test(msg)) {
+          msg = 'Ce mot de passe est identique à l\'ancien. Choisis-en un différent.';
+        } else if (/session.*expired|token.*expired|invalid.*session/i.test(msg)) {
+          msg = 'Ton lien de réinitialisation a expiré. Fais une nouvelle demande depuis l\'écran "Mot de passe oublié".';
+        } else if (/weak password|too short/i.test(msg)) {
+          msg = 'Mot de passe trop simple. Utilise au moins 8 caractères avec lettres et chiffres.';
+        } else if (/should be different from/i.test(msg)) {
+          msg = 'Ce mot de passe est trop similaire à l\'ancien. Choisis-en un différent.';
+        }
+        Alert.alert('Erreur', msg);
         return;
       }
       Alert.alert(
-        'Mot de passe change',
+        'Mot de passe changé',
         'Tu peux maintenant te connecter avec ton nouveau mot de passe.',
         [{ text: 'OK', onPress: () => {
           if (fromProfile) {
             navigation.goBack();
           } else {
-            // On vient d'un lien d'email -> rediriger vers Login
-            navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+            navigation.reset({ index: 0, routes: [{ name: 'Auth', params: { screen: 'Login' } }] });
           }
         } }],
       );

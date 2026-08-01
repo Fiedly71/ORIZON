@@ -13,6 +13,7 @@ import {
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { isSuperhost } from '../utils/superhost';
+import { priceSuffix } from '../utils/priceFormat';
 
 export default function PropertyCardAirbnb({
   item,
@@ -39,7 +40,9 @@ export default function PropertyCardAirbnb({
   };
 
   const isRent = item.status === 'A louer' || item.status === 'A lwe' || item.status === 'rent';
-  const priceLabel = isRent ? '/ mois' : '';
+  // Choix de la période par le proprio (per_night / per_day / per_month / per_year / total).
+  // Fallback : '/ mois' pour les locations, rien pour les ventes.
+  const priceLabel = priceSuffix(item) || (isRent ? '/ mois' : '');
 
   return (
     <Pressable style={[styles.wrap, { width: CARD_W }]} onPress={() => onOpen?.(item)}>

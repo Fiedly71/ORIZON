@@ -17,6 +17,8 @@ import {
   approveMonCashPayment, rejectMonCashPayment,
   listPendingKyc, decideKyc,
   listReports, resolveReport,
+  listAdminAlerts, resolveAdminAlert,
+  toCsv, downloadCsv,
 } from '../services/adminService';
 
 // Palette monochrome (alignee avec ProfileScreen)
@@ -36,13 +38,14 @@ const M = {
 
 const TABS = [
   { key: 'overview', label: "Vue d'ensemble", icon: 'grid-outline' },
-  { key: 'users', label: 'Utilisateurs', icon: 'people-outline' },
-  { key: 'pending', label: 'En attente', icon: 'time-outline' },
-  { key: 'moncash', label: 'MonCash', icon: 'wallet-outline' },
-  { key: 'photos', label: 'Photos', icon: 'images-outline' },
-  { key: 'revenue', label: 'Revenus', icon: 'cash-outline' },
-  { key: 'kyc', label: 'KYC Agences', icon: 'shield-checkmark-outline' },
-  { key: 'reports', label: 'Signalements', icon: 'alert-circle-outline' },
+  { key: 'alerts',   label: 'Alertes',        icon: 'warning-outline' },
+  { key: 'users',    label: 'Utilisateurs',   icon: 'people-outline' },
+  { key: 'pending',  label: 'En attente',     icon: 'time-outline' },
+  { key: 'moncash',  label: 'MonCash',        icon: 'wallet-outline' },
+  { key: 'photos',   label: 'Photos',         icon: 'images-outline' },
+  { key: 'revenue',  label: 'Revenus',        icon: 'cash-outline' },
+  { key: 'kyc',      label: 'KYC',            icon: 'shield-checkmark-outline' },
+  { key: 'reports',  label: 'Signalements',   icon: 'alert-circle-outline' },
 ];
 
 export default function AdminScreen({ navigation }) {
@@ -52,6 +55,11 @@ export default function AdminScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  // Filtres date (partagés entre onglets) : format 'YYYY-MM-DD'
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  // Filtre statut spécifique (KYC/Reports) : 'all' | 'pending' | 'approved' | 'rejected' | 'resolved'
+  const [statusFilter, setStatusFilter] = useState('pending');
 
   useEffect(() => {
     (async () => setAdmin(await isAdmin()))();
@@ -59,39 +67,59 @@ export default function AdminScreen({ navigation }) {
 
   useEffect(() => {
     if (admin === true) loadTab(tab);
-  }, [admin, tab]);
+  }, [admin, tab, dateFrom, dateTo, statusFilter]);
 
   const loadTab = async (k, isRefresh = false) => {
     if (isRefresh) setRefreshing(true); else setLoading(true);
+    const from = dateFrom ? new Date(dateFrom).toISOString() : null;
+    // Inclure toute la journée "to" : on ajoute 24h.
+    const to = dateTo ? new Date(new Date(dateTo).getTime() + 24 * 3600 * 1000).toISOString() : null;
     try {
       if (k === 'overview') {
         const r = await getDashboardStats();
         if (r.ok) setStats(r.data);
+      } else if (k === 'alerts') {
+        const r = await listAdminAlerts({ resolved: false });
+        setData(r.ok ? r.data : []);
       } else if (k === 'users') {
-        const r = await listUsers({ limit: 100 });
+        const r = await listUsers({ limit: 500, from, to });
         setData(r.ok ? r.data : []);
       } else if (k === 'pending') {
-        const r = await listProperties({ filter: 'pending' });
+        const r = await listProperties({ filter: 'pending', from, to });
         setData(r.ok ? r.data : []);
       } else if (k === 'photos') {
         const r = await listPhotosForReview();
         setData(r.ok ? r.data : []);
       } else if (k === 'moncash') {
-        const r = await listPayments({ filter: 'pending' });
+        const r = await listPayments({ filter: 'pending', from, to });
         setData(r.ok ? r.data : []);
       } else if (k === 'revenue') {
-        const r = await listPayments({ filter: 'all' });
+        const r = await listPayments({ filter: 'all', from, to });
         setData(r.ok ? r.data : []);
       } else if (k === 'kyc') {
-        const r = await listPendingKyc();
+        const r = await listPendingKyc({ status: statusFilter, from, to });
         setData(r.ok ? r.data : []);
       } else if (k === 'reports') {
-        const r = await listReports();
+        const r = await listReports({ from, to, status: statusFilter === 'all' ? null : statusFilter });
         setData(r.ok ? r.data : []);
       }
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  const onExport = () => {
+    if (!data || data.length === 0) {
+      Alert.alert('Export', 'Aucune donnée à exporter dans la sélection actuelle.');
+      return;
+    }
+    const csv = toCsv(data);
+    const now = new Date().toISOString().slice(0, 10);
+    const filename = `orizon-${tab}-${now}.csv`;
+    const ok = downloadCsv(filename, csv);
+    if (!ok) {
+      Alert.alert('Export', 'Le téléchargement CSV n\'est disponible que depuis la version web du dashboard pour le moment.');
     }
   };
 
@@ -166,16 +194,115 @@ export default function AdminScreen({ navigation }) {
       {tab === 'overview' ? (
         <Overview stats={stats} loading={loading} onRefresh={() => loadTab('overview', true)} refreshing={refreshing} />
       ) : (
-        <ListView
-          tab={tab}
-          data={data}
-          loading={loading}
-          refreshing={refreshing}
-          onRefresh={() => loadTab(tab, true)}
-          reload={() => loadTab(tab, true)}
-        />
+        <>
+          {/* Barre de filtres date + statut + export CSV, visible sur toutes les listes.
+              Les filtres date s'appliquent à users / pending / moncash / revenue / kyc / reports.
+              Le sélecteur statut est visible sur kyc + reports. */}
+          <FilterBar
+            tab={tab}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            statusFilter={statusFilter}
+            onDateFrom={setDateFrom}
+            onDateTo={setDateTo}
+            onStatusFilter={setStatusFilter}
+            onExport={onExport}
+            count={Array.isArray(data) ? data.length : 0}
+          />
+          <ListView
+            tab={tab}
+            data={data}
+            loading={loading}
+            refreshing={refreshing}
+            onRefresh={() => loadTab(tab, true)}
+            reload={() => loadTab(tab, true)}
+          />
+        </>
       )}
     </SafeAreaView>
+  );
+}
+
+// ============================================
+// BARRE DE FILTRES (date range + statut + export CSV)
+// ============================================
+function FilterBar({ tab, dateFrom, dateTo, statusFilter, onDateFrom, onDateTo, onStatusFilter, onExport, count }) {
+  const isWeb = Platform.OS === 'web';
+  const hasDateFilter = ['users', 'pending', 'moncash', 'revenue', 'kyc', 'reports'].includes(tab);
+  const hasStatusFilter = tab === 'kyc' || tab === 'reports';
+  if (!hasDateFilter && !hasStatusFilter) return null;
+
+  const statusOptions =
+    tab === 'kyc'
+      ? [
+          { key: 'pending',  label: 'En attente' },
+          { key: 'approved', label: 'Approuvés' },
+          { key: 'rejected', label: 'Rejetés' },
+          { key: 'all',      label: 'Tous' },
+        ]
+      : [
+          { key: 'pending',  label: 'Ouverts' },
+          { key: 'resolved', label: 'Résolus' },
+          { key: 'all',      label: 'Tous' },
+        ];
+
+  return (
+    <View style={styles.filterBar}>
+      <View style={{ flex: 1, gap: 8 }}>
+        {hasDateFilter && (
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <Text style={styles.filterLbl}>Du</Text>
+            {isWeb ? (
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => onDateFrom(e.target.value)}
+                style={{ padding: 6, fontSize: 12, borderRadius: 8, borderWidth: 1, borderStyle: 'solid', borderColor: M.border, background: M.surface, color: M.text }}
+              />
+            ) : (
+              <Text style={styles.filterVal}>{dateFrom || '—'}</Text>
+            )}
+            <Text style={styles.filterLbl}>au</Text>
+            {isWeb ? (
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => onDateTo(e.target.value)}
+                style={{ padding: 6, fontSize: 12, borderRadius: 8, borderWidth: 1, borderStyle: 'solid', borderColor: M.border, background: M.surface, color: M.text }}
+              />
+            ) : (
+              <Text style={styles.filterVal}>{dateTo || '—'}</Text>
+            )}
+            {(dateFrom || dateTo) && (
+              <Pressable onPress={() => { onDateFrom(''); onDateTo(''); }} hitSlop={6}>
+                <Ionicons name="close-circle" size={16} color={M.muted} />
+              </Pressable>
+            )}
+            <Text style={styles.filterCount}>{count} résultat{count > 1 ? 's' : ''}</Text>
+          </View>
+        )}
+        {hasStatusFilter && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>
+            {statusOptions.map((o) => {
+              const on = statusFilter === o.key;
+              return (
+                <Pressable
+                  key={o.key}
+                  onPress={() => onStatusFilter(o.key)}
+                  style={[styles.statusChip, on && styles.statusChipOn]}
+                >
+                  <Text style={[styles.statusChipTxt, on && { color: '#fff' }]}>{o.label}</Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        )}
+      </View>
+      <Pressable onPress={onExport} style={styles.exportBtn}>
+        <Ionicons name="download-outline" size={14} color="#fff" />
+        <Text style={styles.exportTxt}>CSV</Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -332,6 +459,7 @@ function ListView({ tab, data, loading, refreshing, onRefresh, reload }) {
         if (tab === 'revenue') return <PaymentRow item={item} reload={reload} />;
         if (tab === 'kyc') return <KycRow item={item} reload={reload} />;
         if (tab === 'reports') return <ReportRow item={item} reload={reload} />;
+        if (tab === 'alerts') return <AlertRow item={item} reload={reload} />;
         return null;
       }}
     />
@@ -601,13 +729,14 @@ function MonCashPendingRow({ item, reload }) {
 
 function KycRow({ item, reload }) {
   const [decided, setDecided] = useState(item.status === 'approved' ? 'approved' : item.status === 'rejected' ? 'rejected' : null);
+  const [viewer, setViewer] = useState(null); // uri d'une image à afficher en grand
   const decide = (action) => {
     const reason = action === 'rejected' ? 'Documents illisibles ou incomplets' : null;
     Alert.alert(
       action === 'approved' ? 'Approuver KYC' : 'Rejeter KYC',
       action === 'rejected'
         ? 'L\'utilisateur pourra re-soumettre ses documents.'
-        : 'L\'agence sera vérifiée et pourra publier.',
+        : `Le compte de ${item.profile?.full_name || item.user_id?.slice(0, 8)} sera vérifié et pourra publier.`,
       [
         { text: 'Annuler', style: 'cancel' },
         { text: 'OK', onPress: async () => {
@@ -618,30 +747,103 @@ function KycRow({ item, reload }) {
       ],
     );
   };
+
+  // Documents à examiner (issus de la table kyc_submissions).
+  const docs = [
+    { key: 'selfie', label: 'Selfie / Photo de profil', url: item.selfie_url },
+    { key: 'front',  label: 'Recto du document',        url: item.doc_front_url },
+    { key: 'back',   label: 'Verso du document',        url: item.doc_back_url },
+  ].filter((d) => !!d.url);
+
+  const prof = item.profile || {};
+  const isAgency = /agence/i.test(prof.role || '');
+  const submitted = item.created_at
+    ? new Date(item.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '';
+
   return (
-    <View style={styles.row}>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.rowTitle}>{item.doc_type || 'Document'}</Text>
-        <Text style={styles.rowSub} numberOfLines={1}>{item.user_id?.slice(0, 12)}...</Text>
-        {item.file_url ? (
-          <Pressable onPress={() => Linking.openURL(item.file_url)}>
-            <Text style={styles.link}>Voir le document</Text>
-          </Pressable>
-        ) : null}
+    <View style={styles.kycCard}>
+      {/* En-tête : identité + statut */}
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
+        {prof.avatar_url ? (
+          <Image source={{ uri: prof.avatar_url }} style={styles.kycAvatar} />
+        ) : (
+          <View style={[styles.kycAvatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: M.text }]}>
+            <Text style={{ color: '#fff', fontWeight: '800', fontSize: 18 }}>
+              {(prof.full_name || prof.email || 'U').slice(0, 1).toUpperCase()}
+            </Text>
+          </View>
+        )}
+        <View style={{ flex: 1 }}>
+          <Text style={styles.kycName}>
+            {isAgency && prof.agency_name ? prof.agency_name : (prof.full_name || 'Sans nom')}
+          </Text>
+          {isAgency && prof.full_name && prof.agency_name ? (
+            <Text style={styles.kycSub}>Responsable : {prof.full_name}</Text>
+          ) : null}
+          <Text style={styles.kycSub}>{prof.email || '—'}</Text>
+          <Text style={styles.kycSub}>{prof.phone || '—'}</Text>
+          <Text style={styles.kycSub}>
+            {[prof.address, prof.city, prof.department].filter(Boolean).join(', ') || '—'}
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+            <Tag dark>{prof.role || 'Publisher'}</Tag>
+            <Tag>Doc : {item.doc_type || '—'}</Tag>
+            {item.doc_number ? <Tag>{item.doc_number}</Tag> : null}
+            {submitted ? <Tag>Soumis {submitted}</Tag> : null}
+          </View>
+        </View>
       </View>
+
+      {/* Vignettes des documents (tap = full-screen) */}
+      {docs.length > 0 ? (
+        <View style={styles.kycDocsRow}>
+          {docs.map((d) => (
+            <Pressable
+              key={d.key}
+              style={styles.kycDocThumb}
+              onPress={() => setViewer(d.url)}
+            >
+              <Image source={{ uri: d.url }} style={styles.kycDocImg} resizeMode="cover" />
+              <Text style={styles.kycDocLbl}>{d.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : (
+        <View style={styles.kycNoDoc}>
+          <Ionicons name="alert-circle-outline" size={14} color={M.danger} />
+          <Text style={{ fontSize: 11, color: M.danger }}>
+            Aucun document joint — impossible de vérifier ce dossier.
+          </Text>
+        </View>
+      )}
+
+      {/* Actions Approuver / Rejeter */}
       {decided === 'approved' ? (
         <DecisionBadge kind="ok" label="Approuvé" />
       ) : decided === 'rejected' ? (
-        <DecisionBadge kind="danger" label="Rejete" />
+        <DecisionBadge kind="danger" label="Rejeté" />
       ) : (
-        <View style={{ gap: 6 }}>
-          <Pressable onPress={() => decide('approved')} style={[styles.btn, styles.btnOk]}>
-            <Text style={styles.btnTxt}>OK</Text>
-          </Pressable>
-          <Pressable onPress={() => decide('rejected')} style={[styles.btn, styles.btnDanger]}>
+        <View style={styles.kycActions}>
+          <Pressable onPress={() => decide('rejected')} style={[styles.btn, styles.btnDanger, { flex: 1 }]}>
+            <Ionicons name="close-circle-outline" size={14} color="#fff" />
             <Text style={styles.btnTxt}>Rejeter</Text>
           </Pressable>
+          <Pressable onPress={() => decide('approved')} style={[styles.btn, styles.btnOk, { flex: 1 }]}>
+            <Ionicons name="checkmark-circle-outline" size={14} color="#fff" />
+            <Text style={styles.btnTxt}>Approuver</Text>
+          </Pressable>
         </View>
+      )}
+
+      {/* Viewer full-screen basique (modal) */}
+      {viewer && (
+        <Pressable style={styles.viewerOverlay} onPress={() => setViewer(null)}>
+          <Image source={{ uri: viewer }} style={styles.viewerImg} resizeMode="contain" />
+          <View style={styles.viewerClose}>
+            <Ionicons name="close" size={22} color="#fff" />
+          </View>
+        </Pressable>
       )}
     </View>
   );
@@ -662,6 +864,49 @@ function ReportRow({ item, reload }) {
       ) : (
         <Pressable onPress={resolve} style={[styles.btn, styles.btnOk]}>
           <Text style={styles.btnTxt}>Resoudre</Text>
+        </Pressable>
+      )}
+    </View>
+  );
+}
+
+// Alerte auto générée par les triggers SQL (voir db/admin_alerts.sql).
+// - many_reports        : 10+ signalements sur une annonce
+// - many_reports_user   : 10+ signalements sur un utilisateur
+// - many_low_reviews    : 10+ avis 1-2 étoiles sur une annonce
+function AlertRow({ item, reload }) {
+  const [resolved, setResolved] = useState(!!item.resolved_at);
+  const LABELS = {
+    many_reports: 'Annonce très signalée',
+    many_reports_user: 'Utilisateur très signalé',
+    many_low_reviews: 'Annonce avec beaucoup d\'avis négatifs',
+  };
+  const label = LABELS[item.kind] || item.kind;
+  const resolve = async () => {
+    setResolved(true);
+    await resolveAdminAlert(item.id);
+    reload();
+  };
+  const targetShort = String(item.target_id || '').slice(0, 8);
+  return (
+    <View style={[styles.row, !resolved && { borderLeftWidth: 4, borderLeftColor: M.danger, paddingLeft: 10 }]}>
+      <Ionicons name="warning" size={20} color={M.danger} style={{ marginRight: 8 }} />
+      <View style={{ flex: 1 }}>
+        <Text style={styles.rowTitle}>{label}</Text>
+        <Text style={styles.rowSub}>
+          {item.target_type} · {targetShort} · {item.actual_count}/{item.threshold} atteints
+        </Text>
+        {item.created_at && (
+          <Text style={styles.rowSub}>
+            Créée le {new Date(item.created_at).toLocaleDateString('fr-FR')}
+          </Text>
+        )}
+      </View>
+      {resolved ? (
+        <DecisionBadge kind="ok" label="Traitée" />
+      ) : (
+        <Pressable onPress={resolve} style={[styles.btn, styles.btnOk]}>
+          <Text style={styles.btnTxt}>Marquer traitée</Text>
         </Pressable>
       )}
     </View>
@@ -762,4 +1007,54 @@ const styles = StyleSheet.create({
     borderWidth: 1, alignSelf: 'flex-start',
   },
   decisionTxt: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
+
+  // ── Barre de filtres date + statut + export CSV ──
+  filterBar: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 8,
+    paddingHorizontal: 12, paddingVertical: 10,
+    borderBottomWidth: 1, borderBottomColor: M.border,
+    backgroundColor: M.surface,
+  },
+  filterLbl: { fontSize: 11, fontWeight: '700', color: M.muted, alignSelf: 'center' },
+  filterVal: { fontSize: 12, color: M.text, alignSelf: 'center' },
+  filterCount: { fontSize: 11, color: M.muted, alignSelf: 'center', marginLeft: 6 },
+  statusChip: {
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999,
+    borderWidth: 1, borderColor: M.border, backgroundColor: M.bg,
+  },
+  statusChipOn: { backgroundColor: M.text, borderColor: M.text },
+  statusChipTxt: { fontSize: 11, fontWeight: '700', color: M.text },
+  exportBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    paddingHorizontal: 10, paddingVertical: 8,
+    borderRadius: 8, backgroundColor: M.accent,
+  },
+  exportTxt: { color: '#fff', fontWeight: '800', fontSize: 11 },
+
+  // ── KYC card enrichie ──
+  kycCard: {
+    backgroundColor: '#fff', borderWidth: 1, borderColor: M.border,
+    borderRadius: 14, padding: 14, marginBottom: 12, gap: 10,
+  },
+  kycAvatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: M.card },
+  kycName: { fontSize: 15, fontWeight: '800', color: M.text },
+  kycSub: { fontSize: 11, color: M.muted, marginTop: 1 },
+  kycDocsRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  kycDocThumb: { flex: 1, alignItems: 'center', gap: 4 },
+  kycDocImg: { width: '100%', height: 80, borderRadius: 8, backgroundColor: M.card },
+  kycDocLbl: { fontSize: 9, color: M.muted, textAlign: 'center', lineHeight: 13 },
+  kycNoDoc: { flexDirection: 'row', gap: 6, alignItems: 'center', padding: 8, borderRadius: 8, backgroundColor: '#FEF2F2' },
+  kycActions: { flexDirection: 'row', gap: 10, marginTop: 4 },
+
+  // ── Viewer plein-écran (document KYC) ──
+  viewerOverlay: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.92)', zIndex: 999,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  viewerImg: { width: '100%', height: '85%' },
+  viewerClose: {
+    position: 'absolute', top: 12, right: 12,
+    backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 20, padding: 6,
+  },
 });

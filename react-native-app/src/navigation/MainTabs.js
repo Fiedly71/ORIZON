@@ -15,6 +15,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useMessages } from '../store/useMessages';
 import { canPublish } from '../services/authService';
 import { requireEmailVerified } from '../utils/emailVerifyGuard';
+import { requireAuth } from '../utils/requireAuth';
 import { C } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
@@ -41,7 +42,11 @@ function PublishButton({ onPress }) {
 export default function MainTabs() {
   const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
+  const isAuthed = useAuthStore((s) => s.isAuthenticated);
   const isPublisher = canPublish(user);
+  // En mode invité (non connecté) on affiche l'onglet Publier pour tous :
+  // le tap redirigera vers l'inscription (compte Propriétaire/Agence).
+  const showPublish = !isAuthed || isPublisher;
   const unreadTotal = useMessages((s) => s.unreadTotal);
   const refreshMsgs = useMessages((s) => s.refresh);
   const subscribeMsgs = useMessages((s) => s.subscribe);
@@ -125,8 +130,16 @@ export default function MainTabs() {
         name="Favorites"
         component={FavoritesScreen}
         options={{ title: 'Favoris' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            if (!isAuthed) {
+              e.preventDefault();
+              requireAuth(navigation, 'voir tes favoris');
+            }
+          },
+        })}
       />
-      {isPublisher && (
+      {showPublish && (
         <Tab.Screen
           name="Publish"
           component={PublishPlaceholder}
@@ -136,6 +149,13 @@ export default function MainTabs() {
             tabBarButton: (props) => (
               <PublishButton
                 onPress={() => {
+                  if (!isAuthed) { requireAuth(navigation, 'publier une annonce'); return; }
+                  if (!isPublisher) {
+                    // Utilisateur connecté mais compte Acheteur/Locataire :
+                    // on le renvoie vers l'aide pour changer de rôle / créer un compte publieur.
+                    navigation.getParent()?.navigate('Support');
+                    return;
+                  }
                   if (!requireEmailVerified('publier une annonce')) return;
                   navigation.getParent()?.navigate('SellWizard');
                 }}
@@ -145,6 +165,8 @@ export default function MainTabs() {
           listeners={({ navigation }) => ({
             tabPress: (e) => {
               e.preventDefault();
+              if (!isAuthed) { requireAuth(navigation, 'publier une annonce'); return; }
+              if (!isPublisher) { navigation.getParent()?.navigate('Support'); return; }
               if (!requireEmailVerified('publier une annonce')) return;
               navigation.getParent()?.navigate('SellWizard');
             },
@@ -155,11 +177,27 @@ export default function MainTabs() {
         name="Messages"
         component={MessagesScreen}
         options={{ title: 'Messages' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            if (!isAuthed) {
+              e.preventDefault();
+              requireAuth(navigation, 'consulter tes messages');
+            }
+          },
+        })}
       />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileScreen}
         options={{ title: 'Profil' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            if (!isAuthed) {
+              e.preventDefault();
+              requireAuth(navigation, 'accéder à ton profil');
+            }
+          },
+        })}
       />
     </Tab.Navigator>
     </View>

@@ -5,7 +5,7 @@
 // services, plans, slides onboarding).
 // ─────────────────────────────────────────────────────────────
 
-export const propertyTypes = ['Maison', 'Appartement', 'Hôtel', 'Terrain', 'Commercial'];
+export const propertyTypes = ['Maison', 'Villa', 'Appartement', 'Penthouse', 'Studio', 'Hôtel', 'Terrain', 'Commercial'];
 
 export const propertyAmenities = [
   'Piscine', 'Parking', 'Sécurité 24/7', 'Energie solaire', 'Climatisation',

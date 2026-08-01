@@ -99,6 +99,8 @@ export async function hydrateProfile() {
     city: data.city || null,
     department: data.department || null,
     bio: data.bio || null,
+    whatsappLink: data.whatsapp_link || null,
+    website: data.website || null,
     verified: !!data.verified,
     canPublish: !!data.can_publish,
     publishFree: !!data.publish_free,
@@ -106,6 +108,12 @@ export async function hydrateProfile() {
     emailVerified: !!data.email_verified || !!user.emailConfirmedAt,
     verificationLevel: data.verification_level || (data.verified ? 'basic' : 'none'),
     verifiedAt: data.verified_at || null,
+    // Plans & badge (voir db/subscription_plans.sql)
+    currentPlanId: data.current_plan_id || null,
+    planStartedAt: data.plan_started_at || null,
+    planExpiresAt: data.plan_expires_at || null,
+    verifiedBadge: !!data.verified_badge,
+    badgeExpiresAt: data.badge_expires_at || null,
   });
   return { ok: true, data };
 }
@@ -139,7 +147,7 @@ export async function signInWithPassword({ email, password }) {
   }
 }
 
-export async function signUp({ email, password, fullName, phone, role, agencyName, address, city, department, referralCode }) {
+export async function signUp({ email, password, fullName, phone, role, agencyName, address, city, department, referralCode, whatsappLink, website }) {
   const { setLoading, setUser } = useAuthStore.getState();
   setLoading(true);
   try {
@@ -154,6 +162,8 @@ export async function signUp({ email, password, fullName, phone, role, agencyNam
       city: city || null,
       department: department || null,
       referralCode: referralCode || null,
+      whatsappLink: whatsappLink || null,
+      website: website || null,
     };
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -284,7 +294,7 @@ export async function resendEmailVerification() {
 
 // --- Mise a jour du profil ---
 
-// patch peut contenir: { fullName, phone, agencyName, address, bio, avatarUrl }
+// patch peut contenir: { fullName, phone, agencyName, address, bio, avatarUrl, whatsappLink, website }
 export async function updateProfile(patch) {
   const { user, setUser } = useAuthStore.getState();
   if (!user?.id) return { ok: false, error: 'Non connecte' };
@@ -302,6 +312,8 @@ export async function updateProfile(patch) {
     address: patch.address ?? user.address ?? null,
     bio: patch.bio ?? user.bio ?? null,
     avatar_url: patch.avatarUrl ?? user.avatarUrl ?? null,
+    whatsapp_link: patch.whatsappLink ?? user.whatsappLink ?? null,
+    website: patch.website ?? user.website ?? null,
     updated_at: new Date().toISOString(),
   };
   const { error: pErr } = await supabase
@@ -328,6 +340,8 @@ export async function updateProfile(patch) {
     address: row.address,
     bio: row.bio,
     avatarUrl: row.avatar_url,
+    whatsappLink: row.whatsapp_link,
+    website: row.website,
   });
   return { ok: true };
 }

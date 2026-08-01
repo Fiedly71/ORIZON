@@ -108,6 +108,16 @@ export const SECTIONS = [
     color: '#A855F7',
     predicate: (p) => /studio/i.test(p.type || '') || (Number(p.bedrooms) === 1 && Number(p.area) <= 50),
   },
+  // « Hôtels » en dernier : la section n'apparaît dans l'Explorer que si
+  // getSectionItems() retourne au moins 1 résultat (voir feed).
+  {
+    id: 'hotels',
+    label: 'Hôtels',
+    subtitle: 'Séjours & réservations',
+    icon: 'bed',
+    color: '#0891B2',
+    predicate: (p) => /h[oô]tel|hotel/i.test(p.type || ''),
+  },
 ];
 
 // Renvoie toutes les proprietes approuvees (un seul appel DB).

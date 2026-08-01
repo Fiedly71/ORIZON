@@ -35,7 +35,8 @@ as $$
 begin
   insert into public.profiles (
     id, email, full_name, phone, role, address, city, department,
-    agency_name, referral_code, email_verified, accepted_terms_at
+    agency_name, referral_code, email_verified, accepted_terms_at,
+    whatsapp_link, website
   )
   values (
     new.id,
@@ -49,7 +50,9 @@ begin
     new.raw_user_meta_data->>'agencyName',
     new.raw_user_meta_data->>'referralCode',
     (new.email_confirmed_at is not null),
-    now()
+    now(),
+    new.raw_user_meta_data->>'whatsappLink',
+    new.raw_user_meta_data->>'website'
   )
   on conflict (id) do update set
     email       = excluded.email,
@@ -61,6 +64,8 @@ begin
     department  = coalesce(nullif(excluded.department, ''), public.profiles.department),
     agency_name = coalesce(nullif(excluded.agency_name, ''), public.profiles.agency_name),
     referral_code = coalesce(nullif(excluded.referral_code, ''), public.profiles.referral_code),
+    whatsapp_link = coalesce(nullif(excluded.whatsapp_link, ''), public.profiles.whatsapp_link),
+    website     = coalesce(nullif(excluded.website, ''), public.profiles.website),
     email_verified = excluded.email_verified,
     updated_at  = now();
   return new;
@@ -122,7 +127,8 @@ begin
 
   insert into public.profiles (
     id, email, full_name, phone, role, address, city, department,
-    agency_name, referral_code, accepted_terms_at
+    agency_name, referral_code, accepted_terms_at,
+    whatsapp_link, website
   )
   values (
     p_user_id,
@@ -135,7 +141,9 @@ begin
     p_data->>'department',
     p_data->>'agencyName',
     p_data->>'referralCode',
-    now()
+    now(),
+    p_data->>'whatsappLink',
+    p_data->>'website'
   )
   on conflict (id) do update set
     email       = coalesce(nullif(excluded.email, ''), public.profiles.email),
@@ -147,6 +155,8 @@ begin
     department  = coalesce(nullif(excluded.department, ''), public.profiles.department),
     agency_name = coalesce(nullif(excluded.agency_name, ''), public.profiles.agency_name),
     referral_code = coalesce(nullif(excluded.referral_code, ''), public.profiles.referral_code),
+    whatsapp_link = coalesce(nullif(excluded.whatsapp_link, ''), public.profiles.whatsapp_link),
+    website     = coalesce(nullif(excluded.website, ''), public.profiles.website),
     updated_at  = now();
 end;
 $$;

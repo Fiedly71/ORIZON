@@ -12,7 +12,10 @@ import { C } from '../theme/colors';
 import { getPublicProfile, listPropertiesByOwner } from '../services/propertiesService';
 import { openConversation } from '../services/messagingService';
 import { reportTarget } from '../services/reportsService';
+import { priceSuffix } from '../utils/priceFormat';
 import { useAuthStore } from '../store/useAuthStore';
+import { isLaunchFreeActive, LAUNCH_FREE_END_LABEL } from '../config/launchPromo';
+import { formatExpiry, daysUntilExpiry, RENEWAL_REMINDER_DAYS } from '../constants/plans';
 
 function VerifiedBadge({ size = 14 }) {
   return <Ionicons name="checkmark-circle" size={size} color="#1D4ED8" />;
@@ -21,7 +24,10 @@ function VerifiedBadge({ size = 14 }) {
 export default function PublicProfileScreen({ navigation, route }) {
   const userId = route?.params?.userId;
   const fallbackName = route?.params?.name;
-  const currentUserId = useAuthStore((s) => s.user?.id);
+  const currentUser = useAuthStore((s) => s.user);
+  const currentUserId = currentUser?.id;
+  // Détecter si c'est l'utilisateur qui consulte son propre profil.
+  const isOwnProfile = !!userId && userId === currentUserId;
 
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
@@ -148,6 +154,11 @@ export default function PublicProfileScreen({ navigation, route }) {
           </View>
         ) : null}
 
+        {/* Mini-dashboard : visible uniquement quand on visite son propre profil. */}
+        {isOwnProfile && (
+          <OwnerDashboard user={currentUser} listings={listings} navigation={navigation} />
+        )}
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Annonces ({listings.length})
@@ -174,7 +185,7 @@ export default function PublicProfileScreen({ navigation, route }) {
                     <Text style={styles.cardSub} numberOfLines={1}>{it.location}</Text>
                     <Text style={styles.cardPrice}>
                       {it.price ? Number(it.price).toLocaleString('fr-FR') : '—'} HTG
-                      {it.status?.toLowerCase().includes('lou') ? ' / mois' : ''}
+                      {priceSuffix(it) ? ` ${priceSuffix(it)}` : (it.status?.toLowerCase().includes('lou') ? ' / mois' : '')}
                     </Text>
                   </View>
                 </Pressable>
@@ -200,6 +211,84 @@ function Header({ title, onBack, onReport }) {
         </Pressable>
       ) : <View style={{ width: 24 }} />}
     </View>
+  );
+}
+
+// Mini-dashboard affiché uniquement quand un propriétaire/agence visite son propre profil.
+// Donne un accès rapide aux actions clés + résumé du plan actif.
+function OwnerDashboard({ user, listings, navigation }) {
+  const freeActive = isLaunchFreeActive();
+  const daysLeft = daysUntilExpiry(user?.planExpiresAt);
+  const planExpiringSoon = typeof daysLeft === 'number' && daysLeft >= 0 && daysLeft <= RENEWAL_REMINDER_DAYS;
+  const planExpired = typeof daysLeft === 'number' && daysLeft < 0;
+  const liveListing = listings.filter((l) => l.paymentStatus === 'paid' || freeActive);
+
+  return (
+    <View style={styles.section}>
+      <Text style={[styles.sectionTitle, { marginBottom: 12 }]}>Gérer mon compte</Text>
+
+      {/* Plan actif / gratuit */}
+      {freeActive ? (
+        <View style={styles.dashPlanBox}>
+          <Ionicons name="gift" size={18} color="#047857" />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.dashPlanTitle}>Publication gratuite active</Text>
+            <Text style={styles.dashPlanSub}>Jusqu'au {LAUNCH_FREE_END_LABEL} — profites-en !</Text>
+          </View>
+        </View>
+      ) : user?.currentPlanId ? (
+        <View style={[styles.dashPlanBox, (planExpiringSoon || planExpired) && styles.dashPlanBoxWarn]}>
+          <Ionicons
+            name={planExpired ? 'close-circle' : planExpiringSoon ? 'alert-circle' : 'checkmark-circle'}
+            size={18}
+            color={planExpired ? '#DC2626' : planExpiringSoon ? '#D97706' : '#16A34A'}
+          />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.dashPlanTitle}>
+              Plan {user.currentPlanId}
+              {planExpired ? ' — expiré' : ''}
+            </Text>
+            <Text style={styles.dashPlanSub}>
+              {planExpired
+                ? 'Renouvelle pour continuer à publier.'
+                : `Expire le ${formatExpiry(user.planExpiresAt)}`}
+            </Text>
+          </View>
+          <Pressable onPress={() => navigation.navigate('Plans')} style={styles.dashPlanBtn}>
+            <Text style={styles.dashPlanBtnTxt}>{planExpired ? 'Renouveler' : 'Gérer'}</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <Pressable style={styles.dashPlanBox} onPress={() => navigation.navigate('Plans')}>
+          <Ionicons name="diamond-outline" size={18} color={C.primary} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.dashPlanTitle}>Aucun plan actif</Text>
+            <Text style={styles.dashPlanSub}>Découvrir les plans ORIZON</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={14} color={C.muted} />
+        </Pressable>
+      )}
+
+      {/* Actions rapides */}
+      <View style={styles.dashGrid}>
+        <DashAction icon="home-outline"        label="Mes annonces"  count={liveListing.length}  onPress={() => navigation.navigate('MyListings')} />
+        <DashAction icon="stats-chart-outline" label="Statistiques"  onPress={() => navigation.navigate('SellerStats')} />
+        <DashAction icon="chatbubbles-outline" label="Messages"      onPress={() => navigation.navigate('Messages')} />
+        <DashAction icon="create-outline"      label="Modifier profil" onPress={() => navigation.navigate('EditProfile')} />
+      </View>
+    </View>
+  );
+}
+
+function DashAction({ icon, label, count, onPress }) {
+  return (
+    <Pressable style={styles.dashAction} onPress={onPress}>
+      <Ionicons name={icon} size={22} color={C.primary} />
+      <Text style={styles.dashActionLbl}>{label}</Text>
+      {typeof count === 'number' && (
+        <Text style={styles.dashActionCount}>{count}</Text>
+      )}
+    </Pressable>
   );
 }
 
@@ -243,4 +332,28 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 14, fontWeight: '700', color: C.text },
   cardSub: { fontSize: 12, color: C.muted },
   cardPrice: { fontSize: 13, fontWeight: '700', color: C.primary, marginTop: 4 },
+
+  // Mini-dashboard propriétaire
+  dashPlanBox: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    padding: 14, borderRadius: 12, backgroundColor: '#F0FDF4',
+    borderWidth: 1, borderColor: '#BBF7D0', marginBottom: 12,
+  },
+  dashPlanBoxWarn: { backgroundColor: '#FFFBEB', borderColor: '#FDE68A' },
+  dashPlanTitle: { fontSize: 13, fontWeight: '700', color: C.text },
+  dashPlanSub: { fontSize: 11, color: C.muted, marginTop: 2 },
+  dashPlanBtn: {
+    backgroundColor: C.primary, borderRadius: 8,
+    paddingHorizontal: 10, paddingVertical: 6,
+  },
+  dashPlanBtnTxt: { color: '#fff', fontWeight: '700', fontSize: 11 },
+  dashGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  dashAction: {
+    width: '47%', padding: 14, borderRadius: 12, alignItems: 'center', gap: 6,
+    backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0',
+  },
+  dashActionLbl: { fontSize: 11, fontWeight: '700', color: C.text, textAlign: 'center' },
+  dashActionCount: {
+    fontSize: 20, fontWeight: '800', color: C.primary, lineHeight: 24,
+  },
 });

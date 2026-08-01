@@ -60,7 +60,7 @@ export async function getDashboardStats() {
       refunded: sum(payments?.filter((p) => p.refunded).map((p) => p.amount)),
     };
 
-    const { data: kycs } = await supabase.from('kyc_documents').select('status');
+    const { data: kycs } = await supabase.from('kyc_submissions').select('status');
     const kyc = {
       pending: kycs?.filter((k) => k.status === 'pending').length || 0,
       approved: kycs?.filter((k) => k.status === 'approved').length || 0,
@@ -82,15 +82,17 @@ export async function getDashboardStats() {
 // ============================================
 // USERS
 // ============================================
-export async function listUsers({ role = null, limit = 100 } = {}) {
+export async function listUsers({ role = null, limit = 500, from = null, to = null } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: [] };
   // Essai 1 : avec email + banned + publish_free (apres migrations)
   let q = supabase
     .from('profiles')
-    .select('id, full_name, email, phone, role, verified, can_publish, banned, publish_free, created_at')
+    .select('id, full_name, email, phone, role, verified, can_publish, banned, publish_free, current_plan_id, plan_expires_at, verified_badge, whatsapp_link, website, city, department, agency_name, created_at')
     .order('created_at', { ascending: false })
     .limit(limit);
   if (role) q = q.eq('role', role);
+  if (from) q = q.gte('created_at', from);
+  if (to)   q = q.lte('created_at', to);
   let { data, error } = await q;
   if (error) {
     // Fallback 2 : sans publish_free
@@ -139,7 +141,7 @@ export async function setUserPublishFree(userId, free) {
 // ============================================
 // PROPERTIES
 // ============================================
-export async function listProperties({ filter = 'all', limit = 100 } = {}) {
+export async function listProperties({ filter = 'all', limit = 500, from = null, to = null } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: [] };
   let q = supabase
     .from('properties')
@@ -149,6 +151,8 @@ export async function listProperties({ filter = 'all', limit = 100 } = {}) {
   if (filter === 'pending') q = q.eq('moderation_status', 'pending');
   if (filter === 'rejected') q = q.eq('moderation_status', 'rejected');
   if (filter === 'live') q = q.eq('payment_status', 'paid').neq('moderation_status', 'rejected');
+  if (from) q = q.gte('created_at', from);
+  if (to)   q = q.lte('created_at', to);
   const { data, error } = await q;
   if (error) {
     // Fallback sans jointure (au cas ou la contrainte FK ne porte pas le nom attendu)
@@ -214,22 +218,43 @@ export async function listPhotosForReview({ limit = 100 } = {}) {
 // ============================================
 // KYC AGENCES
 // ============================================
-export async function listPendingKyc({ limit = 50 } = {}) {
+// Liste les dossiers KYC (par défaut : ceux en attente) et hydrate chaque
+// dossier avec les infos du profil (nom, email, rôle, agence) + les URLs
+// signed pour visualiser les documents (selfie, recto, verso).
+export async function listPendingKyc({ status = 'pending', limit = 100, from = null, to = null } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: [] };
-  const { data, error } = await supabase
-    .from('kyc_documents')
+  let q = supabase
+    .from('kyc_submissions')
     .select('*')
-    .eq('status', 'pending')
     .order('created_at', { ascending: false })
     .limit(limit);
+  if (status && status !== 'all') q = q.eq('status', status);
+  if (from) q = q.gte('created_at', from);
+  if (to)   q = q.lte('created_at', to);
+  const { data, error } = await q;
   if (error) return { ok: false, error: error.message };
-  return { ok: true, data: data || [] };
+  const rows = data || [];
+  // Hydrate le profil (une seule requête).
+  const userIds = Array.from(new Set(rows.map((r) => r.user_id).filter(Boolean)));
+  let profById = {};
+  if (userIds.length) {
+    const { data: profs } = await supabase
+      .from('profiles')
+      .select('id, full_name, email, phone, role, agency_name, address, city, department, avatar_url')
+      .in('id', userIds);
+    profById = Object.fromEntries((profs || []).map((p) => [p.id, p]));
+  }
+  const enriched = rows.map((r) => ({
+    ...r,
+    profile: profById[r.user_id] || null,
+  }));
+  return { ok: true, data: enriched };
 }
 
 export async function decideKyc(kycId, userId, action, reason = null) {
   if (!isSupabaseConfigured) return { ok: true };
   const { error: e1 } = await supabase
-    .from('kyc_documents')
+    .from('kyc_submissions')
     .update({ status: action, reason, reviewed_at: new Date().toISOString() })
     .eq('id', kycId);
   if (e1) return { ok: false, error: e1.message };
@@ -237,7 +262,6 @@ export async function decideKyc(kycId, userId, action, reason = null) {
   if (action === 'approved') {
     await supabase.from('profiles').update({ verified: true, can_publish: true }).eq('id', userId);
   } else if (action === 'rejected') {
-    // L'utilisateur peut re-soumettre apres rejet
     await supabase.from('profiles').update({ verified: false }).eq('id', userId);
   }
   return { ok: true };
@@ -246,7 +270,7 @@ export async function decideKyc(kycId, userId, action, reason = null) {
 // ============================================
 // REVENUS
 // ============================================
-export async function listPayments({ filter = 'all', limit = 100 } = {}) {
+export async function listPayments({ filter = 'all', limit = 500, from = null, to = null } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: [] };
   let q = supabase
     .from('payments')
@@ -257,6 +281,8 @@ export async function listPayments({ filter = 'all', limit = 100 } = {}) {
   if (filter === 'succeeded') q = q.eq('status', 'succeeded');
   if (filter === 'failed') q = q.eq('status', 'failed');
   if (filter === 'refunded') q = q.eq('refunded', true);
+  if (from) q = q.gte('created_at', from);
+  if (to)   q = q.lte('created_at', to);
   const { data, error } = await q;
   if (error) return { ok: false, error: error.message };
   const payments = data || [];
@@ -320,15 +346,61 @@ export async function refundPayment(paymentId, reason = '') {
 // ============================================
 // REPORTS
 // ============================================
-export async function listReports({ limit = 50 } = {}) {
+export async function listReports({ limit = 500, from = null, to = null, status = null } = {}) {
   if (!isSupabaseConfigured) return { ok: true, data: [] };
-  const { data, error } = await supabase
+  let q = supabase
     .from('reports')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(limit);
+  if (from) q = q.gte('created_at', from);
+  if (to)   q = q.lte('created_at', to);
+  if (status) q = q.eq('status', status);
+  const { data, error } = await q;
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: data || [] };
+}
+
+// ============================================
+// EXPORT CSV (utilisé par tous les onglets admin)
+// ============================================
+// Convertit un tableau de rows en CSV (RFC 4180 : virgule + quotes doublees).
+// Colonnes : première row échantillonée (ou columns explicite).
+export function toCsv(rows, columns = null) {
+  if (!Array.isArray(rows) || rows.length === 0) return '';
+  const cols = columns || Array.from(
+    rows.reduce((set, r) => { Object.keys(r || {}).forEach((k) => set.add(k)); return set; }, new Set())
+  );
+  const esc = (v) => {
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'object') v = JSON.stringify(v);
+    const s = String(v);
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  };
+  const header = cols.join(',');
+  const body = rows.map((r) => cols.map((c) => esc(r[c])).join(',')).join('\n');
+  return header + '\n' + body;
+}
+
+// Déclenche le téléchargement d'un CSV (uniquement sur web).
+// Sur mobile natif, on peut réutiliser Sharing/RN-Share plus tard.
+export function downloadCsv(filename, csv) {
+  try {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return false;
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function resolveReport(reportId) {
@@ -337,6 +409,39 @@ export async function resolveReport(reportId) {
     .from('reports')
     .update({ status: 'resolved', resolved_at: new Date().toISOString() })
     .eq('id', reportId);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+// ============================================
+// ALERTES ADMIN (voir db/admin_alerts.sql)
+// - many_reports        : 10+ signalements sur une même annonce
+// - many_reports_user   : 10+ signalements sur un même utilisateur
+// - many_low_reviews    : 10+ avis <= 2 étoiles sur une même annonce
+// ============================================
+export async function listAdminAlerts({ resolved = false, limit = 100 } = {}) {
+  if (!isSupabaseConfigured) return { ok: true, data: [] };
+  let q = supabase
+    .from('admin_alerts')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (resolved === false) q = q.is('resolved_at', null);
+  if (resolved === true)  q = q.not('resolved_at', 'is', null);
+  const { data, error } = await q;
+  if (error) {
+    // Table pas encore migrée → tableau vide (soft-fail).
+    return { ok: true, data: [], missingMigration: true };
+  }
+  return { ok: true, data: data || [] };
+}
+
+export async function resolveAdminAlert(alertId, notes = null) {
+  if (!isSupabaseConfigured) return { ok: true };
+  const { error } = await supabase.rpc('resolve_admin_alert', {
+    p_alert_id: alertId,
+    p_notes: notes,
+  });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
 }
