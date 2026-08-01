@@ -162,6 +162,11 @@ export default function RegisterScreen({ navigation }) {
           'Ton compte est actif. Ton dossier KYC sera examiné sous 24-48h avant que tu puisses publier des annonces.'
         );
       }
+      // Ferme la stack Auth pour revenir à l'app principale (Explorer).
+      try {
+        if (navigation.canGoBack()) navigation.goBack();
+        else navigation.getParent()?.goBack();
+      } catch {}
     } finally {
       setBusy(false);
     }

@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { navigationRef } from './navigationRef';
 import MainTabs from './MainTabs';
 import AuthNavigator from './AuthNavigator';
 import PropertyDetailScreen from '../screens/PropertyDetailScreen';
@@ -87,15 +88,15 @@ const linking = {
 };
 
 export default function RootNavigator() {
-  const navigationRef = useRef(null);
-  usePushSetup(navigationRef);
+  const navRef = navigationRef;
+  usePushSetup(navRef);
 
   useEffect(() => {
     restoreSession();
   }, []);
 
   return (
-    <NavigationContainer ref={navigationRef} linking={linking}>
+    <NavigationContainer ref={navRef} linking={linking}>
       {/*
         Mode invité (browse-as-guest) : MainTabs est TOUJOURS monté.
         Un visiteur non-connecté peut scroller ExploreScreen. Toute action

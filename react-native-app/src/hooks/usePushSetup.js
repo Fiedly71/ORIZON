@@ -50,8 +50,12 @@ export function usePushSetup(navigationRef) {
       const notifData = resp?.notification?.request?.content?.data || {};
       const screen = notifData.screen;
       const params = notifData.params || {};
-      if (screen && navigationRef?.current?.isReady?.()) {
-        try { navigationRef.current.navigate(screen, params); } catch {}
+      const ref = navigationRef;
+      // Supporte à la fois le nouveau ref (createNavigationContainerRef) et l'ancien useRef.
+      const isReady = ref?.isReady?.() ?? ref?.current?.isReady?.();
+      const nav = ref?.navigate ? ref : ref?.current;
+      if (screen && isReady && nav?.navigate) {
+        try { nav.navigate(screen, params); } catch {}
       }
     });
 

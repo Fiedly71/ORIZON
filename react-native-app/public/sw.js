@@ -1,6 +1,6 @@
 // ORIZON PWA service worker minimal — necessaire pour rendre l'app installable
 // (Android/Chrome exige un SW avec fetch handler).
-const CACHE = 'orizon-shell-v1';
+const CACHE = 'orizon-shell-v7';
 const SHELL = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 
 self.addEventListener('install', (event) => {

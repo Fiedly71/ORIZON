@@ -44,7 +44,13 @@ export default function LoginScreen({ navigation }) {
       if (String(raw).toLowerCase().includes('email not confirmed')) {
         setNeedsConfirm(true);
       }
+      return;
     }
+    // Succès : ferme l'Auth stack pour revenir à l'app principale.
+    try {
+      if (navigation.canGoBack()) navigation.goBack();
+      else navigation.getParent()?.goBack();
+    } catch {}
   };
 
   const onResendConfirm = async () => {
@@ -61,11 +67,7 @@ export default function LoginScreen({ navigation }) {
       } else {
         setErrorMsg('');
         setNeedsConfirm(false);
-        if (typeof window !== 'undefined' && window.alert) {
-          window.alert('Email de confirmation renvoyé. Vérifie ta boîte mail.');
-        } else {
-          Alert.alert('Email envoyé', 'Vérifie ta boîte mail.');
-        }
+        Alert.alert('Email envoyé', 'Vérifie ta boîte mail (et les spams).');
       }
     } finally {
       setResending(false);
