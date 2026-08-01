@@ -62,48 +62,6 @@ const SORTS = [
   { key: 'near', label: 'Pres de moi', icon: 'navigate' },
 ];
 
-const TICKER_TEXT = 'Crée ton compte gratuit pour voir les biens, contacter les propriétaires et découvrir les meilleures offres immobilières en Haïti     ';
-
-function GuestTicker({ onPress }) {
-  const x = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const run = () => {
-      x.setValue(0);
-      Animated.timing(x, {
-        toValue: -1600,
-        duration: 26000,
-        useNativeDriver: true,
-        isInteraction: false,
-      }).start(({ finished }) => { if (finished) run(); });
-    };
-    run();
-    return () => x.stopAnimation();
-  }, [x]);
-
-  return (
-    <View style={styles.guestTicker}>
-      <View style={styles.guestTickerViewport}>
-        <Animated.View
-          style={{ flexDirection: 'row', flexShrink: 0, transform: [{ translateX: x }] }}
-        >
-          {[0, 1, 2].map((i) => (
-            <Text
-              key={i}
-              style={styles.guestTickerTxt}
-            >
-              {TICKER_TEXT}
-            </Text>
-          ))}
-        </Animated.View>
-      </View>
-      <Pressable onPress={onPress} style={styles.guestTickerCta}>
-        <Text style={styles.guestTickerCtaTxt}>S'inscrire</Text>
-      </Pressable>
-    </View>
-  );
-}
-
 export default function ExploreScreen({ navigation }) {
   const toast = useToast();
   const r = useResponsive();
@@ -242,18 +200,6 @@ export default function ExploreScreen({ navigation }) {
 
   const renderHeader = () => (
     <View style={styles.headerWrap}>
-      {/* Bandeau ticker invité : défile sur une ligne, tap -> inscription */}
-      {!isAuthed && (
-        <GuestTicker
-          onPress={() => {
-            try {
-              let nav = navigation;
-              while (nav?.getParent && nav.getParent()) nav = nav.getParent();
-              nav?.navigate?.('Auth', { screen: 'Register' });
-            } catch {}
-          }}
-        />
-      )}
       {/* Logo ORIZON + Search bar ronde */}
       <View style={styles.searchRow}>
         <View style={styles.logoBadge}>
@@ -530,38 +476,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: C.border,
   },
-  guestTicker: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: C.border,
-    paddingVertical: 8,
-    paddingRight: 10,
-  },
-  guestTickerViewport: {
-    flex: 1,
-    overflow: 'hidden',
-    height: 22,
-    justifyContent: 'center',
-  },
-  guestTickerTxt: {
-    color: C.text,
-    fontSize: 12.5,
-    fontWeight: '600',
-    flexShrink: 0,
-    // Empêche le retour à la ligne sur web (React Native Web supporte cette prop CSS).
-    ...Platform.select({ web: { whiteSpace: 'nowrap' }, default: {} }),
-  },
-  guestTickerCta: {
-    backgroundColor: C.primary,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 999,
-    marginLeft: 10,
-    flexShrink: 0,
-  },
-  guestTickerCtaTxt: { color: '#fff', fontSize: 11, fontWeight: '800', letterSpacing: 0.2 },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
