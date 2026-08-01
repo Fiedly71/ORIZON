@@ -8,6 +8,7 @@ import {
   Animated,
   FlatList,
   Image,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -61,45 +62,39 @@ const SORTS = [
   { key: 'near', label: 'Pres de moi', icon: 'navigate' },
 ];
 
-const TICKER_TEXT = 'Crée ton compte gratuit  ·  Découvre les meilleures offres immobilières en Haïti  ·  Contacte les propriétaires directement  ·  ';
+const TICKER_TEXT = 'Crée ton compte gratuit pour voir les biens, contacter les propriétaires et découvrir les meilleures offres immobilières en Haïti     ';
 
 function GuestTicker({ onPress }) {
-  const [containerW, setContainerW] = useState(0);
-  const [textW, setTextW] = useState(0);
   const x = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (!textW) return undefined;
-    // Défilement droite → gauche en continu : on translate de 0 à -textW, puis on reset à 0.
-    // Comme on rend le texte 2× côte-à-côte, la boucle est visuellement transparente.
-    x.setValue(0);
-    const anim = Animated.loop(
+    const run = () => {
+      x.setValue(0);
       Animated.timing(x, {
-        toValue: -textW,
-        duration: Math.max(textW * 20, 12000),
+        toValue: -1600,
+        duration: 26000,
         useNativeDriver: true,
         isInteraction: false,
-      })
-    );
-    anim.start();
-    return () => anim.stop();
-  }, [textW, x]);
+      }).start(({ finished }) => { if (finished) run(); });
+    };
+    run();
+    return () => x.stopAnimation();
+  }, [x]);
 
   return (
     <View style={styles.guestTicker}>
-      <View
-        style={styles.guestTickerViewport}
-        onLayout={(e) => setContainerW(e.nativeEvent.layout.width)}
-      >
-        <Animated.View style={{ flexDirection: 'row', transform: [{ translateX: x }] }}>
-          <Text
-            style={styles.guestTickerTxt}
-            onLayout={(e) => { if (!textW) setTextW(e.nativeEvent.layout.width); }}
-          >
-            {TICKER_TEXT}
-          </Text>
-          <Text style={styles.guestTickerTxt}>{TICKER_TEXT}</Text>
-          <Text style={styles.guestTickerTxt}>{TICKER_TEXT}</Text>
+      <View style={styles.guestTickerViewport}>
+        <Animated.View
+          style={{ flexDirection: 'row', flexShrink: 0, transform: [{ translateX: x }] }}
+        >
+          {[0, 1, 2].map((i) => (
+            <Text
+              key={i}
+              style={styles.guestTickerTxt}
+            >
+              {TICKER_TEXT}
+            </Text>
+          ))}
         </Animated.View>
       </View>
       <Pressable onPress={onPress} style={styles.guestTickerCta}>
@@ -547,14 +542,16 @@ const styles = StyleSheet.create({
   guestTickerViewport: {
     flex: 1,
     overflow: 'hidden',
-    height: 20,
+    height: 22,
     justifyContent: 'center',
   },
   guestTickerTxt: {
     color: C.text,
     fontSize: 12.5,
     fontWeight: '600',
-    paddingRight: 24,
+    flexShrink: 0,
+    // Empêche le retour à la ligne sur web (React Native Web supporte cette prop CSS).
+    ...Platform.select({ web: { whiteSpace: 'nowrap' }, default: {} }),
   },
   guestTickerCta: {
     backgroundColor: C.primary,
@@ -562,6 +559,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 999,
     marginLeft: 10,
+    flexShrink: 0,
   },
   guestTickerCtaTxt: { color: '#fff', fontSize: 11, fontWeight: '800', letterSpacing: 0.2 },
   searchRow: {

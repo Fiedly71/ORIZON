@@ -172,9 +172,21 @@ export default function RegisterScreen({ navigation }) {
     }
   };
 
+  const goBack = () => {
+    try {
+      if (navigation.canGoBack()) navigation.goBack();
+      else navigation.getParent()?.goBack();
+    } catch {}
+  };
+
   if (stage === 'role') {
     return (
       <SafeAreaView style={styles.safe}>
+        <View style={styles.topBar}>
+          <Pressable onPress={goBack} hitSlop={10} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={24} color={C.text} />
+          </Pressable>
+        </View>
         <ScrollView contentContainerStyle={styles.page} keyboardShouldPersistTaps="handled">
           <View style={styles.hero}>
             <Image
@@ -457,6 +469,8 @@ export default function RegisterScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
+  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingTop: 4 },
+  backBtn: { padding: 8, borderRadius: 20 },
   page: { flexGrow: 1, padding: 20, gap: 16, paddingBottom: 40, width: '100%', maxWidth: 640, alignSelf: 'center' },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   backTxt: { color: C.text, fontWeight: '600', fontSize: 13 },
