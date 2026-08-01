@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import RefreshBtn from '../components/RefreshBtn';
 import { C, radii, spacing } from '../theme/colors';
 import { listConversations } from '../services/messagingService';
 import { useAuthStore } from '../store/useAuthStore';
@@ -97,9 +98,7 @@ export default function MessagesScreen({ navigation }) {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.h1}>Messages</Text>
-        <Pressable onPress={() => { setRefreshing(true); load(); }} hitSlop={10} disabled={refreshing}>
-          <Ionicons name="refresh-outline" size={20} color={C.muted} />
-        </Pressable>
+        <RefreshBtn onPress={() => { setRefreshing(true); load(); }} loading={refreshing} />
       </View>
 
       {loading && items.length === 0 ? (
@@ -134,7 +133,7 @@ export default function MessagesScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
-  header: { paddingHorizontal: spacing.xxl, paddingTop: spacing.lg, paddingBottom: spacing.lg },
+  header: { paddingHorizontal: spacing.xxl, paddingTop: spacing.lg, paddingBottom: spacing.lg, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   h1: { fontSize: 28, fontWeight: '700', color: C.text },
   row: {
     flexDirection: 'row', alignItems: 'center', gap: spacing.lg,

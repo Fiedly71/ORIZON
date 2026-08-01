@@ -7,6 +7,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
+import RefreshBtn from '../components/RefreshBtn';
 import {
   listMessages, sendMessage, subscribeMessages, markRead,
 } from '../services/messagingService';
@@ -70,9 +71,7 @@ export default function ConversationScreen({ navigation, route }) {
             <Ionicons name="checkmark-circle" size={15} color="#1D4ED8" style={{ marginLeft: 4 }} />
           ) : null}
         </View>
-        <Pressable onPress={() => { setRefreshing(true); load().finally(() => setRefreshing(false)); }} hitSlop={10} disabled={refreshing}>
-          <Ionicons name="refresh-outline" size={20} color={C.muted} />
-        </Pressable>
+        <RefreshBtn onPress={() => { setRefreshing(true); load().finally(() => setRefreshing(false)); }} loading={refreshing} />
       </View>
 
       <KeyboardAvoidingView

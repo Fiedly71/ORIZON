@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { signOut, hydrateProfile, resendEmailVerification, canPublish } from '../services/authService';
 import { deleteMyAccount } from '../services/accountService';
 import { daysUntilExpiry, formatExpiry, RENEWAL_REMINDER_DAYS } from '../constants/plans';
+import RefreshBtn from '../components/RefreshBtn';
 
 const M = {
   bg: '#FFFFFF',
@@ -151,13 +152,11 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.topBar}>
           <Text style={styles.topTitle}>Profil</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Pressable onPress={onRefresh} hitSlop={10} disabled={refreshing}>
-              <Ionicons name={refreshing ? 'refresh' : 'refresh-outline'} size={20} color={M.text} />
-            </Pressable>
-            <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={10}>
-              <Ionicons name="settings-outline" size={22} color={M.text} />
-            </Pressable>
-          </View>
+              <RefreshBtn onPress={onRefresh} loading={refreshing} />
+              <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={10}>
+                <Ionicons name="settings-outline" size={22} color={M.text} />
+              </Pressable>
+            </View>
         </View>
 
         {showEmailWarning && (

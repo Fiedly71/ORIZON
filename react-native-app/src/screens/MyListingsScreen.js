@@ -9,6 +9,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { deleteProperty } from '../services/propertiesService';
 import EmptyState from '../components/EmptyState';
+import RefreshBtn from '../components/RefreshBtn';
 
 function statusBadge(p) {
   if (p.payment_status !== 'paid') return { label: 'Paiement requis', color: '#92400E', bg: '#FEF3C7' };
@@ -83,9 +84,7 @@ export default function MyListingsScreen({ navigation }) {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Header title="Mes annonces" onBack={() => navigation.goBack()} right={
         <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-          <Pressable onPress={() => { setRefreshing(true); load(); }} hitSlop={8} disabled={refreshing}>
-            <Ionicons name="refresh-outline" size={20} color={C.muted} />
-          </Pressable>
+          <RefreshBtn onPress={() => { setRefreshing(true); load(); }} loading={refreshing} />
           <Pressable onPress={() => navigation.navigate('SellWizard')} hitSlop={8}>
             <Ionicons name="add" size={22} color={C.primary} />
           </Pressable>
@@ -115,7 +114,7 @@ export default function MyListingsScreen({ navigation }) {
                   <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
                   <Text style={styles.sub} numberOfLines={1}>{item.location}</Text>
                   <Text style={styles.price}>${(item.price || 0).toLocaleString()}</Text>
-                  <View style={{ flexDirection: 'row', gap: 8, marginTop: 6, alignItems: 'center' }}>
+                  <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                     <View style={[styles.badge, { backgroundColor: badge.bg }]}>
                       <Text style={[styles.badgeTxt, { color: badge.color }]}>{badge.label}</Text>
                     </View>

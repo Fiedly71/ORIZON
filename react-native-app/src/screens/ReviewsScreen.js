@@ -8,6 +8,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { C, radii, spacing } from '../theme/colors';
 import { getUserReviews, getUserAverageRating, leaveReview } from '../services/reviewsService';
 import { useToast } from '../components/Toast';
+import RefreshBtn from '../components/RefreshBtn';
 
 export default function ReviewsScreen({ route, navigation }) {
   const { userId, userName } = route.params || {};
@@ -77,9 +78,7 @@ export default function ReviewsScreen({ route, navigation }) {
           <Ionicons name="chevron-back" size={24} color={C.text} />
         </Pressable>
         <Text style={styles.title}>Avis</Text>
-        <Pressable onPress={() => { setRefreshing(true); loadReviews().finally(() => setRefreshing(false)); }} hitSlop={10} disabled={refreshing}>
-          <Ionicons name="refresh-outline" size={20} color={C.muted} />
-        </Pressable>
+        <RefreshBtn onPress={() => { setRefreshing(true); loadReviews().finally(() => setRefreshing(false)); }} loading={refreshing} />
       </View>
 
       <ScrollView

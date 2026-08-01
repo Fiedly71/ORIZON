@@ -613,7 +613,9 @@ function Chip({ label, on, onPress }) {
 // Sur web on utilise les inputs HTML date/time natifs (UX bien meilleure),
 // sur mobile on utilise des TextInput simples avec masques.
 function VisitSlotsEditor({ slots, onChange }) {
-  const [draft, setDraft] = useState({ date: '', start: '', end: '' });
+  const today = new Date();
+  const defaultDate = today.toISOString().slice(0, 10);
+  const [draft, setDraft] = useState({ date: defaultDate, start: '09:00', end: '11:00' });
   const isWeb = Platform.OS === 'web';
 
   const add = () => {

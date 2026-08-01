@@ -133,9 +133,20 @@ export default function PropertyDetailScreen({ navigation, route }) {
   const isRent = item.status === 'A louer' || item.status === 'A lwe' || item.status === 'rent';
 
   const onShare = async () => {
-    const url = `https://orizon-pi.vercel.app/property/${item.id}`;
+    const url = `https://kayorizon.com/property/${item.id}`;
     const title = item.title || 'Annonce ORIZON';
-    const message = `${title}\n${item.location || ''}\n${url}`;
+    const price = item.price ? `${Number(item.price).toLocaleString()} USD` : '';
+    const owner = item.ownerName || ownerProfile?.fullName || ownerProfile?.agencyName || '';
+    const location = item.location || item.city || '';
+    const lines = [
+      `🏠 ${title}`,
+      location ? `📍 ${location}` : '',
+      price ? `💰 ${price}` : '',
+      owner ? `👤 ${owner}` : '',
+      '',
+      `Voir l'annonce sur ORIZON : ${url}`,
+    ].filter(Boolean);
+    const message = lines.join('\n');
     try {
       if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({ title, text: message, url });
@@ -143,10 +154,10 @@ export default function PropertyDetailScreen({ navigation, route }) {
       }
       if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.clipboard) {
         await navigator.clipboard.writeText(url);
-        Alert.alert('Lien copié', url);
+        Alert.alert('Lien copié', 'Le lien a été copié dans le presse-papier.');
         return;
       }
-      await Share.share({ title, message, url });
+      await Share.share({ title, message: `${message}`, url });
     } catch (_) {
       Alert.alert('Lien', url);
     }
