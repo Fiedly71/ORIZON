@@ -11,6 +11,8 @@ import { C } from '../theme/colors';
 import { useAuthStore } from '../store/useAuthStore';
 import { updateProfile, canPublish } from '../services/authService';
 import { pickImages, uploadImage } from '../services/storageService';
+import { DEPARTMENTS, CITIES_BY_DEPT } from '../constants/haiti';
+import PickerField from '../components/PickerField';
 
 export default function EditProfileScreen({ navigation }) {
   const user = useAuthStore((s) => s.user);
@@ -22,6 +24,8 @@ export default function EditProfileScreen({ navigation }) {
     phone: user?.phone || '',
     agencyName: user?.agencyName || '',
     address: user?.address || '',
+    dept: user?.department || '',
+    city: user?.city || '',
     bio: user?.bio || '',
     avatarUrl: user?.avatarUrl || null,
     whatsappLink: user?.whatsappLink || '',
@@ -121,7 +125,10 @@ export default function EditProfileScreen({ navigation }) {
     }
     setBusy(true);
     try {
-      const r = await updateProfile(form);
+      const r = await updateProfile({
+        ...form,
+        department: form.dept,
+      });
       if (!r.ok) {
         Alert.alert('Profil', r.error || 'Échec de la mise a jour.');
         return;
@@ -186,7 +193,23 @@ export default function EditProfileScreen({ navigation }) {
           label="ADRESSE"
           value={form.address}
           onChangeText={(v) => update('address', v)}
-          placeholder="Petion-Ville, Port-au-Prince"
+          placeholder="Rue, quartier, point de repère"
+        />
+
+        <PickerField
+          label="DÉPARTEMENT"
+          value={form.dept}
+          placeholder="Choisis ton département"
+          options={DEPARTMENTS}
+          onChange={(v) => setForm((f) => ({ ...f, dept: v, city: '' }))}
+        />
+        <PickerField
+          label="VILLE / COMMUNE"
+          value={form.city}
+          placeholder={form.dept ? 'Choisis ta commune' : "Choisis d'abord le département"}
+          options={form.dept ? (CITIES_BY_DEPT[form.dept] || []) : []}
+          onChange={(v) => update('city', v)}
+          disabled={!form.dept}
         />
 
         {isPublisher && (

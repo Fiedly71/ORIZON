@@ -59,12 +59,12 @@ export default function MainTabs() {
     subscribeMsgs();
     return () => { unsubscribeMsgs(); };
   }, [user?.id, refreshMsgs, subscribeMsgs, unsubscribeMsgs]);
-  // Web : pas de safe-area native, on garde une hauteur compacte mais suffisante pour labels.
-  // Mobile natif : ajoute l'inset bottom (home indicator iOS / gesture bar Android).
+  // Web : hauteur réduite pour ne pas prendre trop de place dans le viewport.
+  // Mobile natif : hauteur minimale + inset bottom (home bar iOS / gesture Android).
   const isWeb = Platform.OS === 'web';
-  const bottomPad = isWeb ? 28 : Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
-  const topPad = isWeb ? 10 : 8;
-  const tabHeight = isWeb ? 92 : 56 + bottomPad;
+  const bottomPad = isWeb ? 6 : Math.max(insets.bottom, Platform.OS === 'android' ? 8 : 4);
+  const topPad = isWeb ? 6 : 6;
+  const tabHeight = isWeb ? 58 : 50 + bottomPad;
 
   return (
     <View style={{ flex: 1 }}>
@@ -84,16 +84,16 @@ export default function MainTabs() {
           overflow: 'visible',
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '600',
-          lineHeight: 18,
-          marginTop: 4,
+          lineHeight: 14,
+          marginTop: 2,
           marginBottom: 0,
           paddingBottom: 0,
           includeFontPadding: false,
         },
         tabBarItemStyle: isWeb
-          ? { paddingTop: 6, paddingBottom: 4, overflow: 'visible' }
+          ? { paddingTop: 4, paddingBottom: 2, overflow: 'visible' }
           : undefined,
         tabBarIcon: ({ color, focused }) => {
           const icons = {
@@ -211,13 +211,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   publishBtn: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: C.accent,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -18,
+    marginTop: -14,
     shadowColor: '#000',
     shadowOpacity: 0.18,
     shadowOffset: { width: 0, height: 4 },
