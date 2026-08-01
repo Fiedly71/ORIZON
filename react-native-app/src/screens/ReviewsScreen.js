@@ -1,7 +1,7 @@
 // ReviewsScreen - Voir et laisser des avis sur un vendeur
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, Pressable, Image, TextInput, Alert, ActivityIndicator, FlatList,
+  View, Text, StyleSheet, ScrollView, Pressable, Image, TextInput, Alert, ActivityIndicator, FlatList, RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -15,6 +15,7 @@ export default function ReviewsScreen({ route, navigation }) {
   const [reviews, setReviews] = useState([]);
   const [avgRating, setAvgRating] = useState({ avg: 0, count: 0 });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ rating: 5, comment: '' });
   const [submitting, setSubmitting] = useState(false);
@@ -37,7 +38,7 @@ export default function ReviewsScreen({ route, navigation }) {
 
   const onSubmit = async () => {
     if (!form.rating) {
-      Alert.alert('Avis', 'Selectonne une note');
+      Alert.alert('Avis', 'Sélectionne une note');
       return;
     }
     if (!form.comment.trim()) {
@@ -79,7 +80,10 @@ export default function ReviewsScreen({ route, navigation }) {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl }}>
+      <ScrollView
+        contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xxl }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); loadReviews().finally(() => setRefreshing(false)); }} colors={[C.primary]} tintColor={C.primary} />}
+      >
         {/* Rating summary */}
         <View style={styles.summaryCard}>
           <Text style={styles.vendorName}>{userName || 'Vendeur'}</Text>
@@ -127,7 +131,7 @@ export default function ReviewsScreen({ route, navigation }) {
             <TextInput
               style={[styles.input, { minHeight: 100 }]}
               multiline
-              placeholder="Partage ton experience avec ce vendeur..."
+              placeholder="Partage ton expérience avec ce vendeur..."
               placeholderTextColor={C.muted}
               value={form.comment}
               onChangeText={(v) => setForm({ ...form, comment: v })}

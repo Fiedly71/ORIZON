@@ -62,7 +62,7 @@ export default function KycScreen({ navigation }) {
   const takePhoto = async (key) => {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Camera', 'Permission refusee');
+      Alert.alert('Camera', 'Permission refusée');
       return;
     }
     const res = await ImagePicker.launchCameraAsync({
@@ -80,7 +80,7 @@ export default function KycScreen({ navigation }) {
   const pickFromGallery = async (key) => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Galerie', 'Permission refusee');
+      Alert.alert('Galerie', 'Permission refusée');
       return;
     }
     const res = await ImagePicker.launchImageLibraryAsync({
@@ -185,7 +185,7 @@ export default function KycScreen({ navigation }) {
             </Pressable>
 
             <Text style={styles.help}>
-              Tes documents sont stockes de maniere securisee et utilises uniquement pour la verification.
+              Tes documents sont stockés de manière sécurisée et utilisés uniquement pour la vérification.
             </Text>
           </>
         )}

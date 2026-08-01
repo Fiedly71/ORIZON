@@ -35,7 +35,7 @@ export default function SettingsScreen({ navigation }) {
           const keys = await AsyncStorage.getAllKeys();
           const toRemove = keys.filter((k) => k.startsWith('orizon.') && k !== 'orizon.session');
           await AsyncStorage.multiRemove(toRemove);
-          toast.show('Cache vide', { type: 'success' });
+          toast.show('Cache vidé', { type: 'success' });
         } catch (e) {
           Alert.alert('Erreur', e.message);
         }
@@ -62,22 +62,22 @@ export default function SettingsScreen({ navigation }) {
           </Section>
         )}
 
-        <Section title="DONNEES">
+        <Section title="DONNÉES">
           <Pressable style={styles.actionRow} onPress={clearCache} disabled={busy}>
             <Ionicons name="trash-outline" size={18} color={C.text} />
             <Text style={styles.actionTxt}>Vider le cache local</Text>
           </Pressable>
         </Section>
 
-        <Section title="LEGAL">
+        <Section title="LÉGAL">
           <Pressable style={styles.actionRow} onPress={() => navigation.navigate('Terms')}>
             <Ionicons name="document-text-outline" size={18} color={C.text} />
-            <Text style={styles.actionTxt}>Conditions generales</Text>
+            <Text style={styles.actionTxt}>Conditions générales</Text>
             <Ionicons name="chevron-forward" size={18} color={C.muted} />
           </Pressable>
           <Pressable style={styles.actionRow} onPress={() => navigation.navigate('Privacy')}>
             <Ionicons name="lock-closed-outline" size={18} color={C.text} />
-            <Text style={styles.actionTxt}>Politique de confidentialite</Text>
+            <Text style={styles.actionTxt}>Politique de confidentialité</Text>
             <Ionicons name="chevron-forward" size={18} color={C.muted} />
           </Pressable>
         </Section>

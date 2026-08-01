@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TextInput, Pressable,
-  KeyboardAvoidingView, Platform, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ActivityIndicator, RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -18,6 +18,7 @@ export default function ConversationScreen({ navigation, route }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [sending, setSending] = useState(false);
   const listRef = useRef(null);
 
@@ -87,6 +88,7 @@ export default function ConversationScreen({ navigation, route }) {
             data={messages}
             keyExtractor={(it) => String(it.id)}
             contentContainerStyle={{ padding: spacing.xxl, gap: spacing.md, width: '100%', maxWidth: 880, alignSelf: 'center' }}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load().finally(() => setRefreshing(false)); }} colors={[C.primary]} tintColor={C.primary} />}
             renderItem={({ item }) => {
               const mine = item.senderId === myId;
               return (

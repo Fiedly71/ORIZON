@@ -1,7 +1,7 @@
 // Ecran Profil ORIZON - Design epure noir et blanc.
 // Items groupes par categorie, sans redondance.
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Image, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Image, Alert, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuthStore } from '../store/useAuthStore';
@@ -34,7 +34,7 @@ const GROUPS = [
       { key: 'AgencyManage', icon: 'business-outline',      label: 'Mon agence',    publisherOnly: true },
       { key: 'MyVisits',     icon: 'calendar-outline',      label: 'Mes visites' },
       { key: 'Favorites',    icon: 'heart-outline',         label: 'Favoris' },
-      { key: 'Alerts',       icon: 'notifications-outline', label: 'Recherches sauvegardees' },
+      { key: 'Alerts',       icon: 'notifications-outline', label: 'Recherches sauvegardées' },
       { key: 'Reviews',      icon: 'star-outline',          label: 'Mes avis',      publisherOnly: true },
     ],
   },
@@ -58,7 +58,7 @@ const GROUPS = [
     items: [
       { key: 'Help',     icon: 'help-circle-outline',        label: 'Aide / FAQ' },
       { key: 'Support',  icon: 'chatbubbles-outline',        label: 'Contacter le support' },
-      { key: 'About',    icon: 'information-circle-outline', label: 'A propos' },
+      { key: 'About',    icon: 'information-circle-outline', label: 'À propos' },
     ],
   },
   {
@@ -109,16 +109,23 @@ function PlanRenewalBanner({ user, onPress }) {
 
 export default function ProfileScreen({ navigation }) {
   const user = useAuthStore((s) => s.user);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     hydrateProfile().catch(() => {});
   }, []);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await hydrateProfile().catch(() => {});
+    setRefreshing(false);
+  };
+
   const onResend = async () => {
     const r = await resendEmailVerification();
     Alert.alert(
       'Email de vérification',
-      r.ok ? 'Email renvoyé. Vérifie ta boîte de reception.' : (r.error || 'Échec'),
+      r.ok ? 'Email renvoyé. Vérifie ta boîte de réception.' : (r.error || 'Échec'),
     );
   };
 
@@ -136,7 +143,11 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.body}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[C.primary]} tintColor={C.primary} />}
+      >
         <View style={styles.topBar}>
           <Text style={styles.topTitle}>Profil</Text>
           <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={10}>
@@ -241,7 +252,7 @@ export default function ProfileScreen({ navigation }) {
           } catch {}
         }}>
           <Ionicons name="log-out-outline" size={18} color={M.text} />
-          <Text style={styles.signOutTxt}>Se deconnecter</Text>
+          <Text style={styles.signOutTxt}>Se déconnecter</Text>
         </Pressable>
 
         <Pressable
@@ -249,7 +260,7 @@ export default function ProfileScreen({ navigation }) {
           onPress={() => {
             Alert.alert(
               'Supprimer mon compte ?',
-              'Cette action est irréversible. Ton profil sera anonymisé, tes annonces archivées, et ton compte définitivement supprime sous 30 jours conformement au RGPD.',
+              'Cette action est irréversible. Ton profil sera anonymisé, tes annonces archivées, et ton compte définitivement supprimé sous 30 jours conformément au RGPD.',
               [
                 { text: 'Annuler', style: 'cancel' },
                 {

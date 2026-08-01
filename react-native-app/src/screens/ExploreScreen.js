@@ -51,15 +51,15 @@ const CATEGORIES = [
 
 const STATUS_FILTERS = [
   { key: 'all',  label: 'Tout' },
-  { key: 'sale', label: 'A vendre', match: ['A vendre', 'A vann', 'sale', 'For sale'] },
-  { key: 'rent', label: 'A louer',  match: ['A louer', 'A lwe', 'rent', 'For rent'] },
+  { key: 'sale', label: 'À vendre', match: ['A vendre', 'A vann', 'sale', 'For sale'] },
+  { key: 'rent', label: 'À louer',  match: ['A louer', 'A lwe', 'rent', 'For rent'] },
 ];
 
 const SORTS = [
-  { key: 'recent', label: 'Plus recent', icon: 'time-outline' },
+  { key: 'recent', label: 'Plus récent', icon: 'time-outline' },
   { key: 'price_asc', label: 'Prix croissant', icon: 'arrow-up' },
-  { key: 'price_desc', label: 'Prix decroissant', icon: 'arrow-down' },
-  { key: 'near', label: 'Pres de moi', icon: 'navigate' },
+  { key: 'price_desc', label: 'Prix décroissant', icon: 'arrow-down' },
+  { key: 'near', label: 'Près de moi', icon: 'navigate' },
 ];
 
 export default function ExploreScreen({ navigation }) {
@@ -175,7 +175,7 @@ export default function ExploreScreen({ navigation }) {
   const onSelectSort = async (key) => {
     if (key === 'near') {
       const r = await getCurrentPosition();
-      if (!r.ok) { toast.show('Geolocalisation refusee', { type: 'error' }); return; }
+      if (!r.ok) { toast.show('Géolocalisation refusée', { type: 'error' }); return; }
       setMyPos(r.coords);
     }
     setSortKey(key);
@@ -212,7 +212,7 @@ export default function ExploreScreen({ navigation }) {
         <View style={styles.searchBar}>
           <Ionicons name="search" size={20} color={C.text} />
           <TextInput
-            placeholder="Ou ?  Quand ?  Combien ?"
+            placeholder="Où ? Quand ? Combien ?"
             placeholderTextColor={C.muted}
             style={styles.searchInput}
             value={search}
@@ -262,7 +262,7 @@ export default function ExploreScreen({ navigation }) {
               const criteria = { q: search || undefined, type: category !== 'all' ? category : undefined, status: status !== 'all' ? status : undefined, ...(advFilter || {}) };
               const name = (search || category !== 'all' ? `${search || category}` : 'Mes filtres');
               const r = await saveSearch({ name, criteria, frequency: 'daily' });
-              toast.show(r.ok ? 'Recherche sauvegardee' : (r.error || 'Échec'), { type: r.ok ? 'success' : 'error' });
+              toast.show(r.ok ? 'Recherche sauvegardée' : (r.error || 'Échec'), { type: r.ok ? 'success' : 'error' });
             }}
           >
             <Ionicons name="bookmark-outline" size={14} color={C.primary} />
@@ -415,7 +415,7 @@ export default function ExploreScreen({ navigation }) {
                 <Ionicons name="home-outline" size={56} color={C.primary} />
                 <Text style={styles.emptyTitle}>Bienvenue sur ORIZON</Text>
                 <Text style={styles.emptyTxt}>
-                  De nouvelles annonces arrivent chaque jour. Reviens bientot ou publie ta propre annonce en 2 minutes.
+                  De nouvelles annonces arrivent chaque jour. Reviens bientôt ou publie ta propre annonce en 2 minutes.
                 </Text>
                 <Pressable
                   style={styles.emptyBtn}

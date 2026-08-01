@@ -115,7 +115,7 @@ export default function AdvancedFilterSheet({ visible, onClose, value, onApply }
 
         <View style={styles.footer}>
           <Pressable style={styles.cta} onPress={apply}>
-            <Text style={styles.ctaTxt}>Voir les resultats</Text>
+            <Text style={styles.ctaTxt}>Voir les résultats</Text>
           </Pressable>
         </View>
       </SafeAreaView>

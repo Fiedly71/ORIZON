@@ -65,7 +65,7 @@ export default function EditProfileScreen({ navigation }) {
   const onTakePhoto = async () => {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Camera', 'Permission refusee');
+      Alert.alert('Camera', 'Permission refusée');
       return;
     }
     const res = await ImagePicker.launchCameraAsync({
@@ -130,10 +130,10 @@ export default function EditProfileScreen({ navigation }) {
         department: form.dept,
       });
       if (!r.ok) {
-        Alert.alert('Profil', r.error || 'Échec de la mise a jour.');
+        Alert.alert('Profil', r.error || 'Échec de la mise à jour.');
         return;
       }
-      Alert.alert('Profil', 'Tes informations ont été mises a jour.', [
+      Alert.alert('Profil', 'Tes informations ont été mises à jour.', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } finally {
@@ -171,7 +171,7 @@ export default function EditProfileScreen({ navigation }) {
             </View>
           </Pressable>
           <Text style={styles.avatarHint}>
-            {uploading ? 'Telechargement...' : 'Touche pour changer ta photo'}
+            {uploading ? 'Téléchargement...' : 'Touche pour changer ta photo'}
           </Text>
         </View>
 
@@ -214,7 +214,7 @@ export default function EditProfileScreen({ navigation }) {
 
         {isPublisher && (
           <Field
-            label="BIO / PRESENTATION"
+            label="BIO / PRÉSENTATION"
             value={form.bio}
             onChangeText={(v) => update('bio', v)}
             placeholder="Quelques mots sur toi ou ton agence..."
@@ -254,7 +254,7 @@ export default function EditProfileScreen({ navigation }) {
         <View style={styles.infoBox}>
           <Ionicons name="information-circle-outline" size={16} color={C.muted} />
           <Text style={styles.infoTxt}>
-            Pour modifier ton email ou ton role, contacte le support ORIZON.
+            Pour modifier ton email ou ton rôle, contacte le support ORIZON.
           </Text>
         </View>
       </ScrollView>

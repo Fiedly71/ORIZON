@@ -4,7 +4,7 @@
 // + toutes les annonces du proprietaire, avec actions : ecrire / signaler.
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, Image, Pressable, StyleSheet, Alert, ActivityIndicator,
+  View, Text, ScrollView, Image, Pressable, StyleSheet, Alert, ActivityIndicator, RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -32,28 +32,39 @@ export default function PublicProfileScreen({ navigation, route }) {
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadData = async (alive) => {
+    const [p, l] = await Promise.all([
+      getPublicProfile(userId),
+      listPropertiesByOwner(userId),
+    ]);
+    if (alive === false) return;
+    if (p.ok) setProfile(p.data);
+    else setProfile({ id: userId, fullName: fallbackName || 'Utilisateur', verified: false });
+    setListings(l.ok ? (l.data || []) : []);
+  };
 
   useEffect(() => {
     let alive = true;
     (async () => {
       setLoading(true);
-      const [p, l] = await Promise.all([
-        getPublicProfile(userId),
-        listPropertiesByOwner(userId),
-      ]);
-      if (!alive) return;
-      if (p.ok) setProfile(p.data);
-      else setProfile({ id: userId, fullName: fallbackName || 'Utilisateur', verified: false });
-      setListings(l.ok ? (l.data || []) : []);
-      setLoading(false);
+      await loadData(alive);
+      if (alive) setLoading(false);
     })();
     return () => { alive = false; };
   }, [userId, fallbackName]);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
+
   const onMessage = async () => {
     if (!userId) return;
     if (userId === currentUserId) {
-      Alert.alert('Info', "Tu ne peux pas t'envoyer un message a toi-meme.");
+      Alert.alert('Info', "Tu ne peux pas t'envoyer un message à toi-même.");
       return;
     }
     const r = await openConversation({ propertyId: null, ownerId: userId });
@@ -63,7 +74,7 @@ export default function PublicProfileScreen({ navigation, route }) {
         title: profile?.fullName,
       });
     } else {
-      Alert.alert('Erreur', r.error || 'Impossible de demarrer la conversation.');
+      Alert.alert('Erreur', r.error || 'Impossible de démarrer la conversation.');
     }
   };
 
@@ -107,7 +118,10 @@ export default function PublicProfileScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <Header title="Profil" onBack={() => navigation.goBack()} onReport={onReport} />
-      <ScrollView contentContainerStyle={{ paddingBottom: 32, width: '100%', maxWidth: 880, alignSelf: 'center' }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 32, width: '100%', maxWidth: 880, alignSelf: 'center' }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[C.primary]} tintColor={C.primary} />}
+      >
         <View style={styles.hero}>
           {profile?.avatarUrl ? (
             <Image source={{ uri: profile.avatarUrl }} style={styles.avatar} />
@@ -139,7 +153,7 @@ export default function PublicProfileScreen({ navigation, route }) {
 
         {profile?.bio ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>A propos</Text>
+            <Text style={styles.sectionTitle}>À propos</Text>
             <Text style={styles.txt}>{profile.bio}</Text>
           </View>
         ) : null}

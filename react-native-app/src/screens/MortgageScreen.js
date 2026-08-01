@@ -23,7 +23,7 @@ export default function MortgageScreen({ navigation }) {
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14, width: '100%', maxWidth: 720, alignSelf: 'center' }} keyboardShouldPersistTaps="handled">
         <Field label="PRIX DU BIEN ($)" value={price} onChangeText={setPrice} />
         <Field label="APPORT ($)" value={down} onChangeText={setDown} />
-        <Field label="DUREE (ANNEES)" value={years} onChangeText={setYears} />
+        <Field label="DURÉE (ANNÉES)" value={years} onChangeText={setYears} />
 
         <Text style={styles.label}>BANQUE / PRODUIT</Text>
         <View style={{ gap: 8 }}>

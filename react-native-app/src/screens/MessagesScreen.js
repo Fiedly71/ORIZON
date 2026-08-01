@@ -81,7 +81,7 @@ export default function MessagesScreen({ navigation }) {
             <Text style={styles.rowProp} numberOfLines={1}>{item.propertyTitle}</Text>
           ) : null}
           <Text style={[styles.rowMsg, unread > 0 && styles.rowMsgUnread]} numberOfLines={1}>
-            {item.lastMessage || 'Demarre la conversation...'}
+            {item.lastMessage || 'Démarre la conversation...'}
           </Text>
         </View>
         {unread > 0 && (
@@ -119,7 +119,7 @@ export default function MessagesScreen({ navigation }) {
               </View>
               <Text style={styles.emptyTitle}>Aucun message pour l'instant</Text>
               <Text style={styles.emptyTxt}>
-                Quand tu contacteras un proprietaire ou une agence, la conversation apparaitra ici.
+                Quand tu contacteras un propriétaire ou une agence, la conversation apparaître ici.
               </Text>
             </View>
           }

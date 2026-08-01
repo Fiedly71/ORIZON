@@ -1,6 +1,6 @@
 // SellerStatsScreen - Dashboard vendeur (vues / contacts / favoris / boost).
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Alert, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
@@ -14,6 +14,7 @@ export default function SellerStatsScreen({ navigation }) {
   const currency = useUI((s) => s.currency);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [busyId, setBusyId] = useState(null);
   const [history, setHistory] = useState(null);
 
@@ -24,6 +25,7 @@ export default function SellerStatsScreen({ navigation }) {
     const h = await getEventsLast7Days();
     if (h.ok) setHistory(h);
     setLoading(false);
+    setRefreshing(false);
   };
 
   useEffect(() => { load(); }, []);
@@ -41,7 +43,7 @@ export default function SellerStatsScreen({ navigation }) {
             const r = await boostListing({ propertyId: item.property_id, planKey: key, currency });
             setBusyId(null);
             if (r.ok) {
-              Alert.alert('ORIZON', `Boost active pour ${r.days} jours.`);
+              Alert.alert('ORIZON', `Boost activé pour ${r.days} jours.`);
               load();
             } else {
               Alert.alert('Erreur', r.error || 'Échec boost');
@@ -92,8 +94,9 @@ export default function SellerStatsScreen({ navigation }) {
           data={items}
           keyExtractor={(it) => String(it.property_id)}
           contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40 }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} colors={[C.primary]} tintColor={C.primary} />}
           ListEmptyComponent={
-            <Text style={styles.empty}>Tu n'as pas encore d'annonce publiee.</Text>
+            <Text style={styles.empty}>Tu n'as pas encore d'annonce publiée.</Text>
           }
           renderItem={({ item }) => (
             <View style={styles.card}>

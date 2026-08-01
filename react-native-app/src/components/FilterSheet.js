@@ -7,7 +7,7 @@ import { C } from '../theme/colors';
 import { useProperty } from '../store/useProperty';
 import { propertyTypes } from '../data/mockData';
 
-const STATUSES = ['Tous', 'A vendre', 'A louer'];
+const STATUSES = ['Tous', 'À vendre', 'À louer'];
 const TYPES = ['Tous', ...propertyTypes];
 
 const FilterSheet = forwardRef(function FilterSheet(_, ref) {

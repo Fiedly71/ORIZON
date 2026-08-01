@@ -87,7 +87,7 @@ export default function RegisterScreen({ navigation }) {
     if (form.password !== form.confirmPassword) errors.push('Les mots de passe ne correspondent pas');
     if (!form.acceptTerms) errors.push("Tu dois accepter les conditions d'utilisation");
     if (isPublisher) {
-      if (!form.dept) errors.push('Departement requis');
+      if (!form.dept) errors.push('Département requis');
       if (!form.city) errors.push('Ville requise');
       if (!form.address.trim()) errors.push('Adresse requise');
       if (!form.profilePhoto) errors.push('Photo de profil requise');
@@ -292,16 +292,16 @@ export default function RegisterScreen({ navigation }) {
           {isPublisher && (
             <>
               <PickerField
-                label="DEPARTEMENT *"
+                label="DÉPARTEMENT *"
                 value={form.dept}
-                placeholder="Choisis ton departement"
+                placeholder="Choisis ton département"
                 options={DEPARTMENTS}
                 onChange={(v) => setForm((p) => ({ ...p, dept: v, city: '' }))}
               />
               <PickerField
                 label="VILLE / COMMUNE *"
                 value={form.city}
-                placeholder={form.dept ? 'Choisis ta ville' : "Choisis d'abord le departement"}
+                placeholder={form.dept ? 'Choisis ta ville' : "Choisis d'abord le département"}
                 options={form.dept ? (CITIES_BY_DEPT[form.dept] || []) : []}
                 onChange={(v) => update('city', v)}
                 disabled={!form.dept}

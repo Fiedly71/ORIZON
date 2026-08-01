@@ -28,7 +28,7 @@ export default function PaymentsScreen({ navigation }) {
         refreshing={loading}
         onRefresh={reload}
         contentContainerStyle={{ padding: 16, gap: 10 }}
-        ListEmptyComponent={<EmptyState icon="card-outline" title="Aucun paiement" message="Tes transactions Stripe et MonCash apparaitront ici." />}
+        ListEmptyComponent={<EmptyState icon="card-outline" title="Aucun paiement" message="Tes transactions Stripe et MonCash apparaîtront ici." />}
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Text style={styles.title}>{item.provider === 'moncash' ? 'MonCash' : 'Stripe'} - {item.amount} {item.currency}</Text>

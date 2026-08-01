@@ -206,12 +206,12 @@ export default function SellWizardScreen({ navigation, route }) {
           draftLoadedRef.current = true;
         };
         if (Platform.OS === 'web') {
-          if (typeof window !== 'undefined' && window.confirm(`Tu as un brouillon non termine ("${draft.title || 'sans titre'}"). Reprendre ?`)) restore();
+          if (typeof window !== 'undefined' && window.confirm(`Tu as un brouillon non terminé ("${draft.title || 'sans titre'}"). Reprendre ?`)) restore();
           else AsyncStorage.removeItem(DRAFT_KEY).catch(() => {});
         } else {
           Alert.alert(
-            'Brouillon trouve',
-            `Tu as un brouillon non termine ("${draft.title || 'sans titre'}"). Reprendre ?`,
+            'Brouillon trouvé',
+            `Tu as un brouillon non terminé ("${draft.title || 'sans titre'}"). Reprendre ?`,
             [
               { text: 'Nouveau', style: 'destructive', onPress: () => AsyncStorage.removeItem(DRAFT_KEY).catch(() => {}) },
               { text: 'Reprendre', onPress: restore },
@@ -241,8 +241,8 @@ export default function SellWizardScreen({ navigation, route }) {
 
   const validateStep = () => {
     if (step === 0) {
-      if (!data.title) return 'Donne un titre a ton annonce.';
-      if (!data.dept || !data.city) return 'Choisis le departement ET la ville.';
+      if (!data.title) return 'Donne un titre à ton annonce.';
+      if (!data.dept || !data.city) return 'Choisis le département ET la ville.';
       if (!data.type) return 'Choisis un type de bien.';
     }
     if (step === 1) {
@@ -281,7 +281,7 @@ export default function SellWizardScreen({ navigation, route }) {
     };
     try {
       await AsyncStorage.setItem(DRAFT_KEY, JSON.stringify(persistable));
-      Alert.alert('Brouillon enregistré', 'Tu pourras reprendre ton annonce a tout moment depuis cet écran.');
+      Alert.alert('Brouillon enregistré', 'Tu pourras reprendre ton annonce à tout moment depuis cet écran.');
       navigation.goBack();
     } catch (e) {
       Alert.alert('Brouillon', "Impossible d'enregistrer le brouillon.");
@@ -342,7 +342,7 @@ export default function SellWizardScreen({ navigation, route }) {
       if (editId) {
         const r = await svcUpdate(editId, payload);
         if (!r.ok) { Alert.alert('Modification', r.error || ''); return; }
-        Alert.alert('Annonce mise a jour', 'Tes modifications ont été enregistrees.');
+        Alert.alert('Annonce mise à jour', 'Tes modifications ont été enregistrées.');
         navigation.goBack();
         return;
       }
@@ -418,16 +418,16 @@ export default function SellWizardScreen({ navigation, route }) {
           <View style={{ gap: 10 }}>
             <Field label="TITRE" value={data.title} onChangeText={(v) => update('title', v)} placeholder="Belle villa au Cap-Haïtien" />
             <PickerField
-              label="DEPARTEMENT"
+              label="DÉPARTEMENT"
               value={data.dept}
-              placeholder="Choisis ton departement"
+              placeholder="Choisis ton département"
               options={DEPARTMENTS}
               onChange={(v) => setData((d) => ({ ...d, dept: v, city: '' }))}
             />
             <PickerField
               label="VILLE / COMMUNE"
               value={data.city}
-              placeholder={data.dept ? 'Choisis ta ville' : "Choisis d'abord le departement"}
+              placeholder={data.dept ? 'Choisis ta ville' : "Choisis d'abord le département"}
               options={data.dept ? (CITIES_BY_DEPT[data.dept] || []) : []}
               onChange={(v) => update('city', v)}
               disabled={!data.dept}
@@ -449,8 +449,8 @@ export default function SellWizardScreen({ navigation, route }) {
               <View style={{ flex: 1 }}><Field label="SDB" value={data.bathrooms} onChangeText={(v) => update('bathrooms', v)} keyboardType="number-pad" /></View>
               <View style={{ flex: 1 }}><Field label="SURFACE m2" value={data.area} onChangeText={(v) => update('area', v)} keyboardType="number-pad" /></View>
             </View>
-            <Field label="DESCRIPTION" value={data.description} onChangeText={(v) => update('description', v)} multiline placeholder="Decris ton bien" inputStyle={{ minHeight: 100, textAlignVertical: 'top' }} />
-            <Text style={styles.label}>EQUIPEMENTS</Text>
+            <Field label="DESCRIPTION" value={data.description} onChangeText={(v) => update('description', v)} multiline placeholder="Décris ton bien" inputStyle={{ minHeight: 100, textAlignVertical: 'top' }} />
+            <Text style={styles.label}>ÉQUIPEMENTS</Text>
             <View style={styles.chipRow}>
               {propertyAmenities.map((a) => (
                 <Chip key={a} label={a} on={data.amenities.includes(a)} onPress={() => toggleAmenity(a)} />

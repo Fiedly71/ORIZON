@@ -7,7 +7,7 @@ import { C } from '../theme/colors';
 
 export default function EmptyState({
   icon = 'sparkles-outline',
-  title = 'Rien a afficher',
+  title = 'Rien à afficher',
   message,
   ctaLabel,
   onCta,

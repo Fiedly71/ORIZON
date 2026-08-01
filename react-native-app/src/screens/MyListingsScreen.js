@@ -13,7 +13,7 @@ import EmptyState from '../components/EmptyState';
 function statusBadge(p) {
   if (p.payment_status !== 'paid') return { label: 'Paiement requis', color: '#92400E', bg: '#FEF3C7' };
   if (p.moderation_status === 'pending') return { label: 'En modération', color: '#1E40AF', bg: '#DBEAFE' };
-  if (p.moderation_status === 'rejected') return { label: 'Rejetee', color: '#991B1B', bg: '#FEE2E2' };
+  if (p.moderation_status === 'rejected') return { label: 'Rejetée', color: '#991B1B', bg: '#FEE2E2' };
   if (p.moderation_status === 'approved') return { label: 'En ligne', color: '#15803D', bg: '#DCFCE7' };
   return { label: 'Brouillon', color: '#525252', bg: '#F5F5F5' };
 }
@@ -134,7 +134,7 @@ export default function MyListingsScreen({ navigation }) {
                         onPress={(e) => { e.stopPropagation?.(); navigation.navigate('BoostListing', { propertyId: item.id, propertyTitle: item.title }); }}
                       >
                         <Ionicons name="rocket" size={12} color="#F5B301" />
-                        <Text style={styles.boostTxt}>{item.is_premium ? 'Boostee' : 'Booster'}</Text>
+                        <Text style={styles.boostTxt}>{item.is_premium ? 'Boostée' : 'Booster'}</Text>
                       </Pressable>
                     )}
                   </View>

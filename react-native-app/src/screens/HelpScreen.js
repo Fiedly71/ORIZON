@@ -12,24 +12,24 @@ const FAQ = [
     a: "Depuis la barre principale, appuie sur 'Vendre'. Le wizard te guide en 3 étapes: infos, photos, tarif.",
   },
   {
-    q: 'Comment etre vérifie ?',
-    a: "Va dans Profil > Vérification KYC. Telecharge un selfie et une pièce d'identité (CIN, passeport ou permis). La validation prend 24-48h.",
+    q: 'Comment être vérifié ?',
+    a: "Va dans Profil > Vérification KYC. Télécharge un selfie et une pièce d'identité (CIN, passeport ou permis). La validation prend 24-48h.",
   },
   {
     q: 'Quels sont les moyens de paiement ?',
-    a: "ORIZON accepte les cartes bancaires (Stripe) et MonCash en Haïti. Aucun frais cache.",
+    a: "ORIZON accepte les cartes bancaires (Stripe) et MonCash en Haïti. Aucun frais caché.",
   },
   {
-    q: 'Comment fonctionne la calculette d hypothèque ?',
-    a: "Entre le prix, l'apport et choisis un produit bancaire. Le tableau d amortissement est calcule en temps reel.",
+    q: "Comment fonctionne la calculette d'hypothèque ?",
+    a: "Entre le prix, l'apport et choisis un produit bancaire. Le tableau d'amortissement est calculé en temps réel.",
   },
   {
     q: 'Comment supprimer mon compte ?',
-    a: "Écris-nous depuis l'option 'Contact' ci-dessous avec ton email. La suppression est traitee sous 7 jours.",
+    a: "Écris-nous depuis l'option 'Contact' ci-dessous avec ton email. La suppression est traitée sous 7 jours.",
   },
   {
-    q: 'Mes données sont-elles protegees ?',
-    a: "Oui. Toutes les données sont chiffrées au repos via Supabase et en transit (HTTPS). Voir nos CGU pour plus d info.",
+    q: 'Mes données sont-elles protégées ?',
+    a: "Oui. Toutes les données sont chiffrées au repos via Supabase et en transit (HTTPS). Voir nos CGU pour plus d'info.",
   },
 ];
 
@@ -52,7 +52,7 @@ export default function HelpScreen({ navigation }) {
       <Header title="Aide & FAQ" onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 14, width: '100%', maxWidth: 720, alignSelf: 'center' }}>
         <Text style={styles.intro}>
-          Une question? Parcours les sujets frequents ou contacte notre equipe.
+          Une question ? Parcours les sujets fréquents ou contacte notre équipe.
         </Text>
 
         {FAQ.map((item, i) => (
@@ -60,8 +60,8 @@ export default function HelpScreen({ navigation }) {
         ))}
 
         <View style={styles.supportCard}>
-          <Text style={styles.h}>Besoin d aide directe ?</Text>
-          <Text style={styles.p}>Notre equipe repond du lundi au samedi, 8h-18h (HT).</Text>
+          <Text style={styles.h}>Besoin d'aide directe ?</Text>
+          <Text style={styles.p}>Notre équipe répond du lundi au samedi, 8h-18h (HT).</Text>
           {SUPPORT_WHATSAPP ? (
             <Pressable
               style={[styles.btn, { backgroundColor: '#25D366' }]}
@@ -81,7 +81,7 @@ export default function HelpScreen({ navigation }) {
             </Pressable>
           ) : null}
           {!SUPPORT_EMAIL && !SUPPORT_WHATSAPP ? (
-            <Text style={styles.p}>Coordonnees de support a venir.</Text>
+            <Text style={styles.p}>Coordonnées de support à venir.</Text>
           ) : null}
         </View>
       </ScrollView>

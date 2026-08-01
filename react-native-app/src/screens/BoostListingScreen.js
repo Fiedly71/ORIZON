@@ -55,7 +55,7 @@ export default function BoostListingScreen({ route, navigation }) {
       }
       Alert.alert(
         'Paiement en cours',
-        `Le boost ${p.label} sera active automatiquement apres confirmation du paiement Stripe (quelques secondes).`,
+        `Le boost ${p.label} sera activé automatiquement après confirmation du paiement Stripe (quelques secondes).`,
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (e) {
@@ -83,7 +83,7 @@ export default function BoostListingScreen({ route, navigation }) {
           {status?.isPremium && (
             <View style={styles.activeBadge}>
               <Ionicons name="checkmark-circle" size={14} color="#15803D" />
-              <Text style={styles.activeBadgeTxt}>Deja boostee jusqu'au {new Date(status.until).toLocaleDateString('fr-FR')}</Text>
+              <Text style={styles.activeBadgeTxt}>Déjà boostée jusqu'au {new Date(status.until).toLocaleDateString('fr-FR')}</Text>
             </View>
           )}
         </View>
@@ -107,7 +107,7 @@ export default function BoostListingScreen({ route, navigation }) {
           </Pressable>
         ))}
 
-        <Text style={styles.section}>Methode de paiement</Text>
+        <Text style={styles.section}>Méthode de paiement</Text>
         <View style={styles.methodRow}>
           {[
             { id: 'stripe', label: 'Carte', icon: 'card' },
@@ -126,10 +126,10 @@ export default function BoostListingScreen({ route, navigation }) {
         <View style={styles.benefits}>
           <Text style={styles.benefitsTitle}>Avantages</Text>
           {[
-            'Apparait en haut des résultats',
+            'Apparaît en haut des résultats',
             'Badge "Premium" visible',
             'Plus de contacts (+3x en moyenne)',
-            'Statistiques detaillees',
+            'Statistiques détaillées',
           ].map((b) => (
             <View key={b} style={styles.benefitRow}>
               <Ionicons name="checkmark" size={16} color={C.success} />

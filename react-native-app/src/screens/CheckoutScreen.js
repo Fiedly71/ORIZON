@@ -76,7 +76,7 @@ export default function CheckoutScreen({ navigation, route }) {
               Apre w klike sou bouton an, n ap montre w ki nimewo MonCash pou voye lajan an ak kijan pou w fe sa, etap pa etap.
             </Text>
             <Text style={[styles.infoTxt, { marginTop: 4, fontStyle: 'italic', color: C.muted }]}>
-              Apres avoir clique, nous t'indiquons le numero MonCash et la procedure etape par etape.
+              Après avoir cliqué, nous t'indiquons le numéro MonCash et la procédure étape par étape.
             </Text>
           </View>
         </View>

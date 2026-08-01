@@ -60,14 +60,14 @@ export default function SupportScreen({ navigation }) {
         <Text style={styles.label}>Sujet</Text>
         <TextInput
           value={subject} onChangeText={setSubject}
-          placeholder="Resume rapide" placeholderTextColor={C.muted}
+          placeholder="Résumé rapide" placeholderTextColor={C.muted}
           style={styles.input}
         />
 
         <Text style={styles.label}>Message</Text>
         <TextInput
           value={message} onChangeText={setMessage}
-          placeholder="Decris ton problème en détail..." placeholderTextColor={C.muted}
+          placeholder="Décris ton problème en détail..." placeholderTextColor={C.muted}
           multiline style={[styles.input, { minHeight: 140, textAlignVertical: 'top' }]}
         />
 
@@ -78,15 +78,15 @@ export default function SupportScreen({ navigation }) {
 
         <Pressable style={styles.wa} onPress={openWhatsApp}>
           <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
-          <Text style={styles.waTxt}>Plutot via WhatsApp</Text>
+          <Text style={styles.waTxt}>Plutôt via WhatsApp</Text>
         </Pressable>
 
         <View style={styles.faq}>
-          <Text style={styles.faqTitle}>Reponses rapides</Text>
-          <Text style={styles.faqQ}>Mon annonce n'apparait pas ?</Text>
-          <Text style={styles.faqA}>Verifie qu'elle est approuvee dans Mes annonces. Delai moyen 1-24h.</Text>
+          <Text style={styles.faqTitle}>Réponses rapides</Text>
+          <Text style={styles.faqQ}>Mon annonce n'apparaît pas ?</Text>
+          <Text style={styles.faqA}>Vérifie qu'elle est approuvée dans Mes annonces. Délai moyen 1-24h.</Text>
           <Text style={styles.faqQ}>Comment publier ?</Text>
-          <Text style={styles.faqA}>Onglet Vendre, suis les 3 etapes. KYC obligatoire pour les annonces payantes.</Text>
+          <Text style={styles.faqA}>Onglet Vendre, suis les 3 étapes. KYC obligatoire pour les annonces payantes.</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -24,7 +24,7 @@ async function open(url) {
 export default function AboutScreen({ navigation }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.surface }}>
-      <Header title="A propos" onBack={() => navigation.goBack()} />
+      <Header title="À propos" onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={{ padding: 20, gap: 14, width: '100%', maxWidth: 720, alignSelf: 'center' }}>
         <View style={styles.hero}>
           <Image
@@ -33,14 +33,14 @@ export default function AboutScreen({ navigation }) {
             resizeMode="contain"
             accessibilityLabel="ORIZON"
           />
-          <Text style={styles.tag}>Immobilier intelligent en Haiti et dans la Caraibe</Text>
+          <Text style={styles.tag}>Immobilier intelligent en Haïti et dans la Caraïbe</Text>
           <Text style={styles.version}>Version {VERSION}</Text>
         </View>
 
         <Section title="Notre mission">
           <Text style={styles.p}>
-            Donner a chacun acces a un marche immobilier transparent, securise et moderne,
-            avec des biens verifies, des paiements traces et un accompagnement humain.
+            Donner à chacun accès à un marché immobilier transparent, sécurisé et moderne,
+            avec des biens vérifiés, des paiements tracés et un accompagnement humain.
           </Text>
         </Section>
 
@@ -72,17 +72,17 @@ export default function AboutScreen({ navigation }) {
 
         <Section title="Mentions légales">
           <Pressable style={styles.legalRow} onPress={() => open('https://fiedly71.github.io/ORIZON/terms.html')}>
-            <Text style={styles.legalTxt}>Conditions generales d utilisation</Text>
+            <Text style={styles.legalTxt}>Conditions générales d'utilisation</Text>
             <Ionicons name="chevron-forward" size={16} color={C.muted} />
           </Pressable>
           <Pressable style={styles.legalRow} onPress={() => open('https://fiedly71.github.io/ORIZON/privacy.html')}>
-            <Text style={styles.legalTxt}>Politique de confidentialite</Text>
+            <Text style={styles.legalTxt}>Politique de confidentialité</Text>
             <Ionicons name="chevron-forward" size={16} color={C.muted} />
           </Pressable>
         </Section>
 
         <Text style={styles.copyright}>
-          (c) {new Date().getFullYear()} ORIZON. Tous droits reserves.
+          (c) {new Date().getFullYear()} ORIZON. Tous droits réservés.
         </Text>
       </ScrollView>
     </SafeAreaView>

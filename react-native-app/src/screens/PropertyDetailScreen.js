@@ -10,6 +10,7 @@ import {
   Image,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   Share,
   StyleSheet,
@@ -85,6 +86,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
   const initialItem = params.item || (params.id ? { id: params.id } : {});
   const [item, setItem] = useState(initialItem);
   const [loading, setLoading] = useState(!params.item && !!params.id);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -192,6 +194,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); if (params.id || item.id) { const r2 = await getProperty(params.id || item.id); if (r2.ok && r2.data) setItem(r2.data); } setRefreshing(false); }} colors={[C.primary]} tintColor={C.primary} />}
       >
         {/* Hero gallery */}
         <View
@@ -362,7 +365,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
           {/* Description */}
           {item.description ? (
             <>
-              <Text style={styles.sectionTitle}>A propos de ce bien</Text>
+              <Text style={styles.sectionTitle}>À propos de ce bien</Text>
               <Text style={styles.description}>{item.description}</Text>
               <View style={styles.divider} />
             </>

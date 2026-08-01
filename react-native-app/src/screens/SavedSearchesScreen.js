@@ -36,7 +36,7 @@ export default function SavedSearchesScreen({ navigation }) {
   useEffect(() => { load(); }, [load]);
 
   const onDelete = (id) => {
-    Alert.alert('Supprimer', 'Supprimer cette recherche sauvegardee ?', [
+    Alert.alert('Supprimer', 'Supprimer cette recherche sauvegardée ?', [
       { text: 'Annuler', style: 'cancel' },
       { text: 'Supprimer', style: 'destructive', onPress: async () => {
         const r = await deleteSavedSearch(id);
@@ -75,7 +75,7 @@ export default function SavedSearchesScreen({ navigation }) {
             <View style={{ padding: 60, alignItems: 'center' }}>
               <Ionicons name="notifications-outline" size={48} color={C.muted} />
               <Text style={{ marginTop: spacing.lg, color: C.muted, textAlign: 'center', paddingHorizontal: 30 }}>
-                Aucune recherche sauvegardee. Lance une recherche dans Explorer puis touche
+                Aucune recherche sauvegardée. Lance une recherche dans Explorer puis touche
                 "Sauvegarder" pour recevoir une alerte des nouvelles annonces.
               </Text>
             </View>
@@ -90,12 +90,12 @@ export default function SavedSearchesScreen({ navigation }) {
                 <View style={styles.cardMeta}>
                   <View style={[styles.chip, { backgroundColor: counts[item.id] > 0 ? '#DCFCE7' : C.surface }]}>
                     <Text style={[styles.chipTxt, { color: counts[item.id] > 0 ? '#15803D' : C.muted }]}>
-                      {counts[item.id] || 0} resultat{(counts[item.id] || 0) > 1 ? 's' : ''}
+                      {counts[item.id] || 0} résultat{(counts[item.id] || 0) > 1 ? 's' : ''}
                     </Text>
                   </View>
                   <View style={[styles.chip, { backgroundColor: C.surface }]}>
                     <Text style={[styles.chipTxt, { color: C.text }]}>
-                      Frequence : {item.frequency}
+                      Fréquence : {item.frequency}
                     </Text>
                   </View>
                 </View>
