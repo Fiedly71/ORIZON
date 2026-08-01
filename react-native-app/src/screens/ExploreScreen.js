@@ -61,30 +61,46 @@ const SORTS = [
   { key: 'near', label: 'Pres de moi', icon: 'navigate' },
 ];
 
-const TICKER_TEXT = '  Crée ton compte gratuit · Découvres les meilleures offres immobilières en Haïti · Contacte les propriétaires directement  ·  ';
+const TICKER_TEXT = 'Crée ton compte gratuit  ·  Découvre les meilleures offres immobilières en Haïti  ·  Contacte les propriétaires directement  ·  ';
 
 function GuestTicker({ onPress }) {
+  const [containerW, setContainerW] = useState(0);
+  const [textW, setTextW] = useState(0);
   const x = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
+    if (!textW) return undefined;
+    // Défilement droite → gauche en continu : on translate de 0 à -textW, puis on reset à 0.
+    // Comme on rend le texte 2× côte-à-côte, la boucle est visuellement transparente.
+    x.setValue(0);
     const anim = Animated.loop(
       Animated.timing(x, {
-        toValue: -700,
-        duration: 16000,
+        toValue: -textW,
+        duration: Math.max(textW * 20, 12000),
         useNativeDriver: true,
+        isInteraction: false,
       })
     );
     anim.start();
     return () => anim.stop();
-  }, []);
+  }, [textW, x]);
+
   return (
     <View style={styles.guestTicker}>
-      <View style={{ flex: 1, overflow: 'hidden' }}>
-        <Animated.Text
-          style={[styles.guestTickerTxt, { transform: [{ translateX: x }] }]}
-          numberOfLines={1}
-        >
-          {TICKER_TEXT + TICKER_TEXT}
-        </Animated.Text>
+      <View
+        style={styles.guestTickerViewport}
+        onLayout={(e) => setContainerW(e.nativeEvent.layout.width)}
+      >
+        <Animated.View style={{ flexDirection: 'row', transform: [{ translateX: x }] }}>
+          <Text
+            style={styles.guestTickerTxt}
+            onLayout={(e) => { if (!textW) setTextW(e.nativeEvent.layout.width); }}
+          >
+            {TICKER_TEXT}
+          </Text>
+          <Text style={styles.guestTickerTxt}>{TICKER_TEXT}</Text>
+          <Text style={styles.guestTickerTxt}>{TICKER_TEXT}</Text>
+        </Animated.View>
       </View>
       <Pressable onPress={onPress} style={styles.guestTickerCta}>
         <Text style={styles.guestTickerCtaTxt}>S'inscrire</Text>
@@ -385,15 +401,18 @@ export default function ExploreScreen({ navigation }) {
                 section={item.section}
                 items={item.items}
                 isFavorite={(id) => favIds.includes(id)}
-                onFavorite={(id) => toggleFav(id)}
-                onPress={() => {
-              if (!requireAuth(navigation, 'voir cette annonce')) return;
-              navigation.navigate('PropertyDetail', { id: it.id, item: it });
-            }}
-            onSeeAll={() => {
-              if (!redirectToAuth(navigation)) return;
-              navigation.navigate('SectionDetail', { sectionId: item.section.id });
-            }}
+                onFavorite={(id) => {
+                  if (!redirectToAuth(navigation)) return;
+                  toggleFav(id);
+                }}
+                onItemPress={(it) => {
+                  if (!requireAuth(navigation, 'voir cette annonce')) return;
+                  navigation.navigate('PropertyDetail', { id: it.id, item: it });
+                }}
+                onSeeAll={() => {
+                  if (!redirectToAuth(navigation)) return;
+                  navigation.navigate('SectionDetail', { sectionId: item.section.id });
+                }}
               />
             </Container>
           )}
@@ -519,27 +538,32 @@ const styles = StyleSheet.create({
   guestTicker: {
     flexDirection: 'row',
     alignItems: 'center',
-    overflow: 'hidden',
-    backgroundColor: C.primarySoft,
-    borderBottomWidth: 1,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: C.border,
-    paddingVertical: 7,
+    paddingVertical: 8,
+    paddingRight: 10,
+  },
+  guestTickerViewport: {
+    flex: 1,
+    overflow: 'hidden',
+    height: 20,
+    justifyContent: 'center',
   },
   guestTickerTxt: {
-    color: C.primary,
-    fontSize: 12,
-    fontWeight: '700',
-    paddingLeft: 14,
+    color: C.text,
+    fontSize: 12.5,
+    fontWeight: '600',
+    paddingRight: 24,
   },
   guestTickerCta: {
     backgroundColor: C.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     borderRadius: 999,
-    marginRight: 10,
-    marginLeft: 8,
+    marginLeft: 10,
   },
-  guestTickerCtaTxt: { color: '#fff', fontSize: 11, fontWeight: '800' },
+  guestTickerCtaTxt: { color: '#fff', fontSize: 11, fontWeight: '800', letterSpacing: 0.2 },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
