@@ -67,13 +67,12 @@ export default function PropertyDetailScreen({ navigation, route }) {
   const isAuthed = useAuthStore((s) => s.isAuthenticated);
   useEffect(() => {
     if (!isAuthed) {
-      // Message + redirection vers Auth stack.
-      requireAuth(navigation, 'voir cette annonce');
-      // Ferme cet \u00e9cran pour ne pas laisser un contenu prot\u00e9g\u00e9 apparent.
-      const t = setTimeout(() => {
-        try { navigation.goBack(); } catch {}
-      }, 50);
-      return () => clearTimeout(t);
+      try {
+        navigation.replace('Auth', { screen: 'Login' });
+      } catch {
+        requireAuth(navigation, 'voir cette annonce');
+      }
+      return undefined;
     }
     return undefined;
   }, [isAuthed, navigation]);
@@ -147,7 +146,7 @@ export default function PropertyDetailScreen({ navigation, route }) {
       `Voir l'annonce sur ORIZON : ${url}`,
     ].filter(Boolean);
     const message = lines.join('\n');
-    try {
+      try {
       if (Platform.OS === 'web' && typeof navigator !== 'undefined' && navigator.share) {
         await navigator.share({ title, text: message, url });
         return;
@@ -262,7 +261,12 @@ export default function PropertyDetailScreen({ navigation, route }) {
 
           {/* Top buttons */}
           <SafeAreaView style={styles.topBar} edges={['top']}>
-            <Pressable style={styles.iconBtn} onPress={() => navigation.goBack()}>
+            <Pressable
+              style={styles.iconBtn}
+              onPress={() => {
+                if (navigation.canGoBack()) navigation.goBack();
+                else navigation.getParent()?.navigate('App', { screen: 'Explore' });
+              }}>
               <Ionicons name="chevron-back" size={22} color={C.text} />
             </Pressable>
             <View style={styles.topRight}>
@@ -598,7 +602,7 @@ function PropertyReviews({ propertyId, ownerId }) {
       return;
     }
     setBusy(true);
-    try {
+      try {
       const r = await leaveReview({ propertyId, agentId: ownerId, rating, content: text.trim() });
       if (!r.ok) {
         Alert.alert('Avis', r.error || 'Échec.');
@@ -947,3 +951,6 @@ const styles = StyleSheet.create({
   },
   superBadgeTxt: { color: '#fff', fontSize: 11, fontWeight: '700' },
 });
+
+
+

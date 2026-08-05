@@ -9,6 +9,7 @@ import { useFavorites } from '../store/useFavorites';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { useProperty } from '../store/useProperty';
 import EmptyState from '../components/EmptyState';
+import RefreshBtn from '../components/RefreshBtn';
 
 export default function FavoritesScreen({ navigation }) {
   const ids = useFavorites((s) => s.ids);
