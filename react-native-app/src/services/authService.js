@@ -263,6 +263,83 @@ export async function requestPasswordReset(email) {
   return { ok: true };
 }
 
+function parseAuthParamsFromUrl(url) {
+  const out = {
+    code: '',
+    accessToken: '',
+    refreshToken: '',
+    type: '',
+  };
+  if (!url || typeof url !== 'string') return out;
+
+  try {
+    const qIdx = url.indexOf('?');
+    const hIdx = url.indexOf('#');
+    const query = qIdx >= 0 ? url.slice(qIdx + 1, hIdx >= 0 ? hIdx : undefined) : '';
+    const hash = hIdx >= 0 ? url.slice(hIdx + 1) : '';
+    const sp = new URLSearchParams([query, hash].filter(Boolean).join('&'));
+    out.code = sp.get('code') || '';
+    out.accessToken = sp.get('access_token') || sp.get('accessToken') || '';
+    out.refreshToken = sp.get('refresh_token') || sp.get('refreshToken') || '';
+    out.type = sp.get('type') || '';
+  } catch (_) {
+    // ignore parsing errors
+  }
+  return out;
+}
+
+function parseAuthParamsFromRoute(routeParams) {
+  const p = routeParams || {};
+  return {
+    code: p.code || '',
+    accessToken: p.access_token || p.accessToken || '',
+    refreshToken: p.refresh_token || p.refreshToken || '',
+    type: p.type || '',
+  };
+}
+
+// Réhydrate une session depuis un lien de recovery Supabase (reset password).
+// Supporte les deux variantes de liens:
+// - PKCE: ?code=...
+// - Implicit: #access_token=...&refresh_token=...&type=recovery
+export async function recoverAuthSessionFromRecoveryLink({ url, routeParams } = {}) {
+  if (!isSupabaseConfigured) return { ok: true, mock: true };
+
+  const existing = await supabase.auth.getSession();
+  if (existing?.data?.session) {
+    setSessionFromSupabase(existing.data);
+    return { ok: true, already: true };
+  }
+
+  const fromUrl = parseAuthParamsFromUrl(url);
+  const fromRoute = parseAuthParamsFromRoute(routeParams);
+  const merged = {
+    code: fromRoute.code || fromUrl.code,
+    accessToken: fromRoute.accessToken || fromUrl.accessToken,
+    refreshToken: fromRoute.refreshToken || fromUrl.refreshToken,
+    type: fromRoute.type || fromUrl.type,
+  };
+
+  if (merged.code) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(merged.code);
+    if (error) return { ok: false, error: error.message };
+    setSessionFromSupabase(data);
+    return { ok: true, method: 'code' };
+  }
+
+  if (merged.accessToken && merged.refreshToken) {
+    const { data, error } = await supabase.auth.setSession({
+      access_token: merged.accessToken,
+      refresh_token: merged.refreshToken,
+    });
+    if (error) return { ok: false, error: error.message };
+    setSessionFromSupabase(data);
+    return { ok: true, method: 'tokens', type: merged.type || null };
+  }
+
+  return { ok: false, error: 'missing_session_params' };
+}
+
 // Etape 2: change effectivement le mot de passe (utilisateur deja en session
 // apres avoir clique sur le lien magique).
 export async function updatePassword(newPassword) {

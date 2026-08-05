@@ -732,6 +732,11 @@ function PropertyReviews({ propertyId, ownerId }) {
                   {r.content}
                 </Text>
               ) : null}
+              {r.status && r.status !== 'approved' ? (
+                <Text style={{ fontSize: 11, color: C.muted, marginTop: 6, fontStyle: 'italic' }}>
+                  En attente de validation
+                </Text>
+              ) : null}
             </View>
           ))}
         </View>

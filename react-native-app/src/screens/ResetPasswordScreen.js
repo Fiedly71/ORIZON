@@ -3,14 +3,14 @@
 //   - depuis le profil ("Changer mot de passe", utilisateur connecte)
 //   - via deep link 'orizon://reset-password' apres clic sur l'email magique
 //     (Supabase ouvre l'app avec une session active).
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator,
+  View, Text, TextInput, Pressable, StyleSheet, Alert, ActivityIndicator, Platform, Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { C } from '../theme/colors';
-import { updatePassword } from '../services/authService';
+import { recoverAuthSessionFromRecoveryLink, updatePassword } from '../services/authService';
 
 export default function ResetPasswordScreen({ navigation, route }) {
   const fromProfile = route?.params?.fromProfile;
@@ -18,6 +18,48 @@ export default function ResetPasswordScreen({ navigation, route }) {
   const [pwd2, setPwd2] = useState('');
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [recovering, setRecovering] = useState(!fromProfile);
+
+  const ensureRecoverySession = async () => {
+    if (fromProfile) return { ok: true, fromProfile: true };
+
+    const urls = [];
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location?.href) {
+      urls.push(window.location.href);
+    }
+    try {
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) urls.push(initialUrl);
+    } catch (_) {}
+
+    const routeParams = route?.params || {};
+    const urlFromParams = routeParams.url || routeParams.link || null;
+    if (urlFromParams) urls.push(urlFromParams);
+
+    let last = { ok: false, error: 'missing_session_params' };
+    // Essaie tous les liens candidats (web hash, deep-link initial, params route).
+    for (const url of urls) {
+      last = await recoverAuthSessionFromRecoveryLink({ url, routeParams });
+      if (last.ok) return last;
+    }
+    // Dernière tentative: parfois les params existent sans URL complète.
+    last = await recoverAuthSessionFromRecoveryLink({ routeParams });
+    return last;
+  };
+
+  useEffect(() => {
+    let alive = true;
+    if (fromProfile) {
+      setRecovering(false);
+      return () => { alive = false; };
+    }
+    (async () => {
+      setRecovering(true);
+      await ensureRecoverySession();
+      if (alive) setRecovering(false);
+    })();
+    return () => { alive = false; };
+  }, [fromProfile]);
 
   const onSubmit = async () => {
     if (pwd.length < 8) {
@@ -30,13 +72,31 @@ export default function ResetPasswordScreen({ navigation, route }) {
     }
     setBusy(true);
     try {
-      const r = await updatePassword(pwd);
+      if (!fromProfile) {
+        const rec = await ensureRecoverySession();
+        if (!rec.ok && rec.error === 'missing_session_params') {
+          Alert.alert(
+            'Lien invalide',
+            'Ce lien de réinitialisation est incomplet. Redemande un nouveau lien depuis "Mot de passe oublié".',
+          );
+          return;
+        }
+      }
+
+      let r = await updatePassword(pwd);
+      if (!r.ok && /auth session missing|invalid session|session missing/i.test(r.error || '')) {
+        const rec2 = await ensureRecoverySession();
+        if (rec2.ok) {
+          r = await updatePassword(pwd);
+        }
+      }
+
       if (!r.ok) {
         // Traduit les erreurs Supabase les plus fréquentes en messages lisibles.
         let msg = r.error || 'Échec.';
         if (/same password|same as/i.test(msg)) {
           msg = 'Ce mot de passe est identique à l\'ancien. Choisis-en un différent.';
-        } else if (/session.*expired|token.*expired|invalid.*session/i.test(msg)) {
+        } else if (/auth session missing|session.*expired|token.*expired|invalid.*session/i.test(msg)) {
           msg = 'Ton lien de réinitialisation a expiré. Fais une nouvelle demande depuis l\'écran "Mot de passe oublié".';
         } else if (/weak password|too short/i.test(msg)) {
           msg = 'Mot de passe trop simple. Utilise au moins 8 caractères avec lettres et chiffres.';
@@ -82,6 +142,13 @@ export default function ResetPasswordScreen({ navigation, route }) {
           Au moins 8 caracteres. Utilise un melange de lettres, chiffres et symboles.
         </Text>
 
+        {!fromProfile && recovering ? (
+          <View style={styles.recoverWrap}>
+            <ActivityIndicator color={C.primary} size="small" />
+            <Text style={styles.recoverTxt}>Validation de ton lien de réinitialisation...</Text>
+          </View>
+        ) : null}
+
         <View style={{ gap: 6, marginTop: 18 }}>
           <Text style={styles.label}>NOUVEAU MOT DE PASSE</Text>
           <View style={styles.inputWrap}>
@@ -115,7 +182,7 @@ export default function ResetPasswordScreen({ navigation, route }) {
           </View>
         </View>
 
-        <Pressable style={[styles.cta, busy && { opacity: 0.6 }]} onPress={onSubmit} disabled={busy}>
+        <Pressable style={[styles.cta, (busy || recovering) && { opacity: 0.6 }]} onPress={onSubmit} disabled={busy || recovering}>
           {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaTxt}>Mettre a jour</Text>}
         </Pressable>
       </View>
@@ -141,6 +208,19 @@ const styles = StyleSheet.create({
     borderRadius: 12, paddingHorizontal: 14,
   },
   input: { flex: 1, paddingVertical: 14, fontSize: 14, color: C.text },
+  recoverWrap: {
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.surface,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  recoverTxt: { fontSize: 12, color: C.muted, flex: 1 },
   cta: {
     marginTop: 24, backgroundColor: C.accent,
     paddingVertical: 16, borderRadius: 14, alignItems: 'center',

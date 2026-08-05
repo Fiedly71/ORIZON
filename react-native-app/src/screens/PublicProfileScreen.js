@@ -4,7 +4,7 @@
 // + toutes les annonces du proprietaire, avec actions : ecrire / signaler.
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, Image, Pressable, StyleSheet, Alert, ActivityIndicator, RefreshControl,
+  View, Text, TextInput, ScrollView, Image, Pressable, StyleSheet, Alert, ActivityIndicator, RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -12,6 +12,8 @@ import { C } from '../theme/colors';
 import { getPublicProfile, listPropertiesByOwner } from '../services/propertiesService';
 import { openConversation } from '../services/messagingService';
 import { reportTarget } from '../services/reportsService';
+import { leaveReview } from '../services/reviewsService';
+import { getUserReviews } from '../services/reviewsService';
 import { priceSuffix } from '../utils/priceFormat';
 import { useAuthStore } from '../store/useAuthStore';
 import { isLaunchFreeActive, LAUNCH_FREE_END_LABEL } from '../config/launchPromo';
@@ -31,18 +33,25 @@ export default function PublicProfileScreen({ navigation, route }) {
 
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewBusy, setReviewBusy] = useState(false);
 
   const loadData = async (alive) => {
-    const [p, l] = await Promise.all([
+    const [p, l, rev] = await Promise.all([
       getPublicProfile(userId),
       listPropertiesByOwner(userId),
+      getUserReviews(userId),
     ]);
     if (alive === false) return;
     if (p.ok) setProfile(p.data);
     else setProfile({ id: userId, fullName: fallbackName || 'Utilisateur', verified: false });
     setListings(l.ok ? (l.data || []) : []);
+    setReviews(rev.ok ? (rev.data || []) : []);
   };
 
   useEffect(() => {
@@ -98,6 +107,34 @@ export default function PublicProfileScreen({ navigation, route }) {
     );
   };
 
+  const submitReview = async () => {
+    if (!reviewRating) {
+      Alert.alert('Avis', 'Choisis une note.');
+      return;
+    }
+    if (!reviewText.trim()) {
+      Alert.alert('Avis', 'Ajoute un commentaire.');
+      return;
+    }
+    setReviewBusy(true);
+    const r = await leaveReview({ targetUserId: userId, rating: reviewRating, comment: reviewText.trim() });
+    setReviewBusy(false);
+    if (!r.ok) {
+      Alert.alert('Avis', r.error || 'Impossible d\'envoyer l\'avis.');
+      return;
+    }
+    Alert.alert(
+      'Merci !',
+      r.moderated
+        ? 'Ton avis a été envoyé et attend une validation manuelle.'
+        : 'Ton avis a été envoyé. Il apparaîtra publiquement après validation.',
+    );
+    setReviewText('');
+    setReviewRating(5);
+    setReviewOpen(false);
+    await onRefresh();
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
@@ -151,6 +188,39 @@ export default function PublicProfileScreen({ navigation, route }) {
           </Pressable>
         </View>
 
+        {!isOwnProfile && (
+          <View style={styles.section}>
+            <Pressable style={styles.reviewToggle} onPress={() => setReviewOpen((v) => !v)}>
+              <Ionicons name={reviewOpen ? 'close' : 'star-outline'} size={16} color={C.primary} />
+              <Text style={styles.reviewToggleTxt}>{reviewOpen ? 'Annuler' : 'Laisser un avis'}</Text>
+            </Pressable>
+
+            {reviewOpen && (
+              <View style={styles.reviewComposer}>
+                <Text style={styles.sectionTitle}>Ta note</Text>
+                <View style={{ flexDirection: 'row', gap: 6, marginBottom: 8 }}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Pressable key={n} onPress={() => setReviewRating(n)} hitSlop={8}>
+                      <Ionicons name={n <= reviewRating ? 'star' : 'star-outline'} size={24} color="#F59E0B" />
+                    </Pressable>
+                  ))}
+                </View>
+                <TextInput
+                  value={reviewText}
+                  onChangeText={setReviewText}
+                  placeholder="Partage ton expérience..."
+                  placeholderTextColor={C.muted}
+                  multiline
+                  style={styles.reviewInput}
+                />
+                <Pressable style={[styles.reviewSubmit, reviewBusy && { opacity: 0.6 }]} onPress={submitReview} disabled={reviewBusy}>
+                  {reviewBusy ? <ActivityIndicator color="#fff" /> : <Text style={styles.reviewSubmitTxt}>Envoyer mon avis</Text>}
+                </Pressable>
+              </View>
+            )}
+          </View>
+        )}
+
         {profile?.bio ? (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>À propos</Text>
@@ -203,6 +273,28 @@ export default function PublicProfileScreen({ navigation, route }) {
                     </Text>
                   </View>
                 </Pressable>
+              ))}
+            </View>
+          )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Avis ({reviews.length})</Text>
+          {reviews.length === 0 ? (
+            <Text style={styles.muted}>Aucun avis pour le moment.</Text>
+          ) : (
+            <View style={{ gap: 10 }}>
+              {reviews.map((review) => (
+                <View key={review.id} style={styles.reviewCard}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                    <Text style={styles.reviewName}>{review.reviewer?.fullName || 'Utilisateur'}</Text>
+                    <Text style={styles.reviewStars}>{'★'.repeat(Number(review.rating || 0))}</Text>
+                  </View>
+                  <Text style={styles.reviewTxt}>{review.comment || review.content || 'Avis sans commentaire'}</Text>
+                  {review.status && review.status !== 'approved' ? (
+                    <Text style={styles.reviewMeta}>En attente de validation</Text>
+                  ) : null}
+                </View>
               ))}
             </View>
           )}
@@ -363,6 +455,17 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 14, fontWeight: '700', color: C.text },
   cardSub: { fontSize: 12, color: C.muted },
   cardPrice: { fontSize: 13, fontWeight: '700', color: C.primary, marginTop: 4 },
+  reviewToggle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, borderRadius: 12, backgroundColor: C.primarySoft, borderWidth: 1, borderColor: C.border },
+  reviewToggleTxt: { color: C.primary, fontWeight: '800', fontSize: 13 },
+  reviewComposer: { marginTop: 10, gap: 8 },
+  reviewInput: { minHeight: 92, borderWidth: 1, borderColor: C.border, borderRadius: 12, padding: 12, fontSize: 13, color: C.text, backgroundColor: '#fff', textAlignVertical: 'top' },
+  reviewSubmit: { backgroundColor: C.primary, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
+  reviewSubmitTxt: { color: '#fff', fontWeight: '800', fontSize: 13 },
+  reviewCard: { borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 12, padding: 12, backgroundColor: '#fff', gap: 6 },
+  reviewName: { fontSize: 13, fontWeight: '800', color: C.text },
+  reviewStars: { fontSize: 12, color: '#F59E0B', fontWeight: '800' },
+  reviewTxt: { fontSize: 13, color: C.text, lineHeight: 18 },
+  reviewMeta: { fontSize: 11, color: C.muted, fontStyle: 'italic' },
 
   // ── Mini-dashboard propriétaire (refonte ORIZON) ──
   dashSection: {

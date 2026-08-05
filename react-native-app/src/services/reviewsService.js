@@ -56,8 +56,11 @@ export async function listReviewsForProperty(propertyId) {
     const items = mockStore.items.filter((i) => i.property_id === propertyId && i.status !== 'rejected');
     return { ok: true, data: items.map(fromRow), mock: true };
   }
+  const currentUserId = useAuthStore.getState().user?.id || null;
   const { data, error } = await supabase
-    .from(TABLE).select('*').eq('property_id', propertyId).eq('status', 'approved')
+    .from(TABLE).select('*')
+    .eq('property_id', propertyId)
+    .or(currentUserId ? `status.eq.approved,author_id.eq.${currentUserId}` : 'status.eq.approved')
     .order('created_at', { ascending: false });
   if (error) return { ok: false, error: error.message };
   const reviews = (data || []).map(fromRow);
@@ -104,10 +107,12 @@ export async function getUserReviews(userId) {
       mock: true,
     };
   }
+  const currentUserId = useAuthStore.getState().user?.id || null;
   const { data, error } = await supabase
     .from(TABLE)
     .select(`
       id,
+      status,
       rating,
       content,
       created_at,
@@ -119,12 +124,13 @@ export async function getUserReviews(userId) {
       )
     `)
     .eq('agent_id', userId)
-    .eq('status', 'approved')
+    .or(currentUserId ? `status.eq.approved,author_id.eq.${currentUserId}` : 'status.eq.approved')
     .order('created_at', { ascending: false });
 
   if (error) return { ok: false, error: error.message };
   const reviews = (data || []).map((r) => ({
     id: r.id,
+    status: r.status,
     rating: r.rating,
     comment: r.content,
     created_at: r.created_at,
