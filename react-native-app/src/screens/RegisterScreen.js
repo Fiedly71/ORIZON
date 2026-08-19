@@ -24,7 +24,7 @@ import { DEPARTMENTS, CITIES_BY_DEPT, formatLocation } from '../constants/haiti'
 import { C } from '../theme/colors';
 import { appAlert } from '../utils/appAlert';
 import { isLaunchFreeActive, LAUNCH_FREE_END_LABEL } from '../config/launchPromo';
-import { signUp } from '../services/authService';
+import { signUp, translateAuthError } from '../services/authService';
 import { useAuthStore } from '../store/useAuthStore';
 import { pickImages, uploadImage } from '../services/storageService';
 import { submitKyc, DOC_TYPES } from '../services/kycService';
@@ -123,7 +123,7 @@ export default function RegisterScreen({ navigation }) {
         website: isPublisher ? (form.website.trim() || null) : null,
       });
       if (!res.ok) {
-        appAlert('Inscription', res.error || 'Échec de la création du compte.');
+        appAlert('Inscription', translateAuthError(res.error) || 'Échec de la création du compte.');
         return;
       }
 

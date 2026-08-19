@@ -90,7 +90,7 @@ async function uriToUploadable(uri, mime) {
   return { payload: bytes, contentType: mime };
 }
 
-export async function uploadImage(uri, { folder = 'misc', mime = 'image/jpeg', compress = true, generateThumb = false } = {}) {
+export async function uploadImage(uri, { folder = 'misc', mime = 'image/jpeg', compress = true, generateThumb = false, bucket = BUCKET, isPrivate = false } = {}) {
   // Compression cote client avant upload pour reduire la bande passante.
   // Sur web, ImageManipulator marche aussi mais on tolere son echec.
   let finalUri = uri;
@@ -109,27 +109,34 @@ export async function uploadImage(uri, { folder = 'misc', mime = 'image/jpeg', c
     const up = await uriToUploadable(finalUri, finalMime);
     const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const path = `${folder}/${stamp}.${extFromMime(up.contentType)}`;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, up.payload, {
+    const { error } = await supabase.storage.from(bucket).upload(path, up.payload, {
       contentType: up.contentType,
       upsert: false,
     });
     if (error) return { ok: false, error: error.message };
-    const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
+
+    // Bucket prive (ex: documents KYC) : pas d'URL publique, on ne retourne
+    // que le path - l'affichage se fait via une URL signee generee a la demande.
+    if (isPrivate) {
+      return { ok: true, url: null, thumbUrl: null, path, bucket };
+    }
+
+    const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
 
     let thumbUrl = pub.publicUrl;
     if (generateThumb) {
       const thumb = await compressImage(uri, { width: THUMB_WIDTH, quality: THUMB_QUALITY });
       const tup = await uriToUploadable(thumb.uri, 'image/jpeg');
       const tpath = `${folder}/${stamp}-thumb.jpg`;
-      const { error: terr } = await supabase.storage.from(BUCKET).upload(tpath, tup.payload, {
+      const { error: terr } = await supabase.storage.from(bucket).upload(tpath, tup.payload, {
         contentType: tup.contentType, upsert: false,
       });
       if (!terr) {
-        const { data: tpub } = supabase.storage.from(BUCKET).getPublicUrl(tpath);
+        const { data: tpub } = supabase.storage.from(bucket).getPublicUrl(tpath);
         thumbUrl = tpub.publicUrl;
       }
     }
-    return { ok: true, url: pub.publicUrl, thumbUrl, path };
+    return { ok: true, url: pub.publicUrl, thumbUrl, path, bucket };
   } catch (e) {
     return { ok: false, error: e.message || String(e) };
   }

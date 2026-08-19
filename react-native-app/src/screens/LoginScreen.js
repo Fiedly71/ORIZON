@@ -5,20 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { C } from '../theme/colors';
-import { signInWithPassword } from '../services/authService';
+import { signInWithPassword, translateAuthError } from '../services/authService';
 import { useAuthStore } from '../store/useAuthStore';
 
-// Traduit en francais les messages d'erreur courants de Supabase Auth.
-function translateAuthError(msg) {
-  if (!msg) return 'Échec de la connexion.';
-  const m = String(msg).toLowerCase();
-  if (m.includes('email not confirmed')) return 'Ton email n\'a pas encore été confirmé. Vérifie ta boîte mail (et les spams).';
-  if (m.includes('invalid login') || m.includes('invalid_credentials')) return 'Email ou mot de passe incorrect.';
-  if (m.includes('user not found')) return 'Aucun compte avec cet email.';
-  if (m.includes('rate limit') || m.includes('too many')) return 'Trop de tentatives. Réessaye dans quelques minutes.';
-  if (m.includes('network')) return 'Problème de connexion internet. Réessaye.';
-  return msg;
-}
+// Traduit en francais les messages d'erreur courants de Supabase Auth (voir authService.js).
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');

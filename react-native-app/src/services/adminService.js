@@ -244,10 +244,17 @@ export async function listPendingKyc({ status = 'pending', limit = 100, from = n
       .in('id', userIds);
     profById = Object.fromEntries((profs || []).map((p) => [p.id, p]));
   }
-  const enriched = rows.map((r) => ({
+  // Les documents sont stockes dans le bucket prive 'kyc-docs' : on resout
+  // des URLs signees temporaires pour l'affichage admin (les colonnes
+  // *_url contiennent un path de storage, pas une URL publique).
+  const { getKycSignedUrl } = require('./kycService');
+  const enriched = await Promise.all(rows.map(async (r) => ({
     ...r,
     profile: profById[r.user_id] || null,
-  }));
+    selfie_url: await getKycSignedUrl(r.selfie_url),
+    doc_front_url: await getKycSignedUrl(r.doc_front_url),
+    doc_back_url: await getKycSignedUrl(r.doc_back_url),
+  })));
   return { ok: true, data: enriched };
 }
 

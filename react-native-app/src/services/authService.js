@@ -10,6 +10,21 @@ import { setUserContext } from './errorService';
 const ROLES = ['Acheteur / Locataire', 'Propriétaire', 'Agence'];
 const PUBLISHER_ROLES = ['Propriétaire', 'Agence'];
 
+// Traduit en francais les messages d'erreur courants de Supabase Auth
+// (partagee entre LoginScreen et RegisterScreen pour rester cohérente).
+export function translateAuthError(msg) {
+  if (!msg) return 'Échec de la connexion.';
+  const m = String(msg).toLowerCase();
+  if (m.includes('email not confirmed')) return 'Ton email n\'a pas encore été confirmé. Vérifie ta boîte mail (et les spams).';
+  if (m.includes('invalid login') || m.includes('invalid_credentials')) return 'Email ou mot de passe incorrect.';
+  if (m.includes('user not found')) return 'Aucun compte avec cet email.';
+  if (m.includes('user already registered') || m.includes('already registered')) return 'Un compte existe déjà avec cet email. Connecte-toi plutôt.';
+  if (m.includes('password') && m.includes('weak')) return 'Mot de passe trop simple. Utilise au moins 8 caractères avec lettres et chiffres.';
+  if (m.includes('rate limit') || m.includes('too many')) return 'Trop de tentatives. Réessaye dans quelques minutes.';
+  if (m.includes('network')) return 'Problème de connexion internet. Réessaye.';
+  return msg;
+}
+
 // Normalise une chaine (retire accents + minuscule) pour comparer les roles
 // de facon robuste (la DB peut contenir 'Propriétaire' avec accent, des
 // espaces parasites, ou des variantes de casse).
