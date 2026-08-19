@@ -15,6 +15,14 @@
 --
 -- Idempotent. A executer dans Supabase SQL Editor.
 
+-- 0) Colonnes requises (au cas ou admin_user_columns.sql / kyc.sql n'auraient
+--    pas encore ete executes sur cette base : evite "column does not exist").
+do $$
+begin
+  begin alter table public.profiles add column if not exists banned boolean default false; exception when others then null; end;
+  begin alter table public.profiles add column if not exists can_publish boolean default false; exception when others then null; end;
+end $$;
+
 -- 1) handle_new_user : can_publish=true par defaut pour Proprietaire/Agence.
 create or replace function public.handle_new_user()
 returns trigger

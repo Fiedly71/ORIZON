@@ -95,13 +95,16 @@ export async function listUsers({ role = null, limit = 500, from = null, to = nu
   if (to)   q = q.lte('created_at', to);
   let { data, error } = await q;
   if (error) {
-    // Fallback 2 : sans publish_free
+    // Fallback 2 : sans publish_free (mais on reapplique les MEMES filtres,
+    // sinon le CSV/date-filter renvoie tout le tableau au lieu du sous-ensemble demande).
     let q2 = supabase
       .from('profiles')
       .select('id, full_name, email, phone, role, verified, can_publish, banned, created_at')
       .order('created_at', { ascending: false })
       .limit(limit);
     if (role) q2 = q2.eq('role', role);
+    if (from) q2 = q2.gte('created_at', from);
+    if (to)   q2 = q2.lte('created_at', to);
     const r2 = await q2;
     if (r2.error) {
       // Fallback 3 : colonnes email/banned/publish_free pas encore deployees
@@ -111,6 +114,8 @@ export async function listUsers({ role = null, limit = 500, from = null, to = nu
         .order('created_at', { ascending: false })
         .limit(limit);
       if (role) q3 = q3.eq('role', role);
+      if (from) q3 = q3.gte('created_at', from);
+      if (to)   q3 = q3.lte('created_at', to);
       const r3 = await q3;
       if (r3.error) return { ok: false, error: r3.error.message };
       data = (r3.data || []).map((u) => ({ ...u, email: '', banned: false, publish_free: false }));
@@ -155,12 +160,20 @@ export async function listProperties({ filter = 'all', limit = 500, from = null,
   if (to)   q = q.lte('created_at', to);
   const { data, error } = await q;
   if (error) {
-    // Fallback sans jointure (au cas ou la contrainte FK ne porte pas le nom attendu)
-    const r2 = await supabase
+    // Fallback sans jointure (au cas ou la contrainte FK ne porte pas le nom attendu).
+    // On reapplique les MEMES filtres (filter/from/to), sinon l'export CSV et
+    // le filtre de dates renvoient tout le tableau au lieu du sous-ensemble demande.
+    let q2 = supabase
       .from('properties')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
+    if (filter === 'pending') q2 = q2.eq('moderation_status', 'pending');
+    if (filter === 'rejected') q2 = q2.eq('moderation_status', 'rejected');
+    if (filter === 'live') q2 = q2.eq('payment_status', 'paid').neq('moderation_status', 'rejected');
+    if (from) q2 = q2.gte('created_at', from);
+    if (to)   q2 = q2.lte('created_at', to);
+    const r2 = await q2;
     if (r2.error) return { ok: false, error: r2.error.message };
     return { ok: true, data: (r2.data || []).map(normalizeProperty) };
   }

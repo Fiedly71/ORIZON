@@ -1,5 +1,6 @@
-// Service Avis ORIZON. Modere par defaut: status='pending' a la creation,
-// 'approved' visible publiquement.
+// Service Avis ORIZON. Publie automatiquement (status='approved') des la
+// creation, sauf si la pre-moderation cote client detecte un contenu
+// interdit (status='flagged', alors mis en attente pour revue admin).
 import { supabase, isSupabaseConfigured } from './supabase';
 import { useAuthStore } from '../store/useAuthStore';
 import { moderateText } from './moderationService';
@@ -30,7 +31,7 @@ export async function leaveReview({ propertyId, agentId, targetUserId, rating, t
   // Pre-moderation cote client (defense en profondeur).
   const text = `${title || ''} ${content || comment || ''}`;
   const mod = moderateText(text);
-  const initialStatus = mod.ok ? 'pending' : 'flagged';
+  const initialStatus = mod.ok ? 'approved' : 'flagged';
 
   const row = {
     property_id: propertyId || null,
