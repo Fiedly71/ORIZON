@@ -7,7 +7,13 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE).then((c) => c.addAll(SHELL).catch(() => null))
   );
-  self.skipWaiting();
+  // Pas de skipWaiting() automatique : on attend que l'utilisateur choisisse
+  // de recharger (voir UpdateBanner) pour eviter des rechargements surprise
+  // pendant qu'il est en train d'utiliser l'app (ex: publier une annonce).
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {

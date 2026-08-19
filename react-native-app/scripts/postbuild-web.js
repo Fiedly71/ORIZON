@@ -506,9 +506,14 @@ fs.writeFileSync(path.join(distDir, 'sw.js'), SW_JS, 'utf8');
 console.log('[postbuild-web] SW versionne: BUILD_ID =', BUILD_ID);
 
 // Copie les assets PWA (public/) vers dist/ pour qu'ils soient servis a la racine.
+// IMPORTANT: on exclut sw.js du copiage - le service worker versionne (avec
+// BUILD_ID) vient d'etre ecrit juste au-dessus et NE DOIT JAMAIS etre ecrase
+// par la version non-versionnee de public/sw.js (qui s'auto-active via
+// skipWaiting() et provoque des rechargements intempestifs de l'app).
 const publicDir = path.resolve(__dirname, '..', 'public');
 if (fs.existsSync(publicDir)) {
   for (const f of fs.readdirSync(publicDir)) {
+    if (f === 'sw.js') continue;
     try { fs.copyFileSync(path.join(publicDir, f), path.join(distDir, f)); } catch {}
   }
 }

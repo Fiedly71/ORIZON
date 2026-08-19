@@ -51,91 +51,9 @@ export default function SellWizardScreen({ navigation, route }) {
     }
   }, [user, navigation]);
 
-  // Garde de role: seuls Proprietaire/Agence peuvent publier.
-  if (!canPublish(user?.role)) {
-    return (
-      <SafeAreaView style={styles.safe} edges={['top']}>
-        <View style={styles.header}>
-          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
-            <Ionicons name="chevron-back" size={22} color={C.text} />
-          </Pressable>
-          <Text style={styles.title}>Publier une annonce</Text>
-          <View style={{ width: 22 }} />
-        </View>
-        <View style={styles.guardWrap}>
-          <Ionicons name="lock-closed-outline" size={48} color={C.muted} />
-          <Text style={styles.guardTitle}>Publication réservée aux Propriétaires & Agences</Text>
-          <Text style={styles.guardTxt}>
-            Ton compte actuel ({user?.role || 'inconnu'}) ne permet pas de publier d'annonces.
-            Pour vendre ou louer un bien sur ORIZON, crée un compte Propriétaire ou Agence
-            (vérification KYC requise).
-          </Text>
-          <View style={styles.guardPriceBox}>
-            <Ionicons name="information-circle-outline" size={18} color={C.primary} />
-            <Text style={styles.guardPriceTxt}>
-              Coût de publication : <Text style={{ fontWeight: '800' }}>{PUBLICATION_FEE_USD} USD ({PUBLICATION_FEE_HTG} HTG)</Text> par annonce.
-            </Text>
-          </View>
-          <Pressable style={styles.guardCta} onPress={() => navigation.goBack()}>
-            <Text style={styles.guardCtaTxt}>Retour à l'accueil</Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // Guard email verifie: obligatoire pour publier (conformite stores + anti-fraude).
-  if (user && !user.emailConfirmedAt) {
-    return (
-      <SafeAreaView style={styles.safe} edges={['top']}>
-        <View style={styles.header}>
-          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
-            <Ionicons name="chevron-back" size={22} color={C.text} />
-          </Pressable>
-          <Text style={styles.title}>Publier une annonce</Text>
-          <View style={{ width: 22 }} />
-        </View>
-        <View style={styles.guardWrap}>
-          <Ionicons name="mail-unread-outline" size={48} color="#D97706" />
-          <Text style={styles.guardTitle}>Vérifie ton email d'abord</Text>
-          <Text style={styles.guardTxt}>
-            Pour publier une annonce, tu dois confirmer ton adresse email.
-            Vérifie ta boîte de réception (et les spams) pour trouver le lien de confirmation.
-          </Text>
-          <Pressable style={styles.guardCta} onPress={() => navigation.navigate('Profile')}>
-            <Text style={styles.guardCtaTxt}>Aller au profil</Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // Guard supplementaire: KYC valide (can_publish dans profiles).
-  if (user?.canPublish === false) {
-    return (
-      <SafeAreaView style={styles.safe} edges={['top']}>
-        <View style={styles.header}>
-          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
-            <Ionicons name="chevron-back" size={22} color={C.text} />
-          </Pressable>
-          <Text style={styles.title}>Publier une annonce</Text>
-          <View style={{ width: 22 }} />
-        </View>
-        <View style={styles.guardWrap}>
-          <Ionicons name="time-outline" size={48} color="#D97706" />
-          <Text style={styles.guardTitle}>Vérification en cours</Text>
-          <Text style={styles.guardTxt}>
-            Ton dossier KYC est en cours d'examen par notre équipe.
-            Tu pourras publier dès qu'il sera validé (24-48h en moyenne).
-          </Text>
-          <Pressable style={styles.guardCta} onPress={() => navigation.goBack()}>
-            <Text style={styles.guardCtaTxt}>D'accord</Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
+  // Toutes les valeurs d'etat/effets doivent etre declarees AVANT tout retour
+  // conditionnel (regles des hooks React) : sinon, l'ordre des hooks change
+  // d'un rendu a l'autre (ex: user hydrate apres coup) et React crashe.
   const [data, setData] = useState({
     title: '',
     location: '',
@@ -387,6 +305,99 @@ export default function SellWizardScreen({ navigation, route }) {
       setBusy(false);
     }
   };
+
+  // ─────────────────────────────────────────────────────────────
+  // Gardes d'acces. Evaluees APRES tous les hooks ci-dessus (regles des
+  // hooks React) mais AVANT le rendu du wizard.
+  // - Role: seuls Proprietaire/Agence peuvent publier.
+  // - Email verifie: obligatoire (conformite stores + anti-fraude).
+  // - Compte suspendu (banned) : un proprietaire/agence peut publier
+  //   automatiquement des la creation du compte, SANS attendre une
+  //   approbation prealable. Si une verification post-publication revele
+  //   un probleme, l'equipe ORIZON peut mettre le compte "sous attente"
+  //   (banned=true depuis le dashboard admin), ce qui bloque alors la
+  //   publication de nouvelles annonces.
+  // ─────────────────────────────────────────────────────────────
+  if (!canPublish(user?.role)) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+            <Ionicons name="chevron-back" size={22} color={C.text} />
+          </Pressable>
+          <Text style={styles.title}>Publier une annonce</Text>
+          <View style={{ width: 22 }} />
+        </View>
+        <View style={styles.guardWrap}>
+          <Ionicons name="lock-closed-outline" size={48} color={C.muted} />
+          <Text style={styles.guardTitle}>Publication réservée aux Propriétaires & Agences</Text>
+          <Text style={styles.guardTxt}>
+            Ton compte actuel ({user?.role || 'inconnu'}) ne permet pas de publier d'annonces.
+            Pour vendre ou louer un bien sur ORIZON, crée un compte Propriétaire ou Agence.
+          </Text>
+          <View style={styles.guardPriceBox}>
+            <Ionicons name="information-circle-outline" size={18} color={C.primary} />
+            <Text style={styles.guardPriceTxt}>
+              Coût de publication : <Text style={{ fontWeight: '800' }}>{PUBLICATION_FEE_USD} USD ({PUBLICATION_FEE_HTG} HTG)</Text> par annonce.
+            </Text>
+          </View>
+          <Pressable style={styles.guardCta} onPress={() => navigation.goBack()}>
+            <Text style={styles.guardCtaTxt}>Retour à l'accueil</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (user && !user.emailConfirmedAt) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+            <Ionicons name="chevron-back" size={22} color={C.text} />
+          </Pressable>
+          <Text style={styles.title}>Publier une annonce</Text>
+          <View style={{ width: 22 }} />
+        </View>
+        <View style={styles.guardWrap}>
+          <Ionicons name="mail-unread-outline" size={48} color="#D97706" />
+          <Text style={styles.guardTitle}>Vérifie ton email d'abord</Text>
+          <Text style={styles.guardTxt}>
+            Pour publier une annonce, tu dois confirmer ton adresse email.
+            Vérifie ta boîte de réception (et les spams) pour trouver le lien de confirmation.
+          </Text>
+          <Pressable style={styles.guardCta} onPress={() => navigation.navigate('Profile')}>
+            <Text style={styles.guardCtaTxt}>Aller au profil</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (user?.banned) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top']}>
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
+            <Ionicons name="chevron-back" size={22} color={C.text} />
+          </Pressable>
+          <Text style={styles.title}>Publier une annonce</Text>
+          <View style={{ width: 22 }} />
+        </View>
+        <View style={styles.guardWrap}>
+          <Ionicons name="time-outline" size={48} color="#D97706" />
+          <Text style={styles.guardTitle}>Compte mis en attente</Text>
+          <Text style={styles.guardTxt}>
+            Notre équipe a mis ton compte sous vérification suite à un contrôle.
+            Contacte le support ORIZON pour plus d'informations.
+          </Text>
+          <Pressable style={styles.guardCta} onPress={() => navigation.navigate('Support')}>
+            <Text style={styles.guardCtaTxt}>Contacter le support</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

@@ -31,6 +31,9 @@ export default function UpdateBanner() {
     navigator.serviceWorker.getRegistration().then((r) => { if (r) watch(r); });
 
     // Force la verification d'une update au focus + toutes les 60s.
+    // Note: on ne recharge JAMAIS automatiquement ici. On se contente de
+    // detecter qu'une nouvelle version est prete et d'afficher la banniere;
+    // c'est l'utilisateur qui decide de recharger en appuyant sur le bouton.
     const checkUpdate = async () => {
       try {
         const r = await navigator.serviceWorker.getRegistration();
@@ -39,11 +42,6 @@ export default function UpdateBanner() {
     };
     window.addEventListener('focus', checkUpdate);
     timer = setInterval(checkUpdate, 60000);
-
-    // Quand un nouveau SW prend le controle, on recharge.
-    navigator.serviceWorker.addEventListener?.('controllerchange', () => {
-      try { window.location.reload(); } catch {}
-    });
 
     return () => {
       window.removeEventListener('focus', checkUpdate);
@@ -57,6 +55,12 @@ export default function UpdateBanner() {
     try {
       const r = await navigator.serviceWorker.getRegistration();
       if (r && r.waiting) {
+        // Reload une seule fois, en reaction directe au clic de l'utilisateur
+        // (pas un rechargement automatique en arriere-plan).
+        navigator.serviceWorker.addEventListener('controllerchange', function onChange() {
+          navigator.serviceWorker.removeEventListener('controllerchange', onChange);
+          window.location.reload();
+        });
         r.waiting.postMessage({ type: 'SKIP_WAITING' });
       } else {
         window.location.reload();
