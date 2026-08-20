@@ -259,7 +259,16 @@ export default function ExploreScreen({ navigation }) {
             style={styles.saveSearchBtn}
             onPress={async () => {
               if (!redirectToAuth(navigation)) return;
-              const criteria = { q: search || undefined, type: category !== 'all' ? category : undefined, status: status !== 'all' ? status : undefined, ...(advFilter || {}) };
+              // Ne garde que les valeurs reellement renseignees : un filtre
+              // avance non touche (ex: minPrice/maxPrice laisses vides) est
+              // une chaine vide '' et non undefined - si on le stocke tel
+              // quel, le trigger DB qui matche les recherches sauvegardees
+              // essaie de caster '' en numeric et fait planter TOUTE
+              // publication d'annonce (invalid input syntax for type numeric).
+              const rawCriteria = { q: search || undefined, type: category !== 'all' ? category : undefined, status: status !== 'all' ? status : undefined, ...(advFilter || {}) };
+              const criteria = Object.fromEntries(
+                Object.entries(rawCriteria).filter(([, v]) => v !== '' && v !== null && v !== undefined && !(Array.isArray(v) && v.length === 0))
+              );
               const name = (search || category !== 'all' ? `${search || category}` : 'Mes filtres');
               const r = await saveSearch({ name, criteria, frequency: 'daily' });
               toast.show(r.ok ? 'Recherche sauvegardée' : (r.error || 'Échec'), { type: r.ok ? 'success' : 'error' });
